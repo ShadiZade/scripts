@@ -8,7 +8,7 @@
 case $which in
 
 		script)
-				 micro /home/oak/Repositories/scripts/"$1".sh; chmod +x /home/oak/Repositories/scripts/"$1".sh 
+				 micro /home/oak/Repositories/scripts/"$1".sh; chmod +x-w /home/oak/Repositories/scripts/"$1".sh 
 				 ;;
 			 
 		solution) 
@@ -16,7 +16,7 @@ case $which in
 				;;
 
 		polybar-module)
-				micro /home/oak/Repositories/dotfiles/polybar/"$1".sh
+				micro /home/oak/Repositories/dotfiles/polybar/"$1".sh; chmod +x-w /home/oak/Repositories/dotfiles/polybar/"$1".sh
 				;;
 			 
 		*)
