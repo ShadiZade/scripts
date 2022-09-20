@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd ~/Downloads
+cd ~/Downloads || exit
 yt-dlp --format bestaudio --no-mtime --extract-audio --audio-format mp3 "$1"
 cd - > /dev/null
 echo "========================================================="

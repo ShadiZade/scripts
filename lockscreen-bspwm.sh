@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# source ~/Repositories/scripts/book-goal-calc.sh
 i3lock -kef -c 85132dff --radius 150 --ring-width 5.0 --ring-color=000000ff \
 	 --ringver-color=000000ff --insidever-color=00000000 --ringwrong-color=000000ff \
 	 --insidewrong-color=00000000 --keyhl-color=ffffffff --bshl-color=85132dff \
@@ -11,6 +10,3 @@ i3lock -kef -c 85132dff --radius 150 --ring-width 5.0 --ring-color=000000ff \
 	 --greeter-color=ff90b1ff --time-color=ff90b1ff --date-color=ff90b1ff \
 	 --date-str="%a, %e %b %Y"
 
-
-
-# --date-str="%a, %e %b %Y ($bP% on #$cB)"

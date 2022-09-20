@@ -1,13 +1,13 @@
 #!/bin/bash
 
-read -p ":: Download subtitles? (y/N) " subs
-read -p ":: Remove sponsor segment? (y/N) " spon
+read -r -p ":: Download subtitles? (y/N) " subs
+read -r -p ":: Remove sponsor segment? (y/N) " spon
 # sets default value of y to variables
 subs=${subs:-n}
 spon=${spon:-n}
 ###
 subspon=$subs$spon
-cd ~/Excluding/ytvid
+cd ~/Excluding/ytvid || exit
 case $subspon in
 
 		yy)
