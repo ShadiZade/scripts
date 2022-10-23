@@ -2,6 +2,8 @@
 
 temp_theme_pick=$(cat ~/Repositories/scripts/bspwm-theme.sh | grep '### ' | tr -d '# ' | fzf)
 
+if [ "$temp_theme_pick" == "" ]; then exit; fi
+
 # change theme in main theme config script
 sed -i "s/bspwm_theme=".*"/bspwm_theme="$temp_theme_pick"/g" ~/Repositories/scripts/bspwm-theme.sh 
 source ~/Repositories/scripts/bspwm-theme.sh
