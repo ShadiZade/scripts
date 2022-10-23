@@ -48,3 +48,10 @@ esac
 # 3) bind colors in definitions section of this file
 # 4) create rofi theme .rasi file with the same name as theme here
 # 5) define colors in polybar config.ini file
+
+# this script changes:
+# in bspwm's bspwmrc: border color and wallpaper
+# in rofi's config.rasi: theme name
+# in polybar's config.ini: color definitions
+#
+# in the lockscreen script: the color flags
