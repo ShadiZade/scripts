@@ -1,10 +1,11 @@
 #!/bin/bash
 
-bspwm_theme=frontier-blue
+bspwm_theme=pinestone-grey
 
 # themes
 ### paprika-purple
 ### frontier-blue
+### pinestone-grey
 
 # colors
 bspwm_basic_color_white="ffffff"
@@ -22,6 +23,11 @@ bspwm_theme_color_mountainside_redwhite="b89388"
 bspwm_theme_color_dark_frontier_blue="1a2636"
 bspwm_theme_color_wispy_pink="d8787b"
 
+bspwm_theme_color_pinestone_grey="2f322b"
+bspwm_theme_color_pinestone_white="acab8c"
+bspwm_theme_color_mountain_ash="1d2321"
+bspwm_theme_color_overcast_blue="7e99a0"
+
 
 # definitions
 case $bspwm_theme in
@@ -38,6 +44,13 @@ case $bspwm_theme in
 				bspwm_theme_dark_color=$bspwm_theme_color_dark_frontier_blue
 				bspwm_theme_alert_color=$bspwm_theme_color_wispy_pink
 				bspwm_theme_wallpaper="/usr/share/wallpapers/use/the-frontier.jpg"
+				;;
+			"pinestone-grey")
+				bspwm_theme_primary_color=$bspwm_theme_color_pinestone_grey
+				bspwm_theme_secondary_color=$bspwm_theme_color_pinestone_white
+				bspwm_theme_dark_color=$bspwm_theme_color_mountain_ash
+				bspwm_theme_alert_color=$bspwm_theme_color_overcast_blue
+				bspwm_theme_wallpaper="/usr/share/wallpapers/use/go7-casson-white-pine.jpg"
 				;;
 esac
 
