@@ -1,12 +1,13 @@
 #!/bin/bash
 
-bspwm_theme=collective-green
+bspwm_theme=frontier-blue
 
 # themes
 ### paprika-purple
 ### frontier-blue
 ### pinestone-grey
 ### collective-green
+### industrial-black
 
 # colors
 bspwm_basic_color_white="ffffff"
@@ -33,6 +34,11 @@ bspwm_theme_color_collective_green="2c4235"
 bspwm_theme_color_monumental_gold="d7b57d"
 bspwm_theme_color_dark_collective_green="1d2c23"
 bspwm_theme_color_glorious_red="aa3b3d"
+
+bspwm_theme_color_industrial_black="201f27"
+bspwm_theme_color_scaffolding_tan="9f773f"
+bspwm_theme_color_light_industrial_black="302f3b"
+bspwm_theme_color_banner_red="a41828"
 
 # definitions
 case $bspwm_theme in
@@ -63,6 +69,13 @@ case $bspwm_theme in
 				bspwm_theme_dark_color=$bspwm_theme_color_dark_collective_green
 				bspwm_theme_alert_color=$bspwm_theme_color_glorious_red
 				bspwm_theme_wallpaper="/usr/share/wallpapers/use/collective-terrace.jpg"
+				;;
+			"industrial-black")
+				bspwm_theme_primary_color=$bspwm_theme_color_industrial_black
+				bspwm_theme_secondary_color=$bspwm_theme_color_scaffolding_tan
+				bspwm_theme_dark_color=$bspwm_theme_color_light_industrial_black
+				bspwm_theme_alert_color=$bspwm_theme_color_banner_red
+				bspwm_theme_wallpaper="/usr/share/wallpapers/use/industrial-2058.jpg"
 				;;
 esac
 
