@@ -1,11 +1,12 @@
 #!/bin/bash
 
-bspwm_theme=pinestone-grey
+bspwm_theme=collective-green
 
 # themes
 ### paprika-purple
 ### frontier-blue
 ### pinestone-grey
+### collective-green
 
 # colors
 bspwm_basic_color_white="ffffff"
@@ -28,6 +29,10 @@ bspwm_theme_color_pinestone_white="acab8c"
 bspwm_theme_color_mountain_ash="1d2321"
 bspwm_theme_color_overcast_blue="7e99a0"
 
+bspwm_theme_color_collective_green="2c4235"
+bspwm_theme_color_monumental_gold="d7b57d"
+bspwm_theme_color_dark_collective_green="1d2c23"
+bspwm_theme_color_glorious_red="aa3b3d"
 
 # definitions
 case $bspwm_theme in
@@ -52,15 +57,22 @@ case $bspwm_theme in
 				bspwm_theme_alert_color=$bspwm_theme_color_overcast_blue
 				bspwm_theme_wallpaper="/usr/share/wallpapers/use/go7-casson-white-pine.jpg"
 				;;
+			"collective-green")
+				bspwm_theme_primary_color=$bspwm_theme_color_collective_green
+				bspwm_theme_secondary_color=$bspwm_theme_color_monumental_gold
+				bspwm_theme_dark_color=$bspwm_theme_color_dark_collective_green
+				bspwm_theme_alert_color=$bspwm_theme_color_glorious_red
+				bspwm_theme_wallpaper="/usr/share/wallpapers/use/collective-terrace.jpg"
+				;;
 esac
 
 
 # how to add new themes
-# 1) add theme name in themes section of this file with three sharps and a space
-# 2) define colors and wallpaper in colors section of this file
-# 3) bind colors in definitions section of this file
-# 4) create rofi theme .rasi file with the same name as theme here
-# 5) define colors in polybar config.ini file
+# 1) define colors in polybar config.ini file
+# 2) define colors in colors section of this file
+# 3) add theme name in themes section of this file with three sharps and a space
+# 4) bind colors and wallpaper in definitions section of this file
+# 5) create rofi theme .rasi file with the same name as theme here
 
 # this script changes:
 # in bspwm's bspwmrc: border color and wallpaper
