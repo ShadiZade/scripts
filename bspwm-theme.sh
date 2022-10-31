@@ -1,6 +1,6 @@
 #!/bin/bash
 
-bspwm_theme=industrial-black
+bspwm_theme=frontier-blue
 
 # colors & themes
 bspwm_basic_color_white="ffffff"
