@@ -1,6 +1,6 @@
 #!/bin/bash
 
-bspwm_theme=frontier-blue
+bspwm_theme=forestbeam-green
 
 # colors & themes
 bspwm_basic_color_white="ffffff"
@@ -38,6 +38,12 @@ bspwm_theme_color_scaffolding_tan="9f773f"
 bspwm_theme_color_light_industrial_black="302f3b"
 bspwm_theme_color_banner_red="a41828"
 
+### forestbeam-green
+bspwm_theme_color_forestbeam_green="97b074"
+bspwm_theme_color_autumnleaf_purple="391e27"
+bspwm_theme_color_light_forestbeam_green="bedc90"
+bspwm_theme_color_autumnleaf_yellow="bcae19"
+
 # definitions
 case $bspwm_theme in
 			"paprika-purple")
@@ -74,6 +80,13 @@ case $bspwm_theme in
 				bspwm_theme_dark_color=$bspwm_theme_color_light_industrial_black
 				bspwm_theme_alert_color=$bspwm_theme_color_banner_red
 				bspwm_theme_wallpaper="/usr/share/wallpapers/use/industrial-2058.jpg"
+				;;
+			"forestbeam-green")
+				bspwm_theme_primary_color=$bspwm_theme_color_forestbeam_green
+				bspwm_theme_secondary_color=$bspwm_theme_color_autumnleaf_purple
+				bspwm_theme_dark_color=$bspwm_theme_color_light_forestbeam_green
+				bspwm_theme_alert_color=$bspwm_theme_color_autumnleaf_yellow
+				bspwm_theme_wallpaper="/usr/share/wallpapers/use/forestbeam.jpg"
 				;;
 esac
 
