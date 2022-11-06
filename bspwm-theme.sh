@@ -39,7 +39,7 @@ bspwm_theme_color_light_industrial_black="302f3b"
 bspwm_theme_color_banner_red="a41828"
 
 ### forestbeam-green
-bspwm_theme_color_forestbeam_green="97b074"
+bspwm_theme_color_forestbeam_green="82b066"
 bspwm_theme_color_autumnleaf_purple="391e27"
 bspwm_theme_color_light_forestbeam_green="bedc90"
 bspwm_theme_color_autumnleaf_yellow="bcae19"
