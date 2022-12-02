@@ -26,14 +26,21 @@ postcount_2020=$(cat ~/Misc/Backups/my-books/read-2020.txt  | wc -l)
 postcount_2019=$(cat ~/Misc/Backups/my-books/pre-2019.txt  | wc -l)
 
 echo ""
-echo added $(calc "$postcount_tbr - $precount_tbr") to TBR || echo "WARNING: Failure to read TBR count!"
-echo added $(calc "$postcount_2022 - $precount_2022") to Read 2022 || echo "WARNING: Failure to read 2022 count!"
-echo added $(calc "$postcount_2021 - $precount_2021") to Read 2021 || echo "WARNING: Failure to read 2021 count!"
-echo added $(calc "$postcount_2020 - $precount_2020") to Read 2020 || echo "WARNING: Failure to read 2020 count!"
-echo added $(calc "$postcount_2019 - $precount_2019") to Pre-2019 || echo "WARNING: Failure to read 2019 count!"
+echo added $(calc "$postcount_tbr - $precount_tbr") to TBR "for a total of $postcount_tbr" \
+|| echo "WARNING: Failure to read TBR count!"
+echo added $(calc "$postcount_2022 - $precount_2022") to Read 2022 "for a total of $postcount_2022" \
+|| echo "WARNING: Failure to read 2022 count!"
+echo added $(calc "$postcount_2021 - $precount_2021") to Read 2021 "for a total of $postcount_2021" \
+|| echo "WARNING: Failure to read 2021 count!"
+echo added $(calc "$postcount_2020 - $precount_2020") to Read 2020 "for a total of $postcount_2020" \
+|| echo "WARNING: Failure to read 2020 count!"
+echo added $(calc "$postcount_2019 - $precount_2019") to Pre-2019 "for a total of $postcount_2019" \
+|| echo "WARNING: Failure to read 2019 count!"
+echo "for a grand total of" $(calc "$postcount_tbr + $postcount_2022 + $postcount_2021 + $postcount_2020 + $postcount_2019") \
+|| echo "WARNING: Failure to read total count!"
 
 echo ""
-echo ":: Book list updated! Committing to git..."
+echo ":: Booklist backed successfully! Committing to git..."
 cd ~/Misc/Backups/my-books/ || echo "WARNING: Failure to go to backup directory!" || exit
 git add . || echo "WARNING: Failure to add to git!" || exit
 echo ""
