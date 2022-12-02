@@ -1,6 +1,6 @@
 #!/bin/bash
 
-temp_theme_pick=$(cat ~/Repositories/scripts/bspwm-theme.sh | grep '### ' | tr -d '# ' | sort -r | fzf)
+temp_theme_pick=$(cat ~/Repositories/scripts/bspwm-theme.sh | grep '### ' | tr -d '# ' | sort -r | rofi -dmenu)
 
 if [ "$temp_theme_pick" == "" ]; then exit; fi
 
