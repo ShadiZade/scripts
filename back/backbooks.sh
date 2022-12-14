@@ -37,6 +37,7 @@ echo added $(calc "$postcount_2020 - $precount_2020") to Read 2020 "for a total 
 echo added $(calc "$postcount_2019 - $precount_2019") to Pre-2019 "for a total of $postcount_2019" \
 || echo "WARNING: Failure to read 2019 count!"
 echo "for a grand total of" $(calc "$postcount_tbr + $postcount_2022 + $postcount_2021 + $postcount_2020 + $postcount_2019") \
+"(double check: $(fd 'pdf|epub|mobi' ~/Books | wc -l))" \
 || echo "WARNING: Failure to read total count!"
 
 echo ""
