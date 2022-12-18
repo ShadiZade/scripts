@@ -28,6 +28,8 @@ case $subspon in
 			;;
 esac
 cd - > /dev/null
+echo ""
+echo ""
 echo "========================================================="
 echo ":: This is the video content of your ~/Excluding/ytvid directory:"
 echo "========================================================="
