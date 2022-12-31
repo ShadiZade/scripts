@@ -1,6 +1,4 @@
 #!/bin/bash
-
-dNYE=$(date +"%j")	
-hMN=$(date +"%k")
-bP=$(calc "(trunc(((($dNYE*24)+$hMN)/168),2)-trunc(((($dNYE*24)+$hMN)/168),0))*100" | awk '{gsub(/^\s+|\s+$/,"")} {print $0}')
-cB=$(calc "trunc(((($dNYE*24)+$hMN)/168),0)+1" | awk '{gsub(/^\s+|\s+$/,"")} {print $0}')
+hours_since_newyear=$(calc "(($(date +'%j')-1)*24)+$(date +'%k')")	
+bP=$(calc "(trunc(($hours_since_newyear/168),2)-trunc(($hours_since_newyear/168),0))*100" | tr -d " ")
+cB=$(calc "trunc(($hours_since_newyear/168),0)+1" | tr -d " ")
