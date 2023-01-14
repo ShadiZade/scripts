@@ -36,3 +36,6 @@ done
 echo ""
 echo ":: titles extracted!"
 echo ":: all done!"
+
+# TODO add CSV conversion 
+# this garbage script wouldn't look so fucking ugly if it was in common lisp. oh well.
