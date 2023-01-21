@@ -36,6 +36,20 @@ done
 echo ""
 echo ":: titles extracted!"
 echo ":: all done!"
+bd () {
+    date +"%Y-%m-%d %H-%M"
+}
+echo ":: Committing to git..."
+cd ~/Misc/Backups/my-music/ || echo "\033[31mWARNING: Failure to go to backup directory!" || exit
+git add . || echo "\033[31mWARNING: Failure to add to git!" || exit
+echo ""
+git commit -m "update music $(bd)" 
+cd - > /dev/null || echo "\033[31mWARNING: Failure to return to previous directory!" || exit
+echo ""
+echo ":: Done!"
 
 # TODO add CSV conversion 
 # this garbage script wouldn't look so fucking ugly if it was in common lisp. oh well.
+
+
+

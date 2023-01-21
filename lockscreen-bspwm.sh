@@ -1,5 +1,6 @@
 #!/bin/bash
 source ~/Repositories/scripts/bspwm-theme.sh
+quodlibet --pause
 i3lock -kef -c "$bspwm_theme_primary_color"ff --radius 290 --ring-width 45.0 --inside-color=00000000 \
 	 --ring-color="$bspwm_theme_secondary_color"ff --ringver-color="$bspwm_theme_secondary_color"ff --insidever-color=00000000 \
 	 --ringwrong-color="$bspwm_theme_secondary_color"ff --insidewrong-color=00000000 --keyhl-color="$bspwm_theme_primary_color"ff \
