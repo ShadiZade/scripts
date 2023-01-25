@@ -39,7 +39,7 @@ echo ":: all done!"
 bd () {
     date +"%Y-%m-%d %H-%M"
 }
-echo ":: Committing to git..."
+echo ":: committing to git..."
 cd ~/Misc/Backups/my-music/ || echo "\033[31mWARNING: Failure to go to backup directory!" || exit
 git add . || echo "\033[31mWARNING: Failure to add to git!" || exit
 echo ""
