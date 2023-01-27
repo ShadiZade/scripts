@@ -33,5 +33,5 @@ echo ""
 echo "========================================================="
 echo ":: This is the video content of your ~/Excluding/ytvid directory:"
 echo "========================================================="
-exa ~/Excluding/ytvid -l --icons --sort=oldest --no-user --no-permissions --no-filesize --no-time --time-style=iso | grep .mp4
+exa ~/Excluding/ytvid -l --icons --sort=newest --no-user --no-permissions --no-filesize --no-time --time-style=iso | grep .mp4
 echo "========================================================="
