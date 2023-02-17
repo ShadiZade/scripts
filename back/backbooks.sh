@@ -32,22 +32,22 @@ postcount_2019=$(cat ~/Misc/Backups/my-books/pre-2019.txt  | wc -l)
 postcount_fix=$(cat ~/Misc/Backups/my-books/fix.txt  | wc -l)
 
 echo ""
-echo added $(calc "$postcount_2023 - $precount_2023") to Read 2023 "for a total of $postcount_2023" \
+echo -e added $(calc "$postcount_2023 - $precount_2023") to Read 2023 "for a total of \033[31m$postcount_2023\033[0m" \
 || echo -e "\033[31mWARNING: Failure to read 2023 count!\033[0m"
-echo added $(calc "$postcount_2022 - $precount_2022") to Read 2022 "for a total of $postcount_2022" \
+echo -e added $(calc "$postcount_2022 - $precount_2022") to Read 2022 "for a total of \033[31m$postcount_2022\033[0m" \
 || echo -e "\033[31mWARNING: Failure to read 2022 count!\033[0m"
-echo added $(calc "$postcount_2021 - $precount_2021") to Read 2021 "for a total of $postcount_2021" \
+echo -e added $(calc "$postcount_2021 - $precount_2021") to Read 2021 "for a total of \033[31m$postcount_2021\033[0m" \
 || echo -e "\033[31mWARNING: Failure to read 2021 count!\033[0m"
-echo added $(calc "$postcount_2020 - $precount_2020") to Read 2020 "for a total of $postcount_2020" \
+echo -e added $(calc "$postcount_2020 - $precount_2020") to Read 2020 "for a total of \033[31m$postcount_2020\033[0m" \
 || echo -e "\033[31mWARNING: Failure to read 2020 count!\033[0m"
-echo added $(calc "$postcount_2019 - $precount_2019") to Pre-2019 "for a total of $postcount_2019" \
+echo -e added $(calc "$postcount_2019 - $precount_2019") to Pre-2019 "for a total of \033[31m$postcount_2019\033[0m" \
 || echo -e "\033[31mWARNING: Failure to read 2019 count!\033[0m"
-echo added $(calc "$postcount_tbr - $precount_tbr") to TBR "for a total of $postcount_tbr" \
+echo -e added $(calc "$postcount_tbr - $precount_tbr") to TBR "for a total of \033[31m$postcount_tbr\033[0m" \
 || echo -e "\033[31mWARNING: Failure to read TBR count!\033[0m"
-echo added $(calc "$postcount_fix - $precount_fix") to Fix "for a total of $postcount_fix" \
+echo -e added $(calc "$postcount_fix - $precount_fix") to Fix "for a total of \033[31m$postcount_fix\033[0m" \
 || echo -e "\033[31mWARNING: Failure to read Fix count!\033[0m"
-echo "for a grand total of" $(calc "$postcount_tbr + $postcount_2023 + $postcount_2022 + $postcount_2021 + $postcount_2020 + $postcount_2019 + $postcount_fix") \
-"(double check: $(fd 'pdf|epub|mobi' ~/Books | wc -l))" \
+echo -e "for a grand total of\033[31m" $(calc "$postcount_tbr + $postcount_2023 + $postcount_2022 + $postcount_2021 + $postcount_2020 + $postcount_2019 + $postcount_fix") \
+"\033[0m(double check: $(fd 'pdf|epub|mobi' ~/Books | wc -l))" \
 || echo -e "\033[31mWARNING: Failure to read total count!\033[0m"
 
 echo ""
