@@ -1,5 +1,5 @@
 #!/bin/bash
-music_folders="$(ls -1 ~/Music)"
+music_folders="$(ls -1 ~/Music | sed '/classical/d')"
 echo :: detected "$(echo "$music_folders" | wc -l)" folders
 echo ""
 
