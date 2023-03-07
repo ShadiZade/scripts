@@ -39,7 +39,7 @@ diff_2019=$(("$postcount_2019"-"$precount_2019"))
 diff_tbr=$(("$postcount_tbr"-"$precount_tbr"))
 diff_fix=$(("$postcount_fix"-"$precount_fix"))
 grand_total=$(("$postcount_tbr"+"$postcount_2023"+"$postcount_2022"+"$postcount_2021"+"$postcount_2020"+"$postcount_2019"+"$postcount_fix"))
-double_check="$(fd 'pdf|epub|mobi' ~/Books | wc -l)"
+double_check="$(fd 'pdf|epub|mobi' ~/Books | sed '/add\//d' | wc -l)"
 
 [ $diff_2023 -eq 0 ] || diff_2023="\033[31m$diff_2023\033[0m" 
 [ $diff_2022 -eq 0 ] || diff_2022="\033[31m$diff_2022\033[0m" 
