@@ -32,7 +32,7 @@ sed -i "s/nd = \".*\" #normal-background-color/nd = \"#$bspwm_theme_primary_colo
 sed -i "s/nd = \".*\" #normal-foreground-color/nd = \"#$bspwm_theme_secondary_color\" #normal-foreground-color/g" \
 ~/Repositories/dotfiles/dunst/dunstrc
 
-sed -i "s/frame_color = \".*\"/frame_color = \"#$bspwm_theme_secondary_color\"/g" \
+sed -i "s/frame_color = \".*\" #normal-frame-color/frame_color = \"#$bspwm_theme_secondary_color\" #normal-frame-color/g" \
 ~/Repositories/dotfiles/dunst/dunstrc
 
 pkill dunst
