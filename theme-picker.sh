@@ -25,6 +25,17 @@ grep $bspwm_theme_dark_color ~/Repositories/dotfiles/polybar/config.ini | awk -F
 grep $bspwm_theme_alert_color ~/Repositories/dotfiles/polybar/config.ini | awk -F " =" '{print $1}' \
 | xargs -I PLACE sed -i "s/alertcolor = \${.*}/alertcolor = \${colors.PLACE}/g" ~/Repositories/dotfiles/polybar/config.ini
 
+# change dunst theme
+sed -i "s/nd = \".*\" #normal-background-color/nd = \"#$bspwm_theme_primary_color\" #normal-background-color/g" \
+~/Repositories/dotfiles/dunst/dunstrc
+
+sed -i "s/nd = \".*\" #normal-foreground-color/nd = \"#$bspwm_theme_secondary_color\" #normal-foreground-color/g" \
+~/Repositories/dotfiles/dunst/dunstrc
+
+sed -i "s/frame_color = \".*\"/frame_color = \"#$bspwm_theme_secondary_color\"/g" \
+~/Repositories/dotfiles/dunst/dunstrc
+
+pkill dunst
 # restart wm
 bspc wm -r
-
+notify-send -t 2000 "Theme Picker" "Theme changed to $temp_theme_pick"
