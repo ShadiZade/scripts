@@ -17,7 +17,7 @@ case $subspon in
 			yt-dlp -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best" --write-subs --no-mtime --embed-subs --embed-chapters "$1"
 			;;
 		ny) 
-			yt-dlp -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best" --no-mtime --embed-chapters --sponsorblock-remove sponsor "$1"
+			yt-dlp -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best" --no-mtime --embed-chapters --sponsorblock-remove sponsor,music_offtopic "$1"
 			;;
 		nn) 
 			yt-dlp -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best" --no-mtime --embed-chapters "$1"
