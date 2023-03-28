@@ -1,7 +1,7 @@
 #!/bin/bash
 
 qpdf "$1" --pages "$1" "$2" -- --split-pages ."$3".pdf
-magick -density 150 ."$3"-1.pdf "$3".png
+magick -density 150 ."$3"-1.pdf "$3".jpg
 rt ."$3"-1.pdf
 
 
