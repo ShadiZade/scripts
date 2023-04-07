@@ -1,8 +1,12 @@
 #!/bin/bash 
 
-if [ "$1" == "." ]; then
-	pwd | xclip -selection clipboard
-	exit
-fi
+get-values () {
+	query_a="$1"
+	[ "$query_a" = '.' ] && path_copied="$(pwd)" || path_copied="$(echo $(pwd)/$(ls -1 | grep "$query_a"))"
+}
 
-echo "$(pwd)/$(ls -1 | grep $1)" | xclip -selection clipboard
+copy-and-show () {
+	get-values $1
+	echo "$path_copied" | tr -d '\n' | xclip -selection clipboard
+	echo "$path_copied"	| tr -d '\n'
+}
