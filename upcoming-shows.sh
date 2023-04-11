@@ -15,7 +15,9 @@ notify-send -t 1000 "Fetching Shows"
 mando=$(echo The Mandalorian: $(clean-o https://thetvdb.com/series/the-mandalorian))
 picard=$(echo Picard: $(clean-o https://thetvdb.com/series/star-trek-picard))
 snw=$(echo Strange New Worlds: $(clean-o https://thetvdb.com/series/star-trek-strange-new-worlds))
+ahsoka=$(echo Ahsoka: $(clean-o https://thetvdb.com/series/ahsoka))
 stld=$(echo Lower Decks: $(clean-o https://thetvdb.com/series/star-trek-lower-decks))
 
+
 pkill dunst; dunst -conf ~/.config/dunst/dunstrc-right &
-notify-send -t 15000 "Upcoming Shows" "$mando\n$picard\n$snw\n$stld"
+notify-send -t 15000 "Upcoming Shows" "$mando\n$picard\n$snw\n$ahsoka\n$stld"
