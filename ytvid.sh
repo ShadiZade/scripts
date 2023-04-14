@@ -2,7 +2,7 @@
 
 read -r -p ":: Download subtitles? (y/N) " subs
 read -r -p ":: Remove sponsor segment? (y/N) " spon
-# sets default value of y to variables
+# sets default value of n to variables
 subs=${subs:-n}
 spon=${spon:-n}
 ###
