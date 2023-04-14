@@ -15,7 +15,7 @@ if [ -n "$(ls -l "$(pwd)" | grep '^d')" ];
  do working_subfolder=$(echo "$subfolder_folders" | sed 1q)
  cd ~/Music/"$working_folder"/"$working_subfolder" > /dev/null || exit
  taffy -- *.mp3 > ~/Misc/Backups/my-music/txt/"$working_folder"-"$working_subfolder".txt 2>/dev/null\
- && echo -e ":::: \033[32m$working_folder/$working_subfolder\033[0m done!"
+ && echo -e ":: ───── \033[32m$working_folder/$working_subfolder\033[0m done!"
  subfolder_folders=$(echo "$subfolder_folders" | tail -n +2 )
  cd .. > /dev/null || exit
  done
