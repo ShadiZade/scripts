@@ -6,5 +6,5 @@ utc_time="$(date -u +'%H:%M on %A')"
 my_time="$(date +'%H:%M on %A')"
 china_time="$(TZ='Asia/Shanghai' date +'%H:%M on %A')"
 
-pkill dunst; dunst -conf ~/.config/dunst/dunstrc-left &
+pkill dunst; dunst -conf "$HOME/.config/dunst/dunstrc-left" &
 notify-send -t 6000 "World Clock" "LAX: $la_time\nNYC: $nyc_time\nUTC: $utc_time\nYOU: $my_time\nCHN: $china_time"

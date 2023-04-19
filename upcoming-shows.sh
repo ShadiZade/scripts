@@ -1,7 +1,7 @@
 #!/bin/bash
 
 clean-o () {
-	upc=$(curl "$1" | grep -i -A 3 -m 1 upcoming | tail -n +4 | sed 's/^\s*//g')
+	upc=$(curl "$1" | grep -i -A 3 -m 1 "strong>upcoming" | tail -n +4 | sed 's/^\s*//g')
 	year=$(echo $upc | awk '{print $NF}')
 	day=$(echo $upc | awk '{print $2}' | tr -d ',')
 	month=$(echo $upc | awk '{print $1}' | cut -c-3 | tr '[a-z]' '[A-Z]')
@@ -21,5 +21,5 @@ ofmd=$(echo Our Flag Means Death: $(clean-o https://thetvdb.com/series/our-flag-
 severance=$(echo Severance: $(clean-o https://thetvdb.com/series/severance))
 
 
-pkill dunst; dunst -conf ~/.config/dunst/dunstrc-right &
-notify-send -t 20000 "Upcoming Shows" "$mando\n$picard\n$snw\n$ahsoka\n$stld\n$ofmd\n$severance"
+pkill dunst; dunst -conf "$HOME/.config/dunst/dunstrc-right" &
+notify-send -t 20000 "Upcoming Shows" "$picard\n$snw\n$ahsoka\n$stld\n$mando\n$ofmd\n$severance"
