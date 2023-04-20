@@ -15,7 +15,7 @@ do
     working_title="$(echo "$working_metadata" | grep 'title:' | awk -F ':' '{print $NF}' | sed 's|^[[:space:]]*||g')"
     working_artist="$(echo "$working_metadata" | grep 'artist:' | awk -F ':' '{print $NF}' | sed 's|^[[:space:]]*||g')"
     [ -z "$working_artist" ] && working_artist="Unknown"
-    echo -e ":: \033[33m($current_num/$orig_num)\033[0m Processing \033[32m$working_artist\033[0m's $working_title"
+    echo -e ":: \033[33m($current_num/$orig_num)\033[0m Processing \033[32m$working_artist\033[0m’s $working_title"
     echo "$working_title" >> "$working_artist"-works.txt
     piece_list="$(echo "$piece_list" | tail -n +2)"
 done

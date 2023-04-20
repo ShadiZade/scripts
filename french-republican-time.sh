@@ -9,8 +9,8 @@ french_day=$(echo $french_fulldate | awk '{print $2}')
 french_month=$(echo $french_fulldate | awk '{print $3}' | sed -e "s/\b\(.\)/\u\1/g")
 french_year=$(echo $french_api_full | grep year_arabic | awk -F ":" '{print $2}')
 
-french_french=$(grep -i "$french_month-$french_day" ~/Repositories/scripts/src/rural-cal | awk -F "|" '{print $3}')
-french_english=$(grep -i "$french_month-$french_day" ~/Repositories/scripts/src/rural-cal | awk -F "|" '{print $NF}')
+french_french=$(grep -i "$french_month-$french_day|" ~/Repositories/scripts/src/rural-cal | awk -F "|" '{print $3}')
+french_english=$(grep -i "$french_month-$french_day|" ~/Repositories/scripts/src/rural-cal | awk -F "|" '{print $NF}')
 
 telltime () {
 	pkill dunst; dunst &
@@ -18,7 +18,7 @@ telltime () {
 }
 
 wikithat () {
-	french_wikipedia=$(grep -i "$french_month-$french_day" ~/Repositories/scripts/src/rural-cal | awk -F "|" '{print $4}')
+	french_wikipedia=$(grep -i "$french_month-$french_day|" ~/Repositories/scripts/src/rural-cal | awk -F "|" '{print $4}')
 	notify-send -t 4000 "Wikipedia" "Opening $french_english"
 	xdg-open "https://en.wikipedia.org/wiki/$french_wikipedia"
 }
