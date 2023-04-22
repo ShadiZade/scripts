@@ -14,4 +14,4 @@ echo -e ":: new name is \033[37m$name_final\033[0m"
 read -r -p ":: Perform the move? (Y/n) " proceed
 proceed=${proceed:-y}
 [ "$proceed" != "y" ] && echo ":: Move NOT performed." && exit
-mv -iv "$orig_name" "$name_final"
+mv -iv -- "$orig_name" "$name_final"
