@@ -13,7 +13,7 @@ french_french=$(grep -i "$french_month-$french_day|" ~/Repositories/scripts/src/
 french_english=$(grep -i "$french_month-$french_day|" ~/Repositories/scripts/src/rural-cal | awk -F "|" '{print $NF}')
 
 telltime () {
-	pkill dunst; dunst &
+	killall dunst; dunst &
 	notify-send -t 6000 "$french_time" "$french_weekday\n$french_day $french_month $french_year\n$french_french ($french_english)"
 }
 

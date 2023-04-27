@@ -9,7 +9,7 @@ case $choice in
     "System Info") ~/Repositories/scripts/system-info.sh ;;
     "Upcoming Shows") ~/Repositories/scripts/upcoming-shows.sh ;;
     "World Clock") ~/Repositories/scripts/worldclock.sh ;;
-    *) pkill dunst; notify-send -t 1000 "Incorrect"
+    *) killall dunst; notify-send -t 1000 "Incorrect"
 esac
 
 

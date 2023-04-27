@@ -10,5 +10,5 @@ hijri_mon="$(echo -e "$hijri_raw" | grep -m 1 number | awk -F ":" '{print $2}')"
 hijri_yrs="$(echo -e "$hijri_raw" | grep -m 1 year | awk -F ":" '{print $2}' | tr -d '"')"
 hijri_shh="$(echo -e "$hijri_raw" | grep -m 2 en | tail -n +2 | awk -F ":" '{print $2}' | tr -d '"')"
 
-pkill dunst; dunst &
+killall dunst; dunst &
 notify-send -t 6000 "$hijri_day $hijri_shh ($hijri_mon) $hijri_yrs"

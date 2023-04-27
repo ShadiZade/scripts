@@ -35,7 +35,7 @@ sed -i "s/nd = \".*\" #normal-foreground-color/nd = \"#$bspwm_theme_secondary_co
 sed -i "s/frame_color = \".*\" #normal-frame-color/frame_color = \"#$bspwm_theme_secondary_color\" #normal-frame-color/g" \
 ~/Repositories/dotfiles/dunst/dunstrc
 
-pkill dunst
+killall dunst
 # restart wm
 bspc wm -r
 notify-send -t 2000 "Theme Picker" "Theme changed to $temp_theme_pick"

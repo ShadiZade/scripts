@@ -10,7 +10,7 @@ clean-o () {
 	echo $upc
 }
 
-pkill dunst; dunst &
+killall dunst; dunst &
 notify-send -t 3000 "Fetching Shows"
 snw=$(echo Strange New Worlds: $(clean-o https://thetvdb.com/series/star-trek-strange-new-worlds))
 ahsoka=$(echo Ahsoka: $(clean-o https://thetvdb.com/series/ahsoka))
@@ -22,5 +22,5 @@ picard=$(echo Picard: $(clean-o https://thetvdb.com/series/star-trek-picard))
 
 concat_shows="$snw\n$ahsoka\n$stld\n$mando\n$ofmd\n$severance\n$picard"
 
-pkill dunst; dunst -conf "$HOME/.config/dunst/dunstrc-right" &
+killall dunst; dunst -conf "$HOME/.config/dunst/dunstrc-right" &
 notify-send -t 20000 "Upcoming Shows" "$concat_shows"
