@@ -9,4 +9,6 @@ fd -q done && done_exists="y" || done_exists="n"
 [ "$choose_no_done" = "Create done dir" ] && mkdir -v "done"
 fd -q done && done_exists="y" || done_exists="n"
 [ "$done_exists" = "y" ] && choose_done="$(echo -e 'yes\nno' | fzf --prompt='Move to done? ')"
-[ "$choose_done" = "yes" ] && mv -v "$1" done/
+ext_alone="$(echo $1 | awk -F '.' '{print $NF}')"
+allrelatedfiles="$(echo $1 | sed "s/\.$ext_alone//")"
+[ "$choose_done" = "yes" ] && mv -v "$allrelatedfiles"* done/
