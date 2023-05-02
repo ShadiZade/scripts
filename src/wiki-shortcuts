@@ -1,22 +1,23 @@
-{{Citation needed|date=DATEHERE}}
-{{Verify source|date=DATEHERE}}
-{{Dead link|date=DATEHERE}}
-{{Dead link|fix-attempted=yes|date=DATEHERE}}
+{{Citation needed|{{subst:DATE}}}}
+{{Verify source|{{subst:DATE}}}}
+{{Dead link|{{subst:DATE}}}}
+{{Dead link|fix-attempted=yes|{{subst:DATE}}}}
 {{Cite web |url= |title= |website= |archive-url= |archive-date= |url-status=}}
-{{Original research inline|date=DATEHERE}}
-{{Clarify|date=DATEHERE}}
-{{Bare URL inline|date=DATEHERE}}
-{{Better source needed|date=DATEHERE}}
+{{Original research inline|{{subst:DATE}}}}
+{{Clarify|{{subst:DATE}}}}
+{{Bare URL inline|{{subst:DATE}}}}
+{{Better source needed|{{subst:DATE}}}}
 {{subst:RM top|'''Close move request'''. {{subst:RMnac}}}} {{subst:RM bottom}}
 [[File:|right|thumb|400px|caption]]
-{{Unreliable source?|date=DATEHERE}}
-{{Cleanup|date=DATEHERE|reason=}}
-{{No footnotes|date=DATEHERE}}
-{{Citation style|date=DATEHERE}}
+{{Unreliable source?|{{subst:DATE}}}}
+{{Cleanup|{{subst:DATE}}|reason=}}
+{{No footnotes|{{subst:DATE}}}}
+{{Citation style|{{subst:DATE}}}}
 {{Template:Arrow/core}}
 {{Page needed|date=March 2023}}
 {{cite news |last= |first= |date= |title= |url= |work= |issue= |archive-url= |archive-date= |url-status=}}
 *'''Support''' per nom. ~~~~
+*'''Delete''' per nom. ~~~~
 *'''Oppose''' 
 ({{lang-ar|}})
 {{icon|}}
@@ -24,4 +25,8 @@
 {{In use|time=~~~~~}}
 {{Multiple issues}}
 {{rp|page=}}
-{{cite book|last=|first=|title=|date=|publisher=|isbn=}}
+{{Cite book|last=|first=|title=|date=|publisher=|isbn=}}
+{{Archive top|status=done|result=Done, per 55% supporting votes ~~~~}}
+{{Archive top|status=not done|result=Not done, per 55% opposing votes ~~~~}}
+{{Archive bottom}}
+{{Unreferenced section|{{subst:DATE}}}}
