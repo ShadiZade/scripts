@@ -23,4 +23,5 @@ picard=$(echo Picard: $(clean-o https://thetvdb.com/series/star-trek-picard))
 concat_shows="$snw\n$ahsoka\n$stld\n$mando\n$ofmd\n$severance\n$picard"
 
 killall dunst; dunst -conf "$HOME/.config/dunst/dunstrc-right" &
+sleep 2s
 notify-send -t 20000 "Upcoming Shows" "$concat_shows"
