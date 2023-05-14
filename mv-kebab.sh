@@ -15,10 +15,16 @@ function arabic-kebab {
     echo "$orig_name" | grep -q "\." || name_final="$name_translated"
     echo -e ":: Arabic name is \033[33m$orig_name\033[0m"
     echo -e ":: English name is \033[37m$name_final\033[0m"
-    read -r -p ":: Perform the move? (Y/n) " proceed
+    read -r -p ":: Perform the move? (Y/n/d) " proceed
     proceed=${proceed:-y}
-    [ "$proceed" != "y" ] && echo ":: Move NOT performed." && exit
-    mv -iv -- "$orig_name" "$name_final"
+    case "$proceed" in
+	"n") echo ":: Move NOT performed."
+	     exit ;;
+	"d") read -r -p ":: Enter alternative translation: " name_translated
+	     name_final="$(echo $name_translated$yt_url.$ext_alone)"
+	     mv -iv -- "$orig_name" "$name_final" ;;
+	  *) mv -iv -- "$orig_name" "$name_final" ;;	
+    esac
     name_after_arabic="$name_final"
 }
 
