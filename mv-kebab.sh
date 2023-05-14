@@ -10,7 +10,7 @@ function arabic-kebab {
     name_alone="$(echo $orig_name | sed "s/\.$ext_alone//")"
     [ -z "$yt_url" ] ||	name_alone="$(echo "$name_alone" | sed "s/$yt_url//")"
     name_translated="$(trans -b ar:en "$name_alone")"
-    yt_url="$(echo "-[$yt_url]")"
+    [ -z "$yt_url" ] || yt_url="$(echo "-[$yt_url]")"
     name_final="$(echo $name_translated$yt_url.$ext_alone)"
     echo "$orig_name" | grep -q "\." || name_final="$name_translated"
     echo -e ":: Arabic name is \033[33m$orig_name\033[0m"
@@ -34,9 +34,10 @@ function english-kebab {
     ext_alone="$(echo $orig_name | awk -F '.' '{print $NF}')"
     find-yt-url
     name_alone="$(echo $orig_name | sed "s/\.$ext_alone//")"
+    ext_alone="$(echo "$ext_alone" | sed 's/jpeg/jpg/')"
     [ -z "$yt_url" ] ||	name_alone="$(echo "$name_alone" | sed "s/$yt_url//")"
     name_kebab="$(~/Repositories/scripts/kebabization.sh "$name_alone"; cat ~/.kebab)"
-    yt_url="$(echo "-[$yt_url]")"
+    [ -z "$yt_url" ] || yt_url="$(echo "-[$yt_url]")"
     name_final="$(echo $name_kebab$yt_url.$ext_alone)"
     [ "$orig_name" == "$name_final" ] && echo ":: Filename is already kebab-compliant!" && exit
     [ "$orig_name" == "$name_kebab" ] && echo ":: Filename is already kebab-compliant!" && exit
@@ -54,9 +55,7 @@ function find-yt-url {
     yt_url_p='n'
     echo "$orig_name" | grep -q "\]\." && yt_url_p='y'
     [ "$yt_url_p" != 'y' ] && return
-    yt_url="$(echo "$orig_name" | awk -F '[' '{print $NF}' | awk -F ']' '{print $1}')"
-#    yt_url=$(echo "["$yt_url"]")
-	
+    yt_url="$(echo "$orig_name" | awk -F '[' '{print $NF}' | awk -F ']' '{print $1}')"	
 }
 
 arabic-kebab "$1"
