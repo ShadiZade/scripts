@@ -32,3 +32,4 @@
 {{subst:RM top|'''RESULT''' {{subst:RMnac}}}}
 {{subst:RM bottom}}
 {{subst:RM relist}}
+{{needs IPA||{{subst:CURRENTMONTHNAME}}}}
