@@ -6,7 +6,6 @@ function detect-language {
     echo "$orig_name" | grep -q "[ابتثجحخدذرزسشصضطظعغفقكلمنهويأءؤ]" && detected_lang=ar
     echo "$orig_name" | grep -qi "[йцукенгшщзхъфывапролджэячсмитьбю]" && detected_lang=ru
     echo "$orig_name" | grep -qP "\p{Script=Han}" && detected_lang=zh
-    # How chinese??????
     translate-kebab "$orig_name"
 }
 

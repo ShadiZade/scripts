@@ -2,7 +2,7 @@
 {{Verify source|{{subst:DATE}}}}
 {{Dead link|{{subst:DATE}}}}
 {{Dead link|fix-attempted=yes|{{subst:DATE}}}}
-{{Cite web |url= |title= |website= |archive-url= |archive-date= |url-status=}}
+{{Cite web |url= |title= |website= |date= |archive-url= |archive-date= |url-status=}}
 {{Original research inline|{{subst:DATE}}}}
 {{Clarify|{{subst:DATE}}}}
 {{Bare URL inline|{{subst:DATE}}}}
@@ -29,7 +29,13 @@
 {{Archive top|status=not done|result=Not done, per 55% opposing votes ~~~~}}
 {{Archive bottom}}
 {{Unreferenced section|{{subst:DATE}}}}
+{{Unreferenced|{{subst:DATE}}}}
 {{subst:RM top|'''RESULT''' {{subst:RMnac}}}}
 {{subst:RM bottom}}
 {{subst:RM relist}}
 {{needs IPA||{{subst:CURRENTMONTHNAME}}}}
+{{abbr|No.|Number}}
+{{abbr|Nos.|Numbers}}
+{{abbr|Vol.|Volume}}
+{{abbr|Iss.|Issue}}
+{{subst:Requested move |NewName |reason=}}
