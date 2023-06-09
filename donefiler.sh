@@ -9,4 +9,7 @@ while [ "$i" -gt 0 ]; do
     rm -vir "$HOME/Movies/${donemovies[$i]}"
     i=$((i-1))
 done
-
+cd ~/Misc/Backups/movies-and-tv || exit
+git add *
+git commit -m "commit $(date +"%Y-%m-%d %H:%M")"
+cd -

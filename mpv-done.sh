@@ -6,9 +6,9 @@ fd -q donefile && exit
 fd -q done && done_exists="y" || done_exists="n"
 [ "$done_exists" = "n" ] && choose_no_done="$(echo -e 'Create done marker\nCreate done dir\nDo nothing' | fzf --prompt='No done dir exists, what to do? ')"
 [ "$choose_no_done" = "Do nothing" ] && echo ":: Doing nothing." && exit
-[ "$choose_no_done" = "Create done marker" ] && echo "$1 is done on $(date +"%Y-%m-%d %H:%M")." > ./"donefile-$(date +"%Y-%m-%d-%H-%M")" && echo ":: Done marker created."
+[ "$choose_no_done" = "Create done marker" ] && echo "$1 is done on $(date +"%Y-%m-%d %H:%M")." > ./"donefile-$(date +"%Y-%m-%d-%H-%M")" && echo ":: Done marker created." && exit
 [ "$choose_no_done" = "Create done dir" ] && mkdir -v "done"
-fd --full-path -q 'done/' && done_exists="y" || done_exists="n"
+fd -q done && done_exists="y" || done_exists="n"
 [ "$done_exists" = "y" ] && choose_done="$(echo -e 'yes\nno' | fzf --prompt='Move to done? ')"
 ext_alone="$(echo $1 | awk -F '.' '{print $NF}')"
 allrelatedfiles="$(echo $1 | sed "s/\.$ext_alone//")"
