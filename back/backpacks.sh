@@ -1,5 +1,6 @@
 #!/bin/bash
 back-movies-tv () {
+~/Repositories/scripts/donefiler.sh
 ls -1 ~/Movies > ~/Misc/Backups/movies-and-tv/movies.txt
 ls -1 ~/TV > ~/Misc/Backups/movies-and-tv/tv.txt
 exa --tree ~/Movies > ~/Misc/Backups/movies-and-tv/tree-movies.txt
