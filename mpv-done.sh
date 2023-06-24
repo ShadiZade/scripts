@@ -1,7 +1,7 @@
 #!/bin/bash
 
 [ -z "$1" ] && return
-command mpv "$1" || exit
+mpv --audio-samplerate=88200 "$1" || exit
 fd -q donefile && exit
 fd -q done && done_exists="y" || done_exists="n"
 [ "$done_exists" = "n" ] && choose_no_done="$(echo -e 'Create done marker\nCreate done dir\nDo nothing' | fzf --prompt='No done dir exists, what to do? ')"

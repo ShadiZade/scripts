@@ -3,6 +3,8 @@
 {{Dead link|{{subst:DATE}}}}
 {{Dead link|fix-attempted=yes|{{subst:DATE}}}}
 {{Cite web |url= |title= |website= |date= |archive-url= |archive-date= |url-status=}}
+{{Cite journal |last1= |first1= |last2= |first2= |date= |title= |url= |journal= |volume= |issue= |pages= |doi=}}
+{{Cite magazine |last= |first= |date= |title= |url= |magazine= |volume= |issue= |pages= |archive-url= |archive-date= |url-status=}}
 {{Original research inline|{{subst:DATE}}}}
 {{Clarify|{{subst:DATE}}}}
 {{Bare URL inline|{{subst:DATE}}}}
@@ -14,7 +16,7 @@
 {{Citation style|{{subst:DATE}}}}
 {{Template:Arrow/core}}
 {{Page needed|date=March 2023}}
-{{cite news |last= |first= |date= |title= |url= |work= |issue= |archive-url= |archive-date= |url-status=}}
+{{Cite news |last= |first= |agency= |date= |title= |url= |url-access=subscription |work= |issue= |archive-url= |archive-date= |url-status=}}
 *'''Support''' per nom. ~~~~
 *'''Delete''' per nom. ~~~~
 *'''Oppose''' 
@@ -24,7 +26,7 @@
 {{In use|time=~~~~~}}
 {{Multiple issues}}
 {{rp|page=}}
-{{Cite book|last=|first=|title=|date=|publisher=|isbn=}}
+{{Cite book |last= |first= |title= |date= |publisher= |isbn= |ol=}}
 {{Archive top|status=done|result=Done, per 55% supporting votes ~~~~}}
 {{Archive top red|status=not done|result=Not done, per 55% opposing votes ~~~~}}
 {{Archive bottom}}
@@ -41,3 +43,14 @@
 {{subst:Requested move |NewName |reason=}}
 [[File:Ambox clock yellow.svg|20px]]
 {{Update|{{subst:DATE}}}}
+{{icon|cleanup}}
+{{icon|no}}
+{{icon|aa}}
+{{icon|fa}}
+{{icon|ga}}
+{{icon|b}}
+{{icon|c}}
+{{icon|start}}
+{{icon|stub}}
+{{Tone|{{subst:DATE}}}}
+{{Overcite|{{subst:DATE}}}}
