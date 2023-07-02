@@ -15,7 +15,7 @@
 {{No footnotes|{{subst:DATE}}}}
 {{Citation style|{{subst:DATE}}}}
 {{Template:Arrow/core}}
-{{Page needed|date=March 2023}}
+{{Page needed|date={{subst:DATE}}}}
 {{Cite news |last= |first= |agency= |date= |title= |url= |url-access=subscription |work= |issue= |archive-url= |archive-date= |url-status=}}
 *'''Support''' per nom. ~~~~
 *'''Delete''' per nom. ~~~~
@@ -26,7 +26,7 @@
 {{In use|time=~~~~~}}
 {{Multiple issues}}
 {{rp|page=}}
-{{Cite book |last= |first= |title= |date= |publisher= |isbn= |ol=}}
+{{Cite book |last= |first= |title= |date= |publisher= |isbn= |ol= |url=}}
 {{Archive top|status=done|result=Done, per 55% supporting votes ~~~~}}
 {{Archive top red|status=not done|result=Not done, per 55% opposing votes ~~~~}}
 {{Archive bottom}}
@@ -57,3 +57,10 @@
 {{Primary source inline|date={{subst:DATE}}}}
 {{Archive top red|status=no consensus|result=30+ days, no votes ~~~~}}
 {{Archive top red|status=failed|result=30 days, 3+ opposing votes ~~~~}}
+{{GOCE in use}}
+{{GOCE |user={{subst:REVISIONUSER}} |date={{subst:date}} }}
+{{More citations needed section|{{subst:DATE}}}}
+{{More citations needed|{{subst:DATE}}}}
+{{Update inline|date={{subst:DATE}}}}
+{{Copy edit|date={{subst:DATE}}}}
+{{Expand section|{{subst:DATE}}}}
