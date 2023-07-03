@@ -15,7 +15,7 @@
 {{No footnotes|{{subst:DATE}}}}
 {{Citation style|{{subst:DATE}}}}
 {{Template:Arrow/core}}
-{{Page needed|date={{subst:DATE}}}}
+{{Page needed|{{subst:DATE}}}}
 {{Cite news |last= |first= |agency= |date= |title= |url= |url-access=subscription |work= |issue= |archive-url= |archive-date= |url-status=}}
 *'''Support''' per nom. ~~~~
 *'''Delete''' per nom. ~~~~
@@ -54,13 +54,14 @@
 {{icon|stub}}
 {{Tone|{{subst:DATE}}}}
 {{Overcite|{{subst:DATE}}}}
-{{Primary source inline|date={{subst:DATE}}}}
+{{Primary source inline|{{subst:DATE}}}}
 {{Archive top red|status=no consensus|result=30+ days, no votes ~~~~}}
 {{Archive top red|status=failed|result=30 days, 3+ opposing votes ~~~~}}
 {{GOCE in use}}
 {{GOCE |user={{subst:REVISIONUSER}} |date={{subst:date}} }}
 {{More citations needed section|{{subst:DATE}}}}
 {{More citations needed|{{subst:DATE}}}}
-{{Update inline|date={{subst:DATE}}}}
-{{Copy edit|date={{subst:DATE}}}}
+{{Update inline|{{subst:DATE}}}}
+{{Copy edit|{{subst:DATE}}}}
 {{Expand section|{{subst:DATE}}}}
+{{POV|{{subst:DATE}}}}
