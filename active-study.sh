@@ -1,29 +1,31 @@
 #!/bin/bash
 
+storage_file="$HOME/Misc/active-study"
+
 add-study () {
 	filename_copied="$(ls -1 | grep "$1")"
 	[ -z "$filename_copied" ] && echo "nothing found." && exit
 	path_copied="$(echo $(pwd)/$filename_copied)"
-	echo $path_copied >> ~/.active-study	
+	echo $path_copied >> $storage_file
 	exit
 }
 
 remove-study () {
-	removethis="$(cat ~/.active-study | fzf)"
+	removethis="$(cat $storage_file | fzf)"
 	[ -z "$removethis" ] && echo "nothing chosen." && exit
-	sed -i "s|$removethis||g;/^$/d" ~/.active-study
+	sed -i "s|$removethis||g;/^$/d" $storage_file
 	echo $(echo $removethis | awk -F '/' '{print $NF}') was removed.
 	exit
 }
 
 open-study () {
-	openthis="$(cat ~/.active-study | fzf)"
+	openthis="$(cat $storage_file | fzf)"
 	[ -z "$openthis" ] && echo "nothing chosen." && exit
 	zathura "$openthis" & exit
 }
 
 view-study () {
-	cat ~/.active-study | awk -F '/' '{print $NF}'
+	cat $storage_file | awk -F '/' '{print $NF}'
 	exit
 }
 
