@@ -8,6 +8,7 @@
 {{Original research inline|{{subst:DATE}}}}
 {{Clarify|{{subst:DATE}}}}
 {{Bare URL inline|{{subst:DATE}}}}
+{{Cleanup bare URLs|{{subst:DATE}}}}
 {{Better source needed|{{subst:DATE}}}}
 [[File:|right|thumb|400px|caption]]
 {{Unreliable source?|{{subst:DATE}}}}
@@ -68,3 +69,7 @@
 {{subst:Proposed deletion|concern=}}
 {{subst:Proposed deletion notify|}}
 {{subst:Please see|location=}}
+{{Use dmy dates|{{subst:DATE}}}}
+{{Use mdy dates|{{subst:DATE}}}}
+{{Failed verification|{{subst:DATE}}}}
+{{Page range too broad|{{subst:DATE}}}}
