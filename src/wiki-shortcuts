@@ -14,10 +14,11 @@
 {{Unreliable source?|{{subst:DATE}}}}
 {{Cleanup|{{subst:DATE}}|reason=}}
 {{No footnotes|{{subst:DATE}}}}
+{{Flux|{{subst:DATE}}}}
 {{Citation style|{{subst:DATE}}}}
 {{Template:Arrow/core}}
 {{Page needed|{{subst:DATE}}}}
-{{Cite news |last= |first= |agency= |date= |title= |url= |url-access=subscription |work= |issue= |archive-url= |archive-date= |url-status=}}
+{{Cite news |url= |last= |first= |date= |title= |work= |url-access=subscription |agency= |issue= |archive-url= |archive-date= |url-status=}}
 *'''Support''' per nom. ~~~~
 *'''Delete''' per nom. ~~~~
 *'''Oppose''' 
@@ -73,3 +74,4 @@
 {{Use mdy dates|{{subst:DATE}}}}
 {{Failed verification|{{subst:DATE}}}}
 {{Page range too broad|{{subst:DATE}}}}
+{{nobold|{{script/Arabic|}}}}
