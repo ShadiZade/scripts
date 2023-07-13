@@ -1,3 +1,3 @@
 #!/bin/bash
-
-cat ~/Repositories/scripts/src/wiki-shortcuts | sort | rofi -i -dmenu | xclip -r -selection clipboard
+echo $which_shortcuts
+cat "$HOME/Repositories/scripts/src/$which_shortcuts" | sort | rofi -i -dmenu | xclip -r -selection clipboard
