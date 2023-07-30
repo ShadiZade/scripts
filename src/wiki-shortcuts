@@ -3,7 +3,7 @@
 {{Dead link|{{subst:DATE}}}}
 {{Dead link|fix-attempted=yes|{{subst:DATE}}}}
 {{Cite web |url= |title= |website= |date= |archive-url= |archive-date= |url-status=}}
-{{Cite journal |last1= |first1= |last2= |first2= |date= |title= |url= |journal= |volume= |issue= |pages= |doi=}}
+{{Cite journal |last1= |first1= |last2= |first2= |last3= |first3= |date= |title= |url= |journal= |volume= |issue= |pages= |doi=}}
 {{Cite magazine |last= |first= |date= |title= |url= |magazine= |volume= |issue= |pages= |archive-url= |archive-date= |url-status=}}
 {{Original research inline|{{subst:DATE}}}}
 {{Clarify|{{subst:DATE}}}}
@@ -77,3 +77,4 @@
 {{nobold|{{script/Arabic|}}}}
 {{US$||{{Inflation/year|US}}}}
 * {{Done}}. ~~~~
+{{Death date and age|YYYY|MM|DD|YYYY|MM|DD}}
