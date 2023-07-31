@@ -22,7 +22,7 @@ do
     [ "$ftc" = "ISO" ] && mpv --no-terminal --loop=inf "$current_file"
     [ "$ftc" != "ISO" ] && xdg-open "$current_file"
     echo -e "--------------------------------"
-    echo -e ":: opened file \033[32m$i\033[0m"
+    echo -e ":: Opened file \033[32m$i\033[0m"
     rename-lof
     listoffiles="$(echo -e "$listoffiles" | tail -n +2)"
     [ -z "$listoffiles" ] && break
