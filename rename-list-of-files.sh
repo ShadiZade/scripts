@@ -30,7 +30,9 @@ do
     case "$1" in
 	"rename") rename-lof
 		  ;;
-	*) tagger "$1" "$current_file"
+	"view") echo -e ":: This file is \033[31m$current_file\033[0m"
+		;;
+     	*) tagger "$1" "$current_file"
 	   ;;
     esac
     listoffiles="$(echo -e "$listoffiles" | tail -n +2)"
