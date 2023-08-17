@@ -22,7 +22,7 @@ listoffiles="$(echo -e "$listoffiles" | tail -n +"$i")"
 while true
 do
     export current_file="$(echo -e "$listoffiles" | sed 1q)"
-    ftc="$(file -b "$current_file" | awk '{print $2}')"
+    ftc="$(file -b "$current_file" | awk '{print $1}')"
     [ "$ftc" = "ISO" ] && mpv --no-terminal --loop=inf "$current_file"
     [ "$ftc" != "ISO" ] && xdg-open "$current_file"
     echo -e "--------------------------------"

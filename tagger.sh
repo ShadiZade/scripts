@@ -16,6 +16,7 @@ function get-files {
 
 function new-tag {
     get-tags "$1"
+    echo -e ":: Existing tags for $wf are: \033[32m${wftags[@]}\033[0m"
     read -rp ":: Add new tags: " newtags
     wftags=("${wftags[@]}" $(echo $newtags))
     fullline="$(grep "$wf" .tags)"
@@ -40,7 +41,7 @@ case "$1" in
     "see") get-files "$2"
 	   ;;
     "new") new-tag "$2"
-	   echo -e ":: Tags for $wf are: \033[32m${wftags[@]}\033[0m"
+	   echo -e ":: Tags for $wf are: \033[32m"$(grep "$wf" .tags | awk -F '|' '{print $NF}')"\033[0m"
 	   ;;
     "erase") erase "$2"
 	     ;;
