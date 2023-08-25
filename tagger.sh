@@ -11,7 +11,21 @@ function get-tags {
 }
 
 function get-files {
-    grep "$1" .tags | awk -F '|' '{print $1}'
+    listoffiles="$(grep -E "$1" .tags | awk -F '|' '{print $1}')"
+    [ -z "$listoffiles" ] && return
+    echo -e "\033[33m:: Found $(echo "$listoffiles" | wc -l) matching files\033[0m"
+    while true
+    do
+	[ -z "$listoffiles" ] && break
+	export current_file="$(echo -e "$listoffiles" | sed 1q)"
+	ftc="$(file -b "$current_file" | awk '{print $1}')"
+	[ "$ftc" = "ISO" ] && mpv --no-terminal --no-resume-playback --loop=inf "$current_file"
+	[ "$ftc" != "ISO" ] && xdg-open "$current_file"
+	echo -e "--------------------------------"
+	echo -e ":: Opened file \033[32m$current_file\033[0m"
+	listoffiles="$(echo -e "$listoffiles" | tail -n +2)"
+	read -r -p ":: Press <return> to continue."
+done    
 }
 
 function new-tag {
