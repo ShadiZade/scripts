@@ -19,8 +19,9 @@ mando=$(echo The Mandalorian: $(clean-o https://thetvdb.com/series/the-mandalori
 ofmd=$(echo Our Flag Means Death: $(clean-o https://thetvdb.com/series/our-flag-means-death))
 severance=$(echo Severance: $(clean-o https://thetvdb.com/series/severance))
 rmoon=$(echo Rebel Moon: $(clean-o https://thetvdb.com/movies/rebel-moon))
+killer=$(echo The Killer: $(clean-o https://thetvdb.com/movies/the-killer-2022))
 
-concat_shows="$ahsoka\n$stld\n$rmoon\n$mando\n$ofmd\n$severance\n$snw"
+concat_shows="$ahsoka\n$stld\n$ofmd\n$killer\n$rmoon\n$mando\n$severance\n$snw"
 
 killall dunst; dunst -conf "$HOME/.config/dunst/dunstrc-right" &
 sleep 2s
