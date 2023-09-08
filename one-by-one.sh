@@ -12,6 +12,13 @@ function rename-lof {
     export ordernum=$((ordernum+1))
 }
 
+function mark {
+    [ -e .mark ] || touch .mark
+    grep -q "^$current_file$" .mark && echo -e "\033[31m:: This file is already marked.\033[0m" && return
+    read -r -p ":: Mark file? (y/N) " markthis
+    [ "$markthis" = "y" ] && echo "$current_file" >> .mark && echo -e "\033[33m:: File marked.\033[0m"
+}
+
 [[ "$1" = "rename" ]] && read -r -p ":: Enter starting number: " ordernum
 listoffiles="$(ls -1p | grep -v '/' | sort -V)"
 echo -e "\033[33m:: $(echo "$listoffiles" | wc -l) files detected\033[0m"
@@ -31,6 +38,9 @@ do
 	"rename") rename-lof
 		  ;;
 	"view") echo -e ":: This file is \033[31m$current_file\033[0m"
+		;;
+	"mark") echo -e ":: This file is \033[31m$current_file\033[0m"
+		mark
 		;;
      	*) tagger "$1" "$current_file"
 	   ;;

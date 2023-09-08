@@ -14,6 +14,8 @@ function get-files {
     listoffiles="$(grep -E "$1" .tags | awk -F '|' '{print $1}')"
     [ -z "$listoffiles" ] && return
     echo -e "\033[33m:: Found $(echo "$listoffiles" | wc -l) matching files\033[0m"
+    read -r -p ":: Export list? (y/N) " export_p
+    [ "$export_p" = "y" ] && echo "$listoffiles" > files-tagged-"$1" && echo -e ":: Exported!"
     while true
     do
 	[ -z "$listoffiles" ] && break

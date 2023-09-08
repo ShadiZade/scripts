@@ -6,7 +6,7 @@ i=$(echo ${#donemovies})
 while [ "$i" -gt 0 ]; do
     echo -e ":: \033[33m${donemovies[$i]}\033[0m is a finished movie"
     mv "$(ls -1 $HOME/Movies/${donemovies[$i]}/donefile*)" ~/Misc/Backups/video/donefiles/ && echo -e "\033[32m:: Moved donefile of ${donemovies[$i]} to backup\033[0m"
-    rm -vir "$HOME/Movies/${donemovies[$i]}"
+    rt "$HOME/Movies/${donemovies[$i]}"
     i=$((i-1))
 done
 cd ~/Misc/Backups/video || exit
