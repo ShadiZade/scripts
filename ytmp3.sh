@@ -18,5 +18,5 @@ echo ""
 echo "========================================================="
 echo ":: This is the audio content of your ~/Downloads directory:"
 echo "========================================================="
-exa ~/Downloads -l --icons --sort=newest --no-user --no-permissions --no-filesize --no-time --time-style=iso | grep .mp3
+eza ~/Downloads -l --icons --sort=newest --no-user --no-permissions --no-filesize --no-time --time-style=iso | grep .mp3
 echo "========================================================="
