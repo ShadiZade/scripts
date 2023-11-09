@@ -12,16 +12,16 @@ clean-o () {
 
 killall dunst; dunst &
 notify-send -t 3000 "Fetching Shows"
-snw=$(echo Strange New Worlds: $(clean-o https://thetvdb.com/series/star-trek-strange-new-worlds))
-ahsoka=$(echo Ahsoka: $(clean-o https://thetvdb.com/series/ahsoka))
 stld=$(echo Lower Decks: $(clean-o https://thetvdb.com/series/star-trek-lower-decks))
 mando=$(echo The Mandalorian: $(clean-o https://thetvdb.com/series/the-mandalorian))
-ofmd=$(echo Our Flag Means Death: $(clean-o https://thetvdb.com/series/our-flag-means-death))
 severance=$(echo Severance: $(clean-o https://thetvdb.com/series/severance))
 rmoon=$(echo Rebel Moon: $(clean-o https://thetvdb.com/movies/rebel-moon))
 killer=$(echo The Killer: $(clean-o https://thetvdb.com/movies/the-killer-2022))
+ofmd=$(echo Our Flag Means Death: $(clean-o https://thetvdb.com/series/our-flag-means-death))
+ahsoka=$(echo Ahsoka: $(clean-o https://thetvdb.com/series/ahsoka))
+snw=$(echo Strange New Worlds: $(clean-o https://thetvdb.com/series/star-trek-strange-new-worlds))
 
-concat_shows="$ahsoka\n$stld\n$ofmd\n$killer\n$rmoon\n$mando\n$severance\n$snw"
+concat_shows="$killer\n$rmoon\n$mando\n$severance\n$snw\n$ahsoka\n$stld\n$ofmd\n"
 
 killall dunst; dunst -conf "$HOME/.config/dunst/dunstrc-right" &
 sleep 2s
