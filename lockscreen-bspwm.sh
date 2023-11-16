@@ -10,5 +10,6 @@ i3lock -kef -c "$bspwm_theme_primary_color"ff --radius 290 --ring-width 45.0 --i
 	 --verif-text="" --noinput-text="" --wrong-size=80 --time-size=75 --date-size=18 \
 	 --verif-color="$bspwm_theme_secondary_color"ff --greeter-color="$bspwm_theme_secondary_color"ff \
 	 --time-color="$bspwm_theme_secondary_color"ff --wrong-color="$bspwm_theme_secondary_color"ff \
-	 --date-color="$bspwm_theme_secondary_color"ff --date-str="%a, %e %b %Y"
+	 --date-color="$bspwm_theme_secondary_color"ff --date-str="%a, %e %b %Y" --greeter-pos="685:200" --greeter-size=20 \
+	 --greeter-text="$(cat ~/.lock-greeting)" 		 
 
