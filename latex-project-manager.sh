@@ -4,7 +4,7 @@
 function list-project-files {
     check-for-latex-directory
     eza -l --icons --no-user --time-style=iso --sort=modified --color-scale all --color=always \
-	--group-directories-first --no-quotes --no-permissions --git -I "*log|*aux|*toc|*conf|set.sh"
+	--group-directories-first --no-quotes --no-permissions --git -I "*log|*aux|*toc|*conf|*blg|*bbl|set.sh"
 }
 
 function check-for-latex-directory {
@@ -13,21 +13,13 @@ function check-for-latex-directory {
 }
 
 function check-dependencies {
-    dependencies=("xelatex" "bibtex" "eza" "fd" "zathura")
+    dependencies=("xelatex" "bibtex" "eza" "fd" "zathura" "texcount")
     # continue this later    
 }
 
 function conf-info-extract {
     check-for-latex-directory
     cat project.conf | grep "^$1 = " | awk -F ' = ' '{print $NF}'
-}
-
-function enumerate-bib-file {
-echo hi
-}
-
-function count-tex-file-words {
-echo hi
 }
 
 # interactive functions
@@ -69,7 +61,7 @@ function project-info {
 }
 
 function show-help {
-echo hi
+    echo hi
 }
 
 function set-tex-file {
@@ -77,6 +69,11 @@ function set-tex-file {
     ./set.sh "$1"
 }
 
+function count-all {
+    filename="$(conf-info-extract "project_name")"
+    echo -e "\033[32m:: TeX file stats: $(texcount -1 -utf8 -ch -q "$filename".tex)\033[0m"
+    echo -e "\033[32m:: Bib file stats: $(grep "@" refs.bib | wc -l) entries\033[0m"
+}
 
 check-dependencies
 [ -z "$1" ] && list-project-files && exit
@@ -87,6 +84,7 @@ case "$comd" in
     "see") see-pdf-file ;;
     "set") set-tex-file "$2" ;;
     "help") ;;
+    "count") count-all ;;
     "info") project-info ;;
     *) echo -e "\033[33m:: Unrecognized command.\033[0m" ;;
 esac
