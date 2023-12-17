@@ -53,7 +53,7 @@ function runcase-dealer {
     [ -z "$2" ] && echo -e "\033[33m:: runcase-dealer: No valid parameter.\033[0m" && exit
     case "$1" in
 	"only") 
-	    [ "$runcase" != "$2" ] && echo -e "\033[33m:: Can’t do that in this directory.\033[0m" && exit ;;
+	    [ "$runcase" != "$2" ] && echo -e "\033[33m:: Can’t do that in this directory (only $2).\033[0m" && exit ;;
 	
 	"not")
 	    [ "$runcase" = "$2" ] && echo -e "\033[33m:: Can’t do that in this directory.\033[0m" && exit ;;
@@ -134,9 +134,7 @@ function count-all {
 }
 
 function download-paper {
-    runcase-dealer only 0
-    fd -q -d 1 papers || echo -e "\033[33m:: No papers directory.\033[0m"
-    fd -q -d 1 papers || exit
+    runcase-dealer only 1
     echo -e "\033[32m:: Starting...\033[0m"
     [ -z "$1" ] && echo -e "\033[33m:: No DOI entered.\033[0m" && exit
     indoi="$(echo "$1" | sed 's|https://doi.org/||')" && echo -e "\033[32m:: DOI is \033[36m$indoi\033[0m"
@@ -147,8 +145,44 @@ function download-paper {
     [[ -z "$2" ]] && bibname="unnamed" || bibname="$2"
     [[ -z "$ddurl" ]] && echo -e "\033[33m:: No file found in Sci-Hub!\033[0m"
     [[ -z "$ddurl" ]] && exit
-    wget -nc -O ./papers/"$bibname".pdf -t 0 -- https://"$ddurl" && touch -c ./papers/"$bibname".pdf
+    wget -nc -O ./"$bibname".pdf -t 0 -- https://"$ddurl" && touch -c ./"$bibname".pdf
 }
+
+function rename-stuff {
+    runcase-dealer only 0
+    [ -z "$1" ] && echo -e "\033[33m:: rename-stuff: No valid command.\033[0m" && exit
+    [ -z "$2" ] && echo -e "\033[33m:: rename-stuff: No valid parameter.\033[0m" && exit
+    function rename-directory {
+	current_name="$(pwd | awk -F '/' '{print $NF}')"
+	cd ..
+	mv -n "$current_name" "$1" || echo -e "\033[33m:: Move failed. Probably clobber.\033[0m"
+	cd "$1" || exit
+    }
+    case "$1" in
+	"dir")
+	    project_dir="$(conf-info-extract project_dir)"
+	    rename-directory "$2" 
+	    sed -i "s|$project_dir|$(pwd)|g" ./project.conf
+	    echo -e "\033[32m:: Directory renamed to $2"
+	    ;;
+	"project")
+	    project_name="$(conf-info-extract project_name)"
+	    project_dir="$(conf-info-extract project_dir)"
+	    rename -va "$project_name" "$2" ./*
+	    rename-directory "$2"
+	    runcase-dealer only 0
+	    sed -i "s|project_name = $project_name|project_name = $2|g" ./project.conf
+	    sed -i "s|project_dir = $project_dir|project_dir = $(pwd)|g" ./project.conf
+	    sed -i "s|project_name=\"$project_name\"|project_name=\"$2\"|g" ./set.sh
+	    echo -e "\033[32m:: Project renamed to $2"
+	    ;;
+	*)
+	    echo -e "\033[33m:: Unknown runcase-dealer command.\033[0m" ;;
+    esac
+    
+	
+}
+
 
 check-dependencies
 [ -z "$1" ] && list-project-files && exit
@@ -163,6 +197,7 @@ case "$comd" in
     "info") project-info ;;
     "dl") download-paper "$2" "$3" ;;
     "anchor") anchor-project ;;
+    "rename") rename-stuff "$2" "$3" ;;
     *) echo -e "\033[33m:: Unrecognized command.\033[0m" ;;
 esac
 
