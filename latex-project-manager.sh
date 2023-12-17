@@ -118,7 +118,17 @@ function project-info {
 }
 
 function show-help {
-    echo hi
+    echo -e " \
+    Available commands: \n\
+    \t\033[37mcreate\033[0m: Creates a new project.  \n\
+    \t\033[37msee\033[0m: Views the project’s PDF file.\n\
+    \t\033[37mset\033[0m: Sets the project’s TeX file using XeTeX. \033[37m[1, 3, N/A]\033[0m\n\
+    \t\033[37mhelp\033[0m: Shows this help message. \n\
+    \t\033[37mcount\033[0m: Counts lines and entries in the project’s TeX and BiB files. \n\
+    \t\033[37minfo\033[0m: Shows the project’s info from the project.conf file. \n\
+    \t\033[37mdl\033[0m: Downloads paper from sci-hub by DOI number. \n\
+    \t\033[37manchor\033[0m: CURRENTLY NON-FUNCTIONAL \n\
+    \t\033[37mrename\033[0m: Renames directory and/or project."
 }
 
 function set-tex-file {
@@ -192,7 +202,7 @@ case "$comd" in
     "create") create "$2" ;;
     "see") see-pdf-file ;;
     "set") set-tex-file "$2" ;;
-    "help") ;;
+    "help") show-help;;
     "count") count-all ;;
     "info") project-info ;;
     "dl") download-paper "$2" "$3" ;;
