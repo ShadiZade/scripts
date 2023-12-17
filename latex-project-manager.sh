@@ -2,19 +2,24 @@
 
 # non-interactive functions
 function list-project-files {
-    check-for-latex-directory \
-	&& eza -l --icons --no-user --time-style=iso --sort=modified --color-scale all --color=always \
-	       --group-directories-first --no-quotes --no-permissions --git -I "*log|*aux|*toc|*conf|set.sh" \
-	       || echo -e "\033[33m:: Nothing here for LPM to work with.\033[0m"
+    check-for-latex-directory
+    eza -l --icons --no-user --time-style=iso --sort=modified --color-scale all --color=always \
+	--group-directories-first --no-quotes --no-permissions --git -I "*log|*aux|*toc|*conf|set.sh"
 }
 
 function check-for-latex-directory {
-    fd -q -d 1 "project.conf"
+    fd -q -d 1 "project.conf" || exist_tex="NO"
+    [ "$exist_tex" = "NO" ] && echo -e "\033[33m:: Nothing here for LPM to work with.\033[0m" && exit
 }
 
 function check-dependencies {
     dependencies=("xelatex" "bibtex" "eza" "fd" "zathura")
     # continue this later    
+}
+
+function conf-info-extract {
+    check-for-latex-directory
+    cat project.conf | grep "^$1 = " | awk -F ' = ' '{print $NF}'
 }
 
 function enumerate-bib-file {
@@ -40,6 +45,7 @@ function create {
        && echo -e "\033[32m:: All parameters replaced.\033[0m" \
    	   || echo -e "\033[33m:: Not all parameters replaced.\033[0m"
    cd ./"$name" || exit
+   echo -e "project_name = $name" >> project.conf
    [ "$x" = 2 ] \
        && xelatex -interaction=batchmode ./"$name".tex \
        && echo -e "\033[32m:: LaTeX files initialized.\033[0m" \
@@ -49,11 +55,17 @@ function create {
 }
 
 function see-pdf-file {
-echo hi
+    check-for-latex-directory
+    filename="$(conf-info-extract "project_name")"
+    [ -z "$filename" ] && echo -e "\033[33m:: Project name not found in .conf file.\033[0m" && exit
+    [ -e "$(echo $filename.pdf)" ] \
+	&& zathura "$filename".pdf \
+	    || echo -e "\033[33m:: PDF file \033[36m$filename.pdf\033[33m not found.\033[0m" 
 }
 
 function project-info {
-echo hi
+    check-for-latex-directory
+    bat -Ppf -l conf ./project.conf
 }
 
 function show-help {
@@ -61,7 +73,8 @@ echo hi
 }
 
 function set-tex-file {
-echo hi
+    check-for-latex-directory
+    ./set.sh "$1"
 }
 
 
@@ -71,10 +84,10 @@ comd="$1"
 
 case "$comd" in
     "create") create "$2" ;;
-    "see") ;;
-    "set") ;;
+    "see") see-pdf-file ;;
+    "set") set-tex-file "$2" ;;
     "help") ;;
-    "info") ;;
+    "info") project-info ;;
     *) echo -e "\033[33m:: Unrecognized command.\033[0m" ;;
 esac
 
