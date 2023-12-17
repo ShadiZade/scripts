@@ -19,6 +19,7 @@ function translate-kebab {
     name_translated="$(trans -b "$detected_lang":en "$name_alone")"
     [ -z "$yt_url" ] || yt_url="$(echo "-[$yt_url]")"
     name_final="$(echo $name_translated$yt_url.$ext_alone)"
+    name_final="$(echo $name_final | sed 's|/|-|g')"
     case "$detected_lang" in
 	"ar") detected_lang="Arabic" ;;
 	"ru") detected_lang="Russian" ;;
