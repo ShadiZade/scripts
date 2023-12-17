@@ -3,7 +3,8 @@
 # non-interactive functions
 function list-project-files {
     check-for-latex-directory \
-	&& eza -l --icons --no-user --time-style=iso --sort=newest --color-scale all \
+	&& eza -l --icons --no-user --time-style=iso --sort=modified --color-scale all --color=always \
+	       --group-directories-first --no-quotes --no-permissions --git -I "*log|*aux|*toc|*conf|set.sh" \
 	       || echo -e "\033[33m:: Nothing here for LPM to work with.\033[0m"
 }
 
@@ -14,6 +15,14 @@ function check-for-latex-directory {
 function check-dependencies {
     dependencies=("xelatex" "bibtex" "eza" "fd" "zathura")
     # continue this later    
+}
+
+function enumerate-bib-file {
+echo hi
+}
+
+function count-tex-file-words {
+echo hi
 }
 
 # interactive functions
