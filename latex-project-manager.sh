@@ -1,5 +1,8 @@
 #!/bin/bash
 
+data_dir="$XDG_DATA_HOME/OpenShennong"
+projects_csv="$data_dir/projects.csv"
+
 # non-interactive functions
 function conf-info-extract {
     runcase-dealer only 0
@@ -15,14 +18,36 @@ function anchor-project {
     export ANCHOR_DONE="1"
 }
 
+function goto-project {
+    # doesn't work, more fucking subshell bullshit again.
+    [ "$(cat "$projects_csv" | wc -l)" = 0 ] \
+	&& echo -e "\033[33m:: No projects in local data file.\033[0m" \
+	&& exit
+    intended_target="$(xsv select 1 "$projects_csv" | fzf)"
+    [ -z "$intended_target" ] \
+	&& echo -e "\033[33m:: Nothing selected.\033[0m" \
+	&& exit
+    cd "$(grep "^$intended_target," "$projects_csv" | xsv select 2)" \
+	&& echo -e "\033[32m:: Welcome to \033[36m$intended_target\033[32m at \033[36m$(pwd)\033[32m.\033[0m" \
+	&& list-project-files \
+		|| echo -e "\033[33m:: Failed to go to \033[36m$intended_target\033[33m.\033[0m"
+}
+
+
 function list-project-files {
     runcase-dealer not F
     case $runcase in
-	1) eza -l --icons --no-user --time-style=iso --sort=newest --color-scale all && exit ;;
+	1) case "$1" in
+	       "year") ;;
+	       *) eza -l --icons --no-user --time-style=iso --sort=newest --color-scale all && exit ;;
+	   esac
+	   ;;
 	2) eza -l --icons --no-user --time-style=iso --sort=newest --color-scale all && exit ;;
-	*) runcase-dealer only 0
+# 	F) goto-project ;;
+	0) runcase-dealer only 0
 	   eza -l --icons --no-user --time-style=iso --sort=modified --color-scale all --color=always \
 	       --group-directories-first --no-quotes --no-permissions --git -I "*log|*aux|*toc|*conf|*blg|*bbl|set.sh" ;;
+	*) echo -e "\033[33:: list-project-files: Unknown runcase.\033[0m" && exit ;;
     esac
 }
 
@@ -72,35 +97,68 @@ function runcase-dealer {
 	    echo -e "\033[33m:: Unknown runcase-dealer command.\033[0m" ;;
     esac
 }
+
+function save-to-local {
+    runcase-dealer only 0
+    project_name="$(conf-info-extract project_name)"
+    project_dir="$(conf-info-extract project_dir)"
+    [ ! -e "$data_dir" ] && mkdir "$data_dir"
+    touch "$projects_csv"
+    grep "$project_dir" "$projects_csv" && exit
+    echo "$project_name,$project_dir" >> "$projects_csv" \
+	&&  echo -e "\033[32m:: Project recorded at "$data_dir"\033[0m"
+}
+
+function remove-from-local {
+    # $1 should be a project_dir
+    [ ! -e "$projects_csv" ] && mkdir "$data_dir"
+    touch "$projects_csv"
+    [ ! "$(grep "$1" "$projects_csv")" ] \
+	&& echo -e "\033[33m:: Project not recorded at "$data_dir"\033[0m" \
+	&& exit
+    old_project_dir="$1"
+    grep -v "$old_project_dir$" "$projects_csv" > "$projects_csv".temp
+    mv "$projects_csv".temp "$projects_csv" \
+	&& echo -e "\033[32m:: Project removed from "$data_dir"\033[0m"
+}
+
 function check-dependencies {
-    dependencies=("xelatex" "bibtex" "eza" "fd" "zathura" "texcount")
+    dependencies=("xelatex" "bibtex" "eza" "fd" "zathura" "texcount" "xsv")
     # continue this later    
 }
 
 # interactive functions
 function create {
     runcase-dealer only F
-   [ -z "$1" ] && echo -e "\033[33m:: Please enter project name.\033[0m" && exit
-   fd -q "^$1$" && echo -e "\033[33m:: Clobber prevented. Choose a different name.\033[0m" && exit
-   name="$1"
-   x=0
-   cp -nr ~/Misc/templates/latex/ ./"$name" \
-       && echo -e "\033[32m:: Template copied.\033[0m" \
-   	   || echo -e "\033[33m:: Template not copied.\033[0m"
-   sed -i "s/REPLACEHERE/$name/g" ./"$name"/set.sh && ((x++))
-   mv -n ./"$name"/template.tex ./"$name"/"$name".tex && ((x++))
-   [ "$x" = 2 ] \
-       && echo -e "\033[32m:: All parameters replaced.\033[0m" \
-   	   || echo -e "\033[33m:: Not all parameters replaced.\033[0m"
-   cd ./"$name" || exit
-   echo -e "project_name = $name" >> project.conf
-   echo -e "project_dir = $(pwd)" >> project.conf
-   [ "$x" = 2 ] \
-       && xelatex -interaction=batchmode ./"$name".tex \
-       && echo -e "\033[32m:: LaTeX files initialized.\033[0m" \
-       && ((x++))
-   [ "$x" = 3 ] \
-       && echo -e "\033[35m:: Welcome to your project: $name.\033[0m"
+    [ -z "$1" ] \
+	&& echo -e "\033[33m:: Please enter project name.\033[0m" \
+	&& exit
+    fd -q "^$1$" \
+	&& echo -e "\033[33m:: Clobber prevented. Choose a different name.\033[0m" \
+	&& exit
+    xsv select 1 "$projects_csv" | grep -q "$1" \
+	&& echo -e "\033[33m:: \033[36m$1\033[33m already exists. Choose a different name.\033[0m" \
+	&& exit
+    name="$1"
+    x=0
+    cp -nr ~/Misc/templates/latex/ ./"$name" \
+	&& echo -e "\033[32m:: Template copied.\033[0m" \
+   	    || echo -e "\033[33m:: Template not copied.\033[0m"
+    sed -i "s/REPLACEHERE/$name/g" ./"$name"/set.sh && ((x++))
+    mv -n ./"$name"/template.tex ./"$name"/"$name".tex && ((x++))
+    [ "$x" = 2 ] \
+	&& echo -e "\033[32m:: All parameters replaced.\033[0m" \
+   	    || echo -e "\033[33m:: Not all parameters replaced.\033[0m"
+    cd ./"$name" || exit
+    echo -e "project_name = $name" >> project.conf
+    echo -e "project_dir = $(pwd)" >> project.conf
+    [ "$x" = 2 ] \
+	&& xelatex -interaction=batchmode ./"$name".tex \
+	&& echo -e "\033[32m:: LaTeX files initialized.\033[0m" \
+	&& ((x++))
+    [ "$x" = 3 ] \
+	&& save-to-local \
+	&& echo -e "\033[35m:: Welcome to your project: $name.\033[0m" 
 }
 
 function see-pdf-file {
@@ -170,20 +228,25 @@ function rename-stuff {
     }
     case "$1" in
 	"dir")
+	    project_name="$(conf-info-extract project_name)"
 	    project_dir="$(conf-info-extract project_dir)"
-	    rename-directory "$2" 
+	    remove-from-local "$project_dir"
+	    rename-directory "$2"
 	    sed -i "s|$project_dir|$(pwd)|g" ./project.conf
+	    save-to-local
 	    echo -e "\033[32m:: Directory renamed to $2"
 	    ;;
 	"project")
 	    project_name="$(conf-info-extract project_name)"
 	    project_dir="$(conf-info-extract project_dir)"
+	    remove-from-local "$project_dir"
 	    rename -va "$project_name" "$2" ./*
 	    rename-directory "$2"
 	    runcase-dealer only 0
 	    sed -i "s|project_name = $project_name|project_name = $2|g" ./project.conf
 	    sed -i "s|project_dir = $project_dir|project_dir = $(pwd)|g" ./project.conf
 	    sed -i "s|project_name=\"$project_name\"|project_name=\"$2\"|g" ./set.sh
+	    save-to-local
 	    echo -e "\033[32m:: Project renamed to $2"
 	    ;;
 	*)
@@ -206,7 +269,8 @@ case "$comd" in
     "count") count-all ;;
     "info") project-info ;;
     "dl") download-paper "$2" "$3" ;;
-    "anchor") anchor-project ;;
+    "ls") list-project-files "$2" ;;
+    "anchor") save-to-local ;;
     "rename") rename-stuff "$2" "$3" ;;
     *) echo -e "\033[33m:: Unrecognized command.\033[0m" ;;
 esac
