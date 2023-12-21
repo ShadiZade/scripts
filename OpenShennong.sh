@@ -199,6 +199,30 @@ function see-pdf-file {
 	    || echo -e "\033[33m:: PDF file \033[36m$filename.pdf\033[33m not found.\033[0m" 
 }
 
+function pdfgrep-term-freq {
+    runcase-dealer only 0
+    [ -z "$1" ] \
+	&& echo -e "\033[33m:: Please enter a search term.\033[0m"
+    echo "$1" | grep -q '/' \
+	&& echo -e "\033[33m:: Lookup term cannot contain /.\033[0m" \
+	&& exit
+    lookup_file="./.lookups/lookup.$1.shennong"
+    fd -qu lookup."$1".shennong ./.lookups \
+	&& echo -e "\033[32m:: Previous lookup found!\033[0m" \
+	&& bat -p "$lookup_file" \
+	&& exit
+    echo -e "\033[32m:: Working...\033[0m"
+    pdfgrep --color=always -ic "$1" papers/* \
+	| sed '/0$/d;s/:/,/g' \
+	| xsv select 2,1 2>/dev/null \
+	| sort -V \
+	| tac \
+	      > "$lookup_file"
+    [ "$(cat "$lookup_file" | wc -l)" -eq 0 ] \
+	&& echo -e "\033[33m:: No results found!\033[0m" > "$lookup_file"
+    bat -p "$lookup_file"
+}
+
 function project-info {
     runcase-dealer only 0
     bat -Ppf -l conf ./project.conf
@@ -311,6 +335,7 @@ case "$comd" in
     "ls") list-project-files "$2" ;;
     "anchor") save-to-local ;;
     "rename") rename-stuff "$2" "$3" ;;
+    "lookup") pdfgrep-term-freq "$2" ;;
     *) echo -e "\033[33m:: Unrecognized command.\033[0m" ;;
 esac
 
