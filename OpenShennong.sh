@@ -250,8 +250,10 @@ function set-tex-file {
 function count-all {
     runcase-dealer only 0
     filename="$(conf-info-extract "project_name")"
-    echo -e "\033[32m:: TeX file stats: $(texcount -1 -utf8 -ch -q "$filename".tex)\033[0m"
-    echo -e "\033[32m:: Bib file stats: $(grep "@" refs.bib | wc -l) entries\033[0m"
+    blg_used="$(grep -i "You've used" "$filename".blg | awk -F ' ' '{print $3}')"
+    bib_count="$(grep "@" refs.bib | wc -l)"
+    echo -e "\033[32m:: TeX file stats: \033[36m$(texcount -1 -utf8 -ch -q "$filename".tex)\033[0m"
+    echo -e "\033[32m:: Bib file stats: \033[36m$bib_count\033[32m entries, of whom \033[36m$blg_used\033[32m are in use.\033[0m"
 }
 
 function download-paper {
