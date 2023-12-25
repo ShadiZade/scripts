@@ -208,7 +208,7 @@ function pdfgrep-term-freq {
 	&& exit
     lookup_file="./.lookups/lookup.$1.shennong"
     fd -qu lookup."$1".shennong ./.lookups \
-	&& echo -e "\033[32m:: Previous lookup found!\033[0m" \
+	&& echo -e "\033[32m:: Previous lookup found! To refresh, use the 'relookup' command.\033[0m" \
 	&& bat -p "$lookup_file" \
 	&& exit
     echo -e "\033[32m:: Working...\033[0m"
