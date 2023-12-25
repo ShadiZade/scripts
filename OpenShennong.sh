@@ -223,6 +223,21 @@ function pdfgrep-term-freq {
     bat -p "$lookup_file"
 }
 
+function pdfgrep-term-freq-again {
+    runcase-dealer only 0
+    [ -z "$1" ] \
+	&& echo -e "\033[33m:: Please enter a search term.\033[0m"
+    echo "$1" | grep -q '/' \
+	&& echo -e "\033[33m:: Lookup term cannot contain /.\033[0m" \
+	&& exit
+    lookup_file="./.lookups/lookup.$1.shennong"
+    [ -e "$lookup_file" ] \
+	&& echo -e "\033[32m:: $(mv -nv "$lookup_file" "./.lookups/.archive/lookup.$1.$(date +%Y%m%d%H%M%S).shennong") \033[0m" \
+	    || echo -e "\033[33m:: No such previous lookup.\033[0m"
+    pdfgrep-term-freq "$1"
+}
+
+
 function project-info {
     runcase-dealer only 0
     bat -Ppf -l conf ./project.conf
@@ -338,6 +353,7 @@ case "$comd" in
     "anchor") save-to-local ;;
     "rename") rename-stuff "$2" "$3" ;;
     "lookup") pdfgrep-term-freq "$2" ;;
+    "relookup") pdfgrep-term-freq-again "$2" ;;
     *) echo -e "\033[33m:: Unrecognized command.\033[0m" ;;
 esac
 
