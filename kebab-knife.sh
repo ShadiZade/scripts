@@ -12,9 +12,16 @@ purename="$(echo "$init_kebab" | sed 's/\..*//g')"
 headers="$(echo "$purename" | xsv headers -d '-')"
 tot_num_indices="$(echo "$headers" | tail -n 1 | awk '{print $1}')"
 echo -e "\033[37m$headers\033[0m"
-echo -e ":: Choose order (as such: 1 4 3 8)"
+echo -e ":: Choose order (as such: '1 4 8 3' or '1-4')"
 read -r -p ":: or enter 'a' for addition or 'd' for deletion: " modnum
-     
+
+function sequencer {
+    echo "$modnum" | grep -q '-' \
+	|| return
+    modnum="$(echo "$modnum" | sed 's/-/ /')"
+    modnum="$(seq -s " " $modnum)"
+}
+
 
 function simple-reorder {
 modnum="$(echo $modnum | sed 's/ /,/g')"
@@ -33,6 +40,10 @@ function delete-some {
     i=0
     modnum="$(seq -s " " 1 $tot_num_indices)"
     read -r -p ":: please list indices of unwanted words with whitespace in between: " -a deleted
+    echo "${deleted[@]}" | grep -q '-' \
+	&& deleted="$(echo "$deleted" | sed 's/-/ /')" \
+	&& deleted_seq="$(seq -s " " $deleted)" \
+	&& IFS=" " read -r -a deleted <<< "$deleted_seq"
     while [ "$i" -lt "$(echo ${#deleted[@]})" ]; do
 	modnum="$(echo " $modnum " | sed "s/ ${deleted[$i]} / /g")"
 	((i++))
@@ -47,8 +58,9 @@ function add-more {
     headers="$(echo "$purename" | xsv headers -d '-')"
     tot_num_indices="$(echo "$headers" | tail -n 1 | awk '{print $1}')"
     echo -e "\033[37m$headers\033[0m"
-    echo -e ":: Choose order (as such: 1 4 3 8)"
+    echo -e ":: Choose order (as such: '1 4 8 3' or '1-4')"
     read -r -p ":: or enter 'd' for deletion (you cannot enter 'a'), or nothing to confirm: " modnum
+    sequencer
     case $modnum in
 	d) delete-some ;;
 	a) echo -e "\033[33m:: We told you not to use 'a' again." \
@@ -58,6 +70,7 @@ function add-more {
     esac
 }
 
+sequencer
 case "$modnum" in
     a) add-more ;;
     d) delete-some ;;
