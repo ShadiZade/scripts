@@ -6,6 +6,8 @@
 ~/Repositories/scripts/mv-kebab.sh "$1"
 init_kebab="$(cat ~/.kebab)"
 ext="$(echo .$(echo "$1" | awk -F '.' '{print $NF}'))"
+echo "$1" | grep -q "\." \
+    || ext=""
 purename="$(echo "$init_kebab" | sed 's/\..*//g')"
 headers="$(echo "$purename" | xsv headers -d '-')"
 tot_num_indices="$(echo "$headers" | tail -n 1 | awk '{print $1}')"
@@ -16,8 +18,6 @@ read -r -p ":: or enter 'a' for addition or 'd' for deletion: " modnum
 
 function simple-reorder {
 modnum="$(echo $modnum | sed 's/ /,/g')"
-echo "$1" | grep -q "\." \
-    || ext=""
 echo -e ":: old name is \033[33m$(echo $init_kebab$ext)\033[0m"
 echo -e ":: new name is \033[37m$(echo $purename | xsv select -d '-' $modnum | sed 's/,/-/g')$ext\033[0m"
 read -r -p ":: Perform the move? (Y/n) " proceed
