@@ -152,7 +152,7 @@ function remove-from-local {
 }
 
 function check-dependencies {
-    dependencies=("xelatex" "bibtex" "eza" "fd" "zathura" "texcount" "xsv")
+    dependencies=("texlive-xetex" "texlive-bibtexextra" "texlive-binextra" "eza" "fd" "zathura" "xsv" "bat" "pdfgrep")
     # continue this later    
 }
 
