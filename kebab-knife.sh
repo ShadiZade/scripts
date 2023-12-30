@@ -4,7 +4,20 @@
     && echo -e "\033[33m:: Please enter filename.\033[0m" \
     && exit
 ~/Repositories/scripts/mv-kebab.sh "$1"
-init_kebab="$(cat ~/.kebab)"
+
+yt_url_p='n'
+echo "$1" \
+    | grep -q "\]\." \
+    && yt_url_p='y'
+[ "$yt_url_p" = "y" ] \
+    && yt_url="$(echo "$1" | awk -F '[' '{print $NF}' | awk -F ']' '{print $1}')" \
+    && yt_url="$(echo "["$yt_url"]" | sed 's/-/–/g')" \
+    && yt_url="$(echo "-$yt_url")"                           
+
+    # hyphen is sedded into an en-dash for convenience
+    # this is reversed in the simple-reorder function
+    
+init_kebab="$(echo "$(cat ~/.kebab)"$yt_url)"
 ext="$(echo .$(echo "$1" | awk -F '.' '{print $NF}'))"
 echo "$1" | grep -q "\." \
     || ext=""
@@ -32,8 +45,14 @@ proceed=${proceed:-y}
 case "$proceed" in
     "n") echo ":: Move NOT performed."
          exit ;;
-    *) mv -nv "$(echo $init_kebab$ext)" "$(echo $purename | xsv select -d '-' $modnum | sed 's/,/-/g')$ext" ;;
-esac
+    *) init_kebab="$(echo "$init_kebab" | sed 's/–/-/g')"
+       endashed_name="$(echo "$purename" | xsv select -d '-' $modnum | sed 's/,/-/g')"
+       mv -nv "$(echo "$init_kebab$ext")" "$endashed_name$ext"
+       purename="$(echo "$endashed_name" | sed 's/–/-/g')"
+       [ "$purename" = "$endashed_name" ] \
+	   || mv -n "$endashed_name$ext" "$purename$ext"
+       ;;
+    esac
 }
 
 function delete-some {
