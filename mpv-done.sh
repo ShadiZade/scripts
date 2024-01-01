@@ -1,8 +1,11 @@
 #!/bin/bash
 
 [ -z "$1" ] \
-    && ep="$(eza -f1 --no-quotes | grep -v srt | fzf)" \
+    && ep="$(eza -f1 --no-quotes | grep -Ev 'srt$|vtt$' | fzf)" \
 	|| ep="$1"
+[ -z "$ep" ] \
+    && echo -e "\033[33m:: No file selected.\033[0m" \
+    && exit
 mpv "$ep" || exit
 fd -q donefile && exit
 fd -q "^done" && done_exists="y" || done_exists="n"
