@@ -274,6 +274,7 @@ function unused-papers {
     runcase-dealer only 0
     allpapers=($(grep '@' refs.bib | awk -F '{' '{print $NF}' | sed 's/,$//g'))
     i=0
+    unused=0
     count-all
     echo -e "\033[32m:: These are your unused papers:\033[0m"
     while [ "$i" -le "${#allpapers[@]}" ]; do
@@ -282,8 +283,9 @@ function unused-papers {
 	((i++))
 	grep -q "$thispaper" "$filename".bbl \
 	    && continue
-	echo "$thispaper"
+	echo "$thispaper" && ((unused++))
     done
+    echo -e "\033[32m:: There were \033[36m$unused\033[32m unused papers.\033[0m"
 }
 
 function download-paper {
