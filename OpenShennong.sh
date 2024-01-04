@@ -237,7 +237,6 @@ function pdfgrep-term-freq-again {
     pdfgrep-term-freq "$1"
 }
 
-
 function project-info {
     runcase-dealer only 0
     bat -Ppf -l conf ./project.conf
@@ -269,6 +268,22 @@ function count-all {
     bib_count="$(grep "@" refs.bib | wc -l)"
     echo -e "\033[32m:: TeX file stats: \033[36m$(texcount -1 -utf8 -ch -q "$filename".tex)\033[0m"
     echo -e "\033[32m:: Bib file stats: \033[36m$bib_count\033[32m entries, of whom \033[36m$blg_used\033[32m are in use.\033[0m"
+}
+
+function unused-papers {
+    runcase-dealer only 0
+    allpapers=($(grep '@' refs.bib | awk -F '{' '{print $NF}' | sed 's/,$//g'))
+    i=0
+    count-all
+    echo -e "\033[32m:: These are your unused papers:\033[0m"
+    while [ "$i" -le "${#allpapers[@]}" ]; do
+	thispaper="${allpapers[$i]}"
+	filename="$(conf-info-extract "project_name")"
+	((i++))
+	grep -q "$thispaper" "$filename".bbl \
+	    && continue
+	echo "$thispaper"
+    done
 }
 
 function download-paper {
@@ -354,6 +369,7 @@ case "$comd" in
     "rename") rename-stuff "$2" "$3" ;;
     "lookup") pdfgrep-term-freq "$2" ;;
     "relookup") pdfgrep-term-freq-again "$2" ;;
+    "unused") unused-papers ;;
     *) echo -e "\033[33m:: Unrecognized command.\033[0m" ;;
 esac
 
