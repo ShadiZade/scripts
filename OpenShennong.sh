@@ -285,12 +285,23 @@ function unused-papers {
 	grep -q "$thispaper" "$filename".bbl \
 	    && continue
 	undwarning=""
-	if ! fd -q "$thispaper".pdf ./papers; then   
+	if ! fd -q "^$thispaper".pdf ./papers; then   
 	    undwarning="\t\033[33m<--- UNDOWNLOADED\033[0m"
 	    ((undownloaded++))
 	    ((unused--))
 	fi
 	echo -e "$thispaper$undwarning" && ((unused++))
+    done
+    allpapers=($(eza -1 ./papers | sed 's/\.pdf//g')) # reuse allpapers to list all pdfs
+    i=0
+    unbibbed=0
+    while [ "$i" -le "${#allpapers[@]}" ]; do
+	thispaper="${allpapers[$i]}"
+	((i++))
+	grep -q "$thispaper," refs.bib \
+	     && continue
+	echo -e "$thispaper \t\033[31m<--- NOT IN BIB FILE\033[0m"
+	((unbibbed++))
     done
     echo -e "\033[32m:: There were \033[36m$unused\033[32m unused and \033[36m$undownloaded\033[32m undownloaded papers.\033[0m"
 }
