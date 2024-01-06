@@ -266,17 +266,10 @@ function count-all {
     filename="$(conf-info-extract "project_name")"
     blg_used="$(grep -i "You've used" "$filename".blg | awk -F ' ' '{print $3}')"
     bib_count="$(grep "@" refs.bib | wc -l)"
-    echo -e "\033[32m:: TeX file stats: \033[36m$(texcount -1 -utf8 -ch -q "$filename".tex)\033[0m"
-    echo -e "\033[32m:: Bib file stats: \033[36m$bib_count\033[32m entries, of whom \033[36m$blg_used\033[32m are in use.\033[0m"
-}
-
-function unused-papers {
-    runcase-dealer only 0
     allpapers=($(grep '@' refs.bib | awk -F '{' '{print $NF}' | sed 's/,$//g'))
     i=0
     unused=0
     undownloaded=0
-    count-all
     echo -e "\033[32m:: These are your unused papers:\033[0m"
     while [ "$i" -le "${#allpapers[@]}" ]; do
 	thispaper="${allpapers[$i]}"
@@ -290,7 +283,7 @@ function unused-papers {
 	    ((undownloaded++))
 	    ((unused--))
 	fi
-	echo -e "$thispaper$undwarning" && ((unused++))
+	echo -e "$thispaper $undwarning" && ((unused++))
     done
     allpapers=($(eza -1 ./papers | sed 's/\.pdf//g')) # reuse allpapers to list all pdfs
     i=0
@@ -300,10 +293,14 @@ function unused-papers {
 	((i++))
 	grep -q "$thispaper," refs.bib \
 	     && continue
-	echo -e "$thispaper \t\033[31m<--- NOT IN BIB FILE\033[0m"
+	echo -e "$thispaper \t\033[31m<--- UNBIBBED\033[0m"
 	((unbibbed++))
     done
-    echo -e "\033[32m:: There were \033[36m$unused\033[32m unused and \033[36m$undownloaded\033[32m undownloaded papers.\033[0m"
+    echo -e "\033[32m:: Bib file stats: \033[36m$bib_count\033[32m entries, of whom \033[36m$blg_used\033[32m are in use,\033[0m \033[36m$unused\033[32m unused, \033[36m$undownloaded\033[32m undownloaded, and \033[31m$unbibbed\033[32m unbibbed papers.\033[0m"
+    allcalc=$((blg_used + unused + undownloaded - unbibbed))
+    [ "$allcalc" -ne "$bib_count" ] \
+	&& echo -e "\033[33m:: Something went wrong. The sum \033[36m$allcalc\033[33m is different than the Bib file number \033[36m$bib_count\033[33m.\033[0m"
+    echo -e "\033[32m:: TeX file stats: \033[36m$(texcount -1 -utf8 -ch -q "$filename".tex)\033[0m"
 }
 
 function download-paper {
@@ -389,7 +386,6 @@ case "$comd" in
     "rename") rename-stuff "$2" "$3" ;;
     "lookup") pdfgrep-term-freq "$2" ;;
     "relookup") pdfgrep-term-freq-again "$2" ;;
-    "unused") unused-papers ;;
     *) echo -e "\033[33m:: Unrecognized command.\033[0m" ;;
 esac
 
