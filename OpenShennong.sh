@@ -270,6 +270,7 @@ function count-all {
     i=0
     unused=0
     undownloaded=0
+    commented=0
     echo -e "\033[32m:: These are your unused papers:\033[0m"
     while [ "$i" -le "${#allpapers[@]}" ]; do
 	thispaper="${allpapers[$i]}"
@@ -279,9 +280,15 @@ function count-all {
 	    && continue
 	undwarning=""
 	if ! fd -q "^$thispaper".pdf ./papers; then   
-	    undwarning="\t\033[33m<--- UNDOWNLOADED\033[0m"
+	    undwarning=" \t\033[33m<--- UNDOWNLOADED\033[0m"
 	    ((undownloaded++))
 	    ((unused--))
+	fi
+	if grep -qF "% ~\\ci{$thispaper}" "$filename".tex; then
+	    [ -z "$undwarning" ] \
+		&& undwarning=" \t\033[35m<--- COMMENTED\033[0m" \
+		    || undwarning=" \t\033[35m<--- COMMENTED \033[33mUNDOWNLOADED\033[0m"
+	    ((commented++))
 	fi
 	echo -e "$thispaper $undwarning" && ((unused++))
     done
@@ -296,7 +303,7 @@ function count-all {
 	echo -e "$thispaper \t\033[31m<--- UNBIBBED\033[0m"
 	((unbibbed++))
     done
-    echo -e "\033[32m:: Bib file stats: \033[36m$bib_count\033[32m entries, of whom \033[36m$blg_used\033[32m are in use,\033[0m \033[36m$unused\033[32m unused, \033[36m$undownloaded\033[32m undownloaded, and \033[31m$unbibbed\033[32m unbibbed papers.\033[0m"
+    echo -e "\033[32m:: Bib file stats: \033[36m$bib_count\033[32m entries, of whom \033[36m$blg_used\033[32m are in use,\033[0m \033[36m$unused\033[32m unused (\033[36m$commented\033[32m commented), \033[36m$undownloaded\033[32m undownloaded, and \033[31m$unbibbed\033[32m unbibbed papers.\033[0m"
     allcalc=$((blg_used + unused + undownloaded - unbibbed))
     [ "$allcalc" -ne "$bib_count" ] \
 	&& echo -e "\033[33m:: Something went wrong. The sum \033[36m$allcalc\033[33m is different than the Bib file number \033[36m$bib_count\033[33m.\033[0m"
@@ -310,7 +317,7 @@ function download-paper {
 	&& echo -e "\033[33m:: No DOI entered.\033[0m" \
 	&& exit
     indoi="$(echo "$1" | sed 's|https://doi.org/||')" \
-	&& echo -e "\033[32m:: DOI is \033[36m$indoi\033[0m"
+	&& echo -e "\033[32m:: Going to \033[36mhttps://sci-hub.ru/$indoi\033[0m"
     shurl="$(curl -s "https://sci-hub.ru/$indoi")" \
 	&& echo -e "\033[32m:: Sci-Hub queried!\033[0m"
     ddurl="$(echo "$shurl" | grep -i 'pdf" src' | awk -F 'src="' '{print $2}' | awk -F '#' '{print $1}' | tr -d "\n")"
@@ -319,9 +326,13 @@ function download-paper {
     [[ -z "$2" ]] \
 	&& bibname="unnamed" \
 	    || bibname="$2"
-    fd -q "$bibname".pdf \
-	&& echo -e "\033[33m:: Paper \033[36m$bibname\033[33m already exists.\033[0m" \
-	&& exit
+    if fd -q "$bibname".pdf; then
+	echo -ne "\033[33m:: Paper \033[36m$bibname\033[33m already exists. Overwrite? (y/N) \033[0m"
+	read -r overwrite_p
+	[ "$overwrite_p" = y ] \
+	    && echo -e "\033[32m:: $(rm -vf "$bibname".pdf)\033[0m" \
+		|| exit
+    fi
     [[ -z "$ddurl" ]] \
 	&& echo -e "\033[33m:: No file found in Sci-Hub.\033[0m" \
 	&& exit
