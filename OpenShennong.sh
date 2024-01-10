@@ -286,10 +286,12 @@ function count-all {
 	fi
 	if grep -qF "% ~\\ci{$thispaper}" "$filename".tex; then
 	    [ -z "$undwarning" ] \
-		&& undwarning=" \t\033[35m<--- COMMENTED\033[0m" \
-		    || undwarning=" \t\033[35m<--- COMMENTED \033[33mUNDOWNLOADED\033[0m"
+		&& undwarning="\033[35m✓\033[0m" \
+		    || undwarning=" \t\033[33m<--- COMMENTED but UNDOWNLOADED\033[0m"
 	    ((commented++))
 	fi
+	[ -z "$undwarning" ] \
+	    && undwarning=" \t\033[34m<--- UNCOMMENTED\033[0m"
 	echo -e "$thispaper $undwarning" && ((unused++))
     done
     allpapers=($(eza -1 ./papers | sed 's/\.pdf//g')) # reuse allpapers to list all pdfs
