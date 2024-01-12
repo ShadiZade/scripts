@@ -35,7 +35,8 @@ do
     echo -e "--------------------------------"
     echo -e ":: Opened file \033[32m$i\033[0m"
     case "$1" in
-	"rename") rename-lof
+	"rename") listoffiles="$(echo "$listoffiles" | shuffle)"
+		  rename-lof
 		  ;;
 	"view") echo -e ":: This file is \033[31m$current_file\033[0m"
 		;;
