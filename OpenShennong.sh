@@ -313,7 +313,6 @@ function count-all {
 }
 
 function download-paper {
-    runcase-dealer only 1
     echo -e "\033[32m:: Starting...\033[0m"
     [ -z "$1" ] \
 	&& echo -e "\033[33m:: No DOI entered.\033[0m" \
