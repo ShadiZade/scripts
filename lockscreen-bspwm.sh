@@ -2,7 +2,7 @@
 source ~/Repositories/scripts/bspwm-theme.sh
 quodlibet --pause
 function batc {
-    upower -i /org/freedesktop/UPower/devices/battery_BAT1 | grep percentage | awk '{print $2}'
+	upower -i /org/freedesktop/UPower/devices/battery_BAT1 | grep percentage | awk '{print $2}'
 }
 i3lock -kef -c "$bspwm_theme_primary_color"ff \
        --radius 290 \
