@@ -6,7 +6,7 @@
 [ -z "$ep" ] \
     && echo -e "\033[33m:: No file selected.\033[0m" \
     && exit
-mpv "$ep" || exit
+mpv --alang=eng --slang=eng "$ep" || exit
 fd -q donefile && exit
 fd -q "^done" && done_exists="y" || done_exists="n"
 [ "$done_exists" = "n" ] && choose_no_done="$(echo -e 'Create done marker\nCreate done dir\nDo nothing' | fzf --prompt='No done dir exists, what to do? ')"
