@@ -15,12 +15,11 @@ notify-send -t 3000 "Fetching Shows"
 stld=$(echo Lower Decks: $(clean-o https://thetvdb.com/series/star-trek-lower-decks))
 mando=$(echo The Mandalorian: $(clean-o https://thetvdb.com/series/the-mandalorian))
 severance=$(echo Severance: $(clean-o https://thetvdb.com/series/severance))
-rmoon=$(echo Rebel Moon: $(clean-o https://thetvdb.com/movies/rebel-moon))
 ofmd=$(echo Our Flag Means Death: $(clean-o https://thetvdb.com/series/our-flag-means-death))
 ahsoka=$(echo Ahsoka: $(clean-o https://thetvdb.com/series/ahsoka))
 snw=$(echo Strange New Worlds: $(clean-o https://thetvdb.com/series/star-trek-strange-new-worlds))
 
-concat_shows="$rmoon\n$mando\n$severance\n$snw\n$ahsoka\n$stld\n$ofmd\n"
+concat_shows="$mando\n$severance\n$snw\n$ahsoka\n$stld\n$ofmd\n"
 
 killall dunst; dunst -conf "$HOME/.config/dunst/dunstrc-right" &
 sleep 2s
