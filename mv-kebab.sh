@@ -1,21 +1,26 @@
 #!/bin/bash
+source ~/Repositories/scripts/essential-functions.sh
 
 function detect-language {
     orig_name="$1"
     detected_lang=xx
     echo "$orig_name" \
-	| grep -q "[ابتثجحخدذرزسشصضطظعغفقكلمنهويأءؤ]" && detected_lang=ar
+	| grep -q "[ابتثجحخدذرزسشصضطظعغفقكلمنهويأءؤ]" \
+	&& detected_lang=ar
     echo "$orig_name" \
-	| grep -qi "[йцукенгшщзхъфывапролджэячсмитьбю]" && detected_lang=ru
+	| grep -qi "[йцукенгшщзхъфывапролджэячсмитьбю]"  \
+	&& detected_lang=ru
     echo "$orig_name" \
-	| grep -qP "\p{Script=Han}" && detected_lang=zh
+	| grep -qP "\p{Script=Han}"  \
+	&& detected_lang=zh
     translate-kebab "$orig_name"
 }
 
 function translate-kebab {
     orig_name="$1"
     [ "$detected_lang" = "xx" ] \
-	&& name_after_trans="$orig_name" && return
+	&& name_after_trans="$orig_name"  \
+	&& return
     ext_alone="$(echo $orig_name | awk -F '.' '{print $NF}')"
     find-yt-url
     name_alone="$(echo $orig_name | sed "s/\.$ext_alone//")"

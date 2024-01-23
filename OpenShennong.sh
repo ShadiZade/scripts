@@ -30,7 +30,7 @@
 #
 
 data_dir="$XDG_DATA_HOME/OpenShennong"
-projects_csv="$data_dir/projects.csv"
+local_registry="$data_dir/projects.csv"
 
 # non-interactive functions
 function conf-info-extract {
@@ -38,30 +38,20 @@ function conf-info-extract {
     cat project.conf | grep "^$1 = " | awk -F ' = ' '{print $NF}'
 }
 
-function anchor-project {
-    # manually define project_dir. This is a massive bodge.
-    # does not work. variables don’t export out.
-    runcase-dealer only 0
-    export PROJECT_NAME="$(conf-info-extract project_name)"
-    export PROJECT_DIR="$(conf-info-extract project_dir)"
-    export ANCHOR_DONE="1"
-}
-
 function goto-project {
     # doesn't work, more fucking subshell bullshit again.
-    [ "$(cat "$projects_csv" | wc -l)" = 0 ] \
+    [ "$(cat "$local_registry" | wc -l)" = 0 ] \
 	&& echo -e "\033[33m:: No projects in local data file.\033[0m" \
 	&& exit
-    intended_target="$(xsv select 1 "$projects_csv" | fzf)"
+    intended_target="$(xsv select 1 "$local_registry" | fzf)"
     [ -z "$intended_target" ] \
 	&& echo -e "\033[33m:: Nothing selected.\033[0m" \
 	&& exit
-    cd "$(grep "^$intended_target," "$projects_csv" | xsv select 2)" \
+    cd "$(grep "^$intended_target," "$local_registry" | xsv select 2)" \
 	&& echo -e "\033[32m:: Welcome to \033[36m$intended_target\033[32m at \033[36m$(pwd)\033[32m.\033[0m" \
 	&& list-project-files \
 		|| echo -e "\033[33m:: Failed to go to \033[36m$intended_target\033[33m.\033[0m"
 }
-
 
 function list-project-files {
     runcase-dealer not F
@@ -132,24 +122,59 @@ function save-to-local {
     project_name="$(conf-info-extract project_name)"
     project_dir="$(conf-info-extract project_dir)"
     [ ! -e "$data_dir" ] && mkdir "$data_dir"
-    touch "$projects_csv"
-    grep "$project_dir" "$projects_csv" && exit
-    echo "$project_name,$project_dir" >> "$projects_csv" \
+    touch "$local_registry"
+    grep "$project_dir" "$local_registry" && exit
+    echo "$project_name,$project_dir" >> "$local_registry" \
 	&&  echo -e "\033[32m:: Project recorded at "$data_dir"\033[0m"
 }
 
 function remove-from-local {
     # $1 should be a project_dir
-    [ ! -e "$projects_csv" ] && mkdir "$data_dir"
-    touch "$projects_csv"
-    [ ! "$(grep "$1" "$projects_csv")" ] \
+    [ ! -e "$local_registry" ] && mkdir "$data_dir"
+    touch "$local_registry"
+    [ ! "$(grep "$1" "$local_registry")" ] \
 	&& echo -e "\033[33m:: Project not recorded at "$data_dir"\033[0m" \
 	&& exit
     old_project_dir="$1"
-    grep -v "$old_project_dir$" "$projects_csv" > "$projects_csv".temp
-    mv "$projects_csv".temp "$projects_csv" \
+    grep -v "$old_project_dir$" "$local_registry" > "$local_registry".temp
+    mv "$local_registry" "$local_registry"-$(date +%Y%m%d%H%M%S)
+    mv "$local_registry".temp "$local_registry" \
 	&& echo -e "\033[32m:: Project removed from "$data_dir"\033[0m"
 }
+
+function remove-from-local-prompt {
+    [ ! -e "$local_registry" ] && mkdir "$data_dir"
+    touch "$local_registry"
+    selected_project="$(xsv select 1 "$local_registry" | fzf --prompt="Choose project to remove from local registry: ")"
+    [ -z "$selected_project" ] \
+	&& echo -e "\033[33m:: Nothing selected.\033[0m" \
+	&& exit
+    echo -ne "\033[32m:: Do you want to remove \033[37m$selected_project\033[32m from the local registry? (y/N) \033[0m"
+    read -r remove_p
+    [ "$remove_p" != "y" ] \
+	&& echo -e "\033[33m:: Nothing done.\033[0m" \
+	&& exit
+    sed -i "/^$selected_project,/d" "$local_registry" \
+	&& echo -e "\033[32m:: Project \033[37m$selected_project\033[32m removed from local registry.\033[0m"    
+}
+
+function show-local-registry {
+    bat -Pn "$local_registry"
+}
+
+function update-project-info-file {
+    runcase-dealer only 0
+    project_name="$(conf-info-extract project_name)"
+    project_dir="$(conf-info-extract project_dir)"
+    remove-from-local "$project_dir"
+    [ "$(pwd)" != "$project_dir" ] \
+	&& sed -i "/^project_dir /d" project.conf \
+	&& echo "project_dir = $(pwd)" >> project.conf \
+	&& echo -e "\033[32m:: Directory updated from $project_dir to $(pwd). Please run \033[37manchor\033[32m again.\033[0m" \
+	    || echo -e "\033[32m:: Project info already up-to-date.\033[0m"
+    # TODO: also add check for project name
+}
+
 
 function check-dependencies {
     dependencies=("texlive-xetex" "texlive-bibtexextra" "texlive-binextra" "eza" "fd" "zathura" "xsv" "bat" "pdfgrep")
@@ -165,7 +190,7 @@ function create {
     fd -q "^$1$" \
 	&& echo -e "\033[33m:: Clobber prevented. Choose a different name.\033[0m" \
 	&& exit
-    xsv select 1 "$projects_csv" | grep -q "$1" \
+    xsv select 1 "$local_registry" | grep -q "$1" \
 	&& echo -e "\033[33m:: \033[36m$1\033[33m already exists. Choose a different name.\033[0m" \
 	&& exit
     name="$1"
@@ -249,11 +274,15 @@ function show-help {
     \t\033[37msee\033[0m: Views the project’s PDF file.\n\
     \t\033[37mset\033[0m: Sets the project’s TeX file using XeTeX. \033[37m[1, 3, N/A]\033[0m\n\
     \t\033[37mhelp\033[0m: Shows this help message. \n\
-    \t\033[37mcount\033[0m: Counts lines and entries in the project’s TeX and BiB files. \n\
+    \t\033[37mcount\033[0m: Counts stats of the project’s TeX and BiB files. \n\
     \t\033[37minfo\033[0m: Shows the project’s info from the project.conf file. \n\
     \t\033[37mdl\033[0m: Downloads paper from sci-hub by DOI number. \n\
-    \t\033[37manchor\033[0m: CURRENTLY NON-FUNCTIONAL \n\
-    \t\033[37mrename\033[0m: Renames directory and/or project."
+    \t\033[37manchor\033[0m: Save project path to local registry. \n\
+    \t\033[37munanchor\033[0m: Remove project path from local registry. \n\
+    \t\033[37mshowall\033[0m: Show all projects currently in local registry. \n\
+    \t\033[37mrename\033[0m: Renames directory and/or project. \033[37m[project, dir]\033[0m\n \
+    \t\033[37mlookup\033[0m: Uses pdfgrep to find search term in all papers. \n\
+    \t\033[37mrelookup\033[0m: Ditto, but doesn’t resort to cached lookup files." 
 }
 
 function set-tex-file {
@@ -363,6 +392,9 @@ function rename-stuff {
 	"project")
 	    project_name="$(conf-info-extract project_name)"
 	    project_dir="$(conf-info-extract project_dir)"
+	    grep -q "^$2," "$local_registry" \
+		&& echo -e "\033[33m:: A project with that name already exists.\033[0m" \
+		&& exit
 	    remove-from-local "$project_dir"
 	    rename -va "$project_name" "$2" ./*
 	    rename-directory "$2"
@@ -395,9 +427,12 @@ case "$comd" in
     "dl") download-paper "$2" "$3" ;;
     "ls") list-project-files "$2" ;;
     "anchor") save-to-local ;;
+    "unanchor") remove-from-local-prompt ;;
+    "showall") show-local-registry ;;
     "rename") rename-stuff "$2" "$3" ;;
     "lookup") pdfgrep-term-freq "$2" ;;
     "relookup") pdfgrep-term-freq-again "$2" ;;
+    "update") update-project-info-file ;;
     *) echo -e "\033[33m:: Unrecognized command.\033[0m" ;;
 esac
 

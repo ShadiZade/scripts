@@ -1,4 +1,5 @@
 #!/bin/bash
+source ~/Repositories/scripts/essential-functions.sh
 
 file_list="$(ls -1 .)"
 while [ "$file_list" != "" ]

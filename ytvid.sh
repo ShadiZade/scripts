@@ -27,10 +27,7 @@ case $subspon in
 			exit
 			;;
 esac
-cd - > /dev/null
-echo ""
-echo ""
-echo "========================================================="
+echo -e "\n\n========================================================="
 echo ":: This is the video content of your ~/Excluding/ytvid directory:"
 echo "========================================================="
 eza ~/Excluding/ytvid -l --icons --sort=newest --no-user --no-permissions --no-filesize --no-time --time-style=iso | grep .mp4
