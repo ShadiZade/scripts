@@ -166,13 +166,16 @@ function update-project-info-file {
     runcase-dealer only 0
     project_name="$(conf-info-extract project_name)"
     project_dir="$(conf-info-extract project_dir)"
-    remove-from-local "$project_dir"
     [ "$(pwd)" != "$project_dir" ] \
 	&& sed -i "/^project_dir /d" project.conf \
 	&& echo "project_dir = $(pwd)" >> project.conf \
-	&& echo -e "\033[32m:: Directory updated from $project_dir to $(pwd). Please run \033[37manchor\033[32m again.\033[0m" \
+	&& echo -e "\033[32m:: Old directory: \033[37m$project_dir\033[0m" \
+	&& echo -e "\033[32m:: New directory: \033[37m$(pwd)\033[0m" \
+	&& remove-from-local "$project_dir" \
+	&& echo -e "\033[32m:: Please run \033[37manchor\033[32m again.\033[0m" \
 	    || echo -e "\033[32m:: Project info already up-to-date.\033[0m"
     # TODO: also add check for project name
+    # TODO: add parameter in project.conf to indicate whether project is in local registry
 }
 
 
