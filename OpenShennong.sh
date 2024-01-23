@@ -123,7 +123,9 @@ function save-to-local {
     project_dir="$(conf-info-extract project_dir)"
     [ ! -e "$data_dir" ] && mkdir "$data_dir"
     touch "$local_registry"
-    grep "$project_dir" "$local_registry" && exit
+    grep -q ",$project_dir$" "$local_registry" \
+	&& echo -e "\033[33m:: A project with the path \033[37m$project_dir\033[33m already exists.\033[0m" \
+	&& exit
     echo "$project_name,$project_dir" >> "$local_registry" \
 	&&  echo -e "\033[32m:: Project recorded at "$data_dir"\033[0m"
 }
