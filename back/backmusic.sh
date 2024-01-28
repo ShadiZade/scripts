@@ -43,7 +43,4 @@ basic-commit ~/Misc/Backups/my-music/
 echolor yellow ":: Done!"
 
 # TODO add CSV conversion 
-# this garbage script wouldn't look so fucking ugly if it was in common lisp. oh well.
-# ^^ just learn to use arrays, dumbass
-
 
