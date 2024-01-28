@@ -1,11 +1,11 @@
 #!/bin/bash
 source ~/Repositories/scripts/essential-functions.sh
 
-file_list="$(ls -1 .)"
-while [ "$file_list" != "" ]
+IFS=$'\n'
+file_list=($(eza -1 .))
+for j in ${file_list[@]}
 do
-    ~/Repositories/scripts/mv-kebab.sh "$(echo "$file_list" | sed 1q)"
-    file_list="$(echo "$file_list" | tail -n +2)"
+    ~/Repositories/scripts/mv-kebab.sh "$j"
 done
 
 	
