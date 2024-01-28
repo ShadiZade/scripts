@@ -1,16 +1,32 @@
 #!/bin/bash 
 
 function echolor {
-    case "$1" in
+    case "$(echo "$1" | awk -F '-' '{print $1}')" in
 	"black") color=30 ;;
 	"red") color=31 ;;
 	"green") color=32 ;;
 	"yellow") color=33 ;;
 	"blue") color=34 ;;
 	"purple") color=35 ;;
+	"default") color=36 ;;
 	"white") color=37 ;;
+	*) color=36 ;;
     esac
-    echo -e "\033["$color"m$2\033[0m"
+    case "$(echo "$1" | awk -F '-' '{print $2}')" in
+	"black") highlight=30 ;;
+	"red") highlight=31 ;;
+	"green") highlight=32 ;;
+	"yellow") highlight=33 ;;
+	"blue") highlight=34 ;;
+	"purple") highlight=35 ;;
+	"default") highlight=36 ;;
+	"white") highlight=37 ;;
+	*) [[ "$color" -eq 37 ]] \
+		&& highlight=33 \
+		    || highlight=37 ;;
+    esac
+    text="$(echo "$2" | sed "s/““/\\\\033[${highlight}m/g;s/””/\\\\033[${color}m/g")"
+    echo -e "\033["$color"m$text\033[0m"
 }
 
 function random-string {
@@ -69,4 +85,16 @@ function kebab {
 	| tr '[A-Z]' '[a-z]' \
 	| sed 's/--*/-/g;s/-$//g;s/^-//g'  \
 	      > ~/.kebab
+}
+
+function basic-commit {
+    cd "$1" \
+	|| \
+	{
+	    echolor red ":: Cannot stat into directory ““$1””."
+	    return
+	}
+    git add .
+    git commit -m "$(date +"%Y%m%d%H%M")"
+    cd - > /dev/null
 }
