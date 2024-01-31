@@ -13,40 +13,39 @@ function bd {
 }
 
 function back-from-dir {
-    [[ -z "$1" ]] \
-	&& {
+    [[ -z "$1" ]] && {
 	echolor red ":: !  No directory entered."
 	return
     }
     dir="$mobiledir/$1"
     cor_dir="$(cat "$mobilecache"/dirs | grep "^$1," | ifne xsv select 2)"
     echolor green "\n:: This is operation ““$i”” "
-    [[ -d "$dir" ]] \
-	|| {
+    ((i++))
+    [[ -d "$dir" ]] || {
 	echolor red ":: !  No such directory as ““$dir”” exists."
 	return
     }    
     echolor yellow ":: ✓  Source is ““$dir””"
-    [[ -z "$cor_dir" ]] \
-	&& {
+    [[ -z "$cor_dir" ]] && {
 	echolor red ":: !  Destination for ““$1”” not found in definitions file."
 	return
     }
-    [[ -d "$cor_dir" ]] \
-	|| {
+    [[ -d "$cor_dir" ]] || {
 	echolor red ":: !  No such directory as ““$cor_dir”” exists."
 	return
 	}
     echolor yellow ":: ✓  Destination is ““$cor_dir””"
-    IFS=$'\n'
-    files=($(fd -a --newer "$lastback" . "$dir" | sort -V))
-    [[ -z ${files[@]} ]] \
-	&& {
+    [[ "$(eza -1 "$dir" | wc -l)" -eq 0 ]] && {
 	echolor red ":: !  No files found in ““$1””"
 	return
     }
+    IFS=$'\n'
+    files=($(fd -a --newer "$lastback" . "$dir" | sort -V))
+    [[ -z ${files[@]} ]] && {
+	echolor purple ":: –  Appears up-to-date."
+	return
+    }
     rsync --log-file="$mobilecache"/.transfer-log -Paru "${files[@]}" "$cor_dir"
-    ((i++))
 }
 
 function back-all {
@@ -59,8 +58,7 @@ function back-all {
     done
     echo -ne "\033[33m:: Proceed? (y/N) "
     read -r proceed
-    [[ "$proceed" = "y" ]] \
-	|| {
+    [[ "$proceed" = "y" ]] || {
 	echolor yellow ":: Nothing done."
 	return
 	}
@@ -70,6 +68,10 @@ function back-all {
     done
 }
 
+[[ -d "$mobiledir" ]] || {
+    echolor red ":: Mobile not mounted."
+    exit
+    }
 echolor yellow ":: The latest backup occurred on ““$lastback””"
 case "$1" in
     "all") back-all ;;
@@ -77,3 +79,6 @@ case "$1" in
     *) echolor red ":: Unknown command." ;;
 esac
 bd >> "$mobilecache"/times
+
+
+# TODO: getopts for disregarding lastback

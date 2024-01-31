@@ -7,6 +7,7 @@ temp_back_what=$(grep '^### ' ~/Repositories/scripts/back/backmaster.sh | tr -d 
 ### music
 ### films
 ### classical
+### mobile
 
 case $temp_back_what in 
     books) ~/Repositories/scripts/back/backbooks.sh ;;
@@ -15,5 +16,6 @@ case $temp_back_what in
     music)  ~/Repositories/scripts/back/backmusic.sh ;;
     classical) ~/Repositories/scripts/back/backclassical.sh ;;
     films) ~/Repositories/scripts/back/backfilms.sh ;;
+    mobile) ~/Repositories/scripts/back/backmobile.sh all ;;
     *) echo "Incorrect input" ;;
 esac
