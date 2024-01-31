@@ -1,5 +1,5 @@
 #!/bin/bash
 
-lang=$(echo -e "arabic\nspanish\nportuguese\nenglish\nitalian\ngerman\nturkish" | rofi -dmenu)
+lang=$(eza -1D ~/Repositories/dotfiles/rofimoji/used-files/languages | rofi -dmenu)
 [ -z "$lang" ] && exit
-rofimoji --files ~/Repositories/dotfiles/rofimoji/used-files/languages/"$lang"/*  
+rofimoji -a copy --files ~/Repositories/dotfiles/rofimoji/used-files/languages/"$lang"/*  

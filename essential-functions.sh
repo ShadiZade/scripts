@@ -98,3 +98,4 @@ function basic-commit {
     git commit -m "$(date +"%Y%m%d%H%M")"
     cd - > /dev/null
 }
+
