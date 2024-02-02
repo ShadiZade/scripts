@@ -128,6 +128,3 @@ done
 [[ "$add_to_time_file" = "n" ]] \
     && echolor yellow "\n:: Not adding this instance to time file." \
 	|| bd >> "$mobilecache"/times
-
-
-# TODO: getopts for disregarding lastback
