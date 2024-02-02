@@ -99,3 +99,25 @@ function basic-commit {
     cd - > /dev/null
 }
 
+function list-cutter {
+    select_from=""
+    IFS=$'\n'
+    arr=($(echo $@))
+    i=0
+    echolor white -----------------------------------------
+    for j in ${arr[@]}
+    do
+	[[ "$((i % 2))" -eq 0 ]] \
+	    && color_alt="white" \
+			|| color_alt="yellow"
+	echolor "$color_alt" "$((i + 1))\t$j"
+	echo "$j" | grep -q ',' \
+			 && j="\"$j\""
+	select_from+="$(echo -ne "$j,")"
+	((i++))
+    done
+    echolor white -----------------------------------------
+    echo -n ':: Select range: '
+    read -r sel_range
+    echo "$select_from" | xsv select "${sel_range:-$(seq -s ',' 1 ${#arr[@]})}"
+}
