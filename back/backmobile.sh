@@ -45,23 +45,23 @@ function back-from-dir {
 	echolor purple ":: –  Appears up-to-date."
 	return
     }
-    proceed=y
+    dry_run=($(rsync -Parun "${files[@]}" "$cor_dir" | tail -n +2))
     [[ "$interactive_p" = "y" ]] && {
-	dry_run=($(rsync -Parun "${files[@]}" "$cor_dir" | tail -n +2))
 	[[ "${#dry_run[@]}" -ne 0 ]] && {
 	    echolor yellow ":: The following ““${#dry_run[@]}”” files will be transferred:"
 	    for l in ${dry_run[@]}
 	    do
 		echolor white "— $l"
 	    done
-	    echo -ne "\033[33m:: Proceed? (Y/n)\033[0m"
+	    echo -ne "\033[33m:: Proceed? (Y/n) \033[0m"
 	    read -r proceed
-	} || {
-	    echolor purple ":: –  Nothing to add."
-	    return
 	}
+    proceed=${proceed:-y}
     }
-    
+    [[ "${#dry_run[@]}" -eq 0 ]] && {
+       echolor purple ":: –  Nothing to add."
+       return
+    }
     [[ "$proceed" = "y" ]] && {
 	rsync --log-file="$mobilecache"/.transfer-log -Paru "${files[@]}" "$cor_dir"
     } || {
@@ -94,7 +94,7 @@ function back-all {
     exit
 }
 echolor yellow ":: The latest backup occurred on ““$lastback””"
-while getopts ":7ad:t:i" opt
+while getopts ":7ad:t:in" opt
 do
     case $opt in
 	7)
@@ -117,13 +117,16 @@ do
 	    interactive_p=y
 	    echolor yellow-red ":: Interactive mode ““ON””"
 	    ;;
+	n)
+	    add_to_time_file=n
+	    ;;
 	\?)
 	    echolor red ":: Invalid option."
 	    ;;
     esac
 done
 [[ "$add_to_time_file" = "n" ]] \
-    && echolor yellow "\n:: Not adding this instance to time file since last backup time was diregarded." \
+    && echolor yellow "\n:: Not adding this instance to time file." \
 	|| bd >> "$mobilecache"/times
 
 
