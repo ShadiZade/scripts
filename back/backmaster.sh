@@ -16,6 +16,6 @@ case $temp_back_what in
     music)  ~/Repositories/scripts/back/backmusic.sh ;;
     classical) ~/Repositories/scripts/back/backclassical.sh ;;
     films) ~/Repositories/scripts/back/backfilms.sh ;;
-    mobile) ~/Repositories/scripts/back/backmobile.sh all ;;
+    mobile) ~/Repositories/scripts/back/backmobile.sh -a ;;
     *) echo "Incorrect input" ;;
 esac

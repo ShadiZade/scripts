@@ -54,7 +54,7 @@ function back-from-dir {
 	    do
 		echolor white "— $l"
 	    done
-	    echo -ne "\033[33m:: Proceed? (Y/n) "
+	    echo -ne "\033[33m:: Proceed? (Y/n)\033[0m"
 	    read -r proceed
 	} || {
 	    echolor purple ":: –  Nothing to add."
@@ -100,6 +100,7 @@ do
 	7)
 	    lastback="1970-01-01 00:00:00"
 	    echolor purple ":: Disregarding last backup time."
+	    add_to_time_file=n
 	    ;;
 	a)
 	    back-all
@@ -110,6 +111,7 @@ do
 	t)
 	    lastback="$OPTARG"
 	    echolor purple ":: Time will be considered to be ““$lastback””"
+	    add_to_time_file=n
 	    ;;
 	i)
 	    interactive_p=y
@@ -120,7 +122,9 @@ do
 	    ;;
     esac
 done
-bd >> "$mobilecache"/times
+[[ "$add_to_time_file" = "n" ]] \
+    && echolor yellow "\n:: Not adding this instance to time file since last backup time was diregarded." \
+	|| bd >> "$mobilecache"/times
 
 
 # TODO: getopts for disregarding lastback
