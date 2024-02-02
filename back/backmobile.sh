@@ -45,7 +45,28 @@ function back-from-dir {
 	echolor purple ":: –  Appears up-to-date."
 	return
     }
-    rsync --log-file="$mobilecache"/.transfer-log -Paru "${files[@]}" "$cor_dir"
+    proceed=y
+    [[ "$interactive_p" = "y" ]] && {
+	dry_run=($(rsync -Parun "${files[@]}" "$cor_dir" | tail -n +2))
+	[[ "${#dry_run[@]}" -ne 0 ]] && {
+	    echolor yellow ":: The following ““${#dry_run[@]}”” files will be transferred:"
+	    for l in ${dry_run[@]}
+	    do
+		echolor white "— $l"
+	    done
+	    echo -ne "\033[33m:: Proceed? (Y/n) "
+	    read -r proceed
+	} || {
+	    echolor purple ":: –  Nothing to add."
+	    return
+	}
+    }
+    
+    [[ "$proceed" = "y" ]] && {
+	rsync --log-file="$mobilecache"/.transfer-log -Paru "${files[@]}" "$cor_dir"
+    } || {
+	echolor yellow ":: Nothing done."
+    }
 }
 
 function back-all {
@@ -54,7 +75,7 @@ function back-all {
     echolor yellow ":: The following directories in mobile will be backed."
     for k in ${all_dirs[@]}
     do
-	echolor white "$k"
+	echolor white "— $k"
     done
     echo -ne "\033[33m:: Proceed? (y/N) "
     read -r proceed
@@ -71,13 +92,34 @@ function back-all {
 [[ -d "$mobiledir" ]] || {
     echolor red ":: Mobile not mounted."
     exit
-    }
+}
 echolor yellow ":: The latest backup occurred on ““$lastback””"
-case "$1" in
-    "all") back-all ;;
-    "dir") back-from-dir "$2" ;;
-    *) echolor red ":: Unknown command." ;;
-esac
+while getopts ":7ad:t:i" opt
+do
+    case $opt in
+	7)
+	    lastback="1970-01-01 00:00:00"
+	    echolor purple ":: Disregarding last backup time."
+	    ;;
+	a)
+	    back-all
+	    ;;
+	d)
+	    back-from-dir "$OPTARG"
+	    ;;
+	t)
+	    lastback="$OPTARG"
+	    echolor purple ":: Time will be considered to be ““$lastback””"
+	    ;;
+	i)
+	    interactive_p=y
+	    echolor yellow-red ":: Interactive mode ““ON””"
+	    ;;
+	\?)
+	    echolor red ":: Invalid option."
+	    ;;
+    esac
+done
 bd >> "$mobilecache"/times
 
 
