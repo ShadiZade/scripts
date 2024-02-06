@@ -1,10 +1,17 @@
 #!/bin/bash
+source /home/oak/Repositories/scripts/essential-functions.sh
 
 fontname="$1"
+echo "$fontname" | grep -Eq "ttf|otf" || {
+    echolor red ":: Not a font file!" 
+    exit
+}
+sudo mv -v -- "$1" "/usr/share/fonts/TTF" \
+    || exit
+fc-cache -f \
+    && echolor yellow ":: Font cache updated!" \
+	|| echolor red ":: WARNING: Font cache failed!"
 
-echo "$fontname" | grep -q "ttf" || echo "Not a font file!" 
-echo "$fontname" | grep -q "ttf" || exit
+fc-list | grep "$(echo "$fontname" | awk -F '.' '{print $1}')"
 
-sudo mv -v -- "$1" "/usr/share/fonts/TTF" || exit
-fc-cache -f && echo -e "\033[33m:: Font cache updated\033[0m" || echo -e "\033[31m:: WARNING: Font cache failed!\033[0m"
-fc-list | grep $(echo "$fontname" | awk -F '.' '{print $1}')
+# TODO replace script
