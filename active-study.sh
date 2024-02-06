@@ -5,8 +5,7 @@ storage_file="$HOME/Misc/active-study"
 add-study () {
 	filename_copied="$(ls -1 | grep "$1")"
 	[ -z "$filename_copied" ] && echo "nothing found." && exit
-	path_copied="$(echo $(pwd)/$filename_copied)"
-	echo $path_copied >> $storage_file
+	echo "$(realpath "$filename_copied")" >> $storage_file
 	exit
 }
 
