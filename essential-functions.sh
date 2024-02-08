@@ -30,10 +30,7 @@ function echolor {
 }
 
 function random-string {
-    [[ -z "$1" ]] \
-	&& length=13 \
-	       || length="$1"
-    head /dev/urandom | tr -dc a-z0-9 | head -c "$length"
+    head /dev/urandom | tr -dc a-z0-9 | head -c "${1:-13}"
 }
 
 function scramble {
@@ -140,7 +137,8 @@ function move-to-trash {
 	    return
 	}
     }
-    echo "$(date +"%Y-%m-%d %H:%M:%S")   ¼⅓   $1   ¼⅓   $postdelname" >> "$trashdir"/deletetimes
+    echo "$(date +"%Y-%m-%d %H:%M:%S")   ¼⅓   $(basename $1)   ¼⅓   $(basename $postdelname)" \
+	 >> "$trashdir"/deletetimes
     [ "$1" = "$postdelname" ] && {
 	echolor blue ":: File ““$1”” moved to trash."
     } || {
@@ -149,7 +147,8 @@ function move-to-trash {
 }
 
 function ⨯⨯ {
-    files_to_trash=($(echo $@))
+    IFS=$'\n'
+    files_to_trash=("$@")
     i=0
     for j in ${files_to_trash[@]}
     do
@@ -157,6 +156,7 @@ function ⨯⨯ {
 	move-to-trash "$j"
     done
     echolor yellow ":: Trashed ““$i”” files."
+    unset IFS
 }
 
 function ⨯→ {
@@ -191,7 +191,6 @@ function ⨯→ {
 	    echolor red ":: Error restoring ““$trash_name”” from trash as ““$normal_name””"
 	    return
 	}
-	echo $j
 	sed -i "/¼⅓   $normal_name   ¼⅓   $trash_name/d;/^$/d" "$trashdir"/deletetimes
     done
     unset IFS
