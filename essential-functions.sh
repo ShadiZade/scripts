@@ -121,3 +121,78 @@ function list-cutter {
     read -r sel_range
     echo "$select_from" | xsv select "${sel_range:-$(seq -s ',' 1 ${#arr[@]})}"
 }
+
+function move-to-trash {
+    trashdir="/home/oak/.local/share/Trash"
+    fd -q "^$1$" "$trashdir"/files && {
+	postdelname="$1-$(date +"%Y_%m_%d_%H_%M_%S")"
+	command mv -n "$1" "$trashdir"/files/"$postdelname" \
+	    || {
+	    echolor red ":: Error moving ““$1”” to trash as ““$postdelname””"
+	    echolor red ":: Exiting immediately..."
+	    return
+	}
+    } || {
+	postdelname="$1"
+	command mv -n "$1" "$trashdir"/files/ \
+	    || {
+	    echolor red ":: Error moving ““$1”” to trash"
+	    return
+	}
+    }
+    echo "$(date +"%Y-%m-%d %H:%M:%S")   ¼⅓   $1   ¼⅓   $postdelname" >> "$trashdir"/deletetimes
+    [ "$1" = "$postdelname" ] && {
+	echolor blue ":: File ““$1”” moved to trash."
+    } || {
+	echolor purple ":: File ““$1”” moved to trash as ““$postdelname””"
+    }
+}
+
+function ⨯⨯ {
+    files_to_trash=($(echo $@))
+    i=0
+    for j in ${files_to_trash[@]}
+    do
+	((i++))
+	move-to-trash "$j"
+    done
+    echolor yellow ":: Trashed ““$i”” files."
+}
+
+function ⨯→ {
+    IFS=$'\n'
+    trashdir="$HOME/.local/share/Trash"
+    restfiles=($(cat "$trashdir"/deletetimes | sort -V | tail -n "${1:-1}" | awk -F '   ¼⅓   ' '{print $2, "¼⅓", $3}'))
+    [ -z "$restfiles" ] && {
+	echolor red ":: No files chosen."
+	return
+    }
+    echolor yellow ":: Restoring the following files from trash:"
+    for j in ${restfiles[@]}
+    do
+	echolor white "- $(echo "$j" | awk -F ' ¼⅓ ' '{print $2}')" 
+    done
+    proceed_p=n
+    echo -ne "\033[33m:: Proceed? (y/N) "
+    read -r proceed_p
+    [ "$proceed_p" = "y" ] || {
+	echolor yellow ":: Doing nothing."
+	return
+    }
+    for j in ${restfiles[@]}
+    do
+	normal_name="$(echo "$j" | awk -F ' ¼⅓ ' '{print $1}')"
+	trash_name="$(echo "$j" | awk -F ' ¼⅓ ' '{print $2}')"
+	command mv -n "$trashdir"/files/"$trash_name" ./"$normal_name" && {
+	    [ "$trash_name" = "$normal_name" ] \
+		&& echolor blue ":: File ““$normal_name”” restored from trash." \
+		    || echolor purple ":: File ““$trash_name”” restored from trash as ““$normal_name””"
+	} || {
+	    echolor red ":: Error restoring ““$trash_name”” from trash as ““$normal_name””"
+	    return
+	}
+	echo $j
+	sed -i "/¼⅓   $normal_name   ¼⅓   $trash_name/d;/^$/d" "$trashdir"/deletetimes
+    done
+    unset IFS
+}

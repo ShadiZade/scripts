@@ -1,8 +1,9 @@
 #!/bin/bash
+source ~/Repositories/scripts/essential-functions.sh
 
 qpdf "$1" --pages "$1" "$2" -- --split-pages ."$3".pdf
 magick -density 150 ."$3"-1.pdf "$3".jpg
-rt ."$3"-1.pdf
+⨯⨯ ."$3"-1.pdf
 
 
 # get-image [original file] [# of desired page] [final name w/o ext]

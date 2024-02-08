@@ -26,5 +26,5 @@ do
 		echolor red ":: Error moving donefile! Exiting..."
 		exit
 	    }
-    trashf "$HOME/Movies/$j"
+    ⨯⨯ "$HOME/Movies/$j"
 done
