@@ -195,3 +195,13 @@ function ⨯→ {
     done
     unset IFS
 }
+
+function extension-determiner {
+    ext_det="$(grep "$(mimetype -Mb "$1")" ~/.local/share/user-scripts/mime-extensions.csv | xsv select 2 2>/dev/null)"
+    [[ -z "$ext_det" ]] && {
+	echolor red ":: File type for ““$1”” not detected. Please enter extension manually."
+	echo -n "> "
+	read -r ext_det
+    }
+    echo $ext_det
+}
