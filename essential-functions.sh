@@ -205,3 +205,11 @@ function extension-determiner {
     }
     echo $ext_det
 }
+
+function ren {
+    echolor white "$(rename -van -- "$1" "$2" *)"
+    echolor yellow ":: Click <return> to continue."
+    echo -n "> "
+    read -r temp
+    rename -va -- "$1" "$2" *
+}
