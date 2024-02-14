@@ -1,8 +1,13 @@
 #!/bin/bash
+source ~/Repositories/scripts/essential-functions.sh
 
 [ -z "$1" ] \
     && echo -e "\033[33m:: Please enter filename.\033[0m" \
     && exit
+[ -e "$1" ] || {
+    echolor yellow ":: File does not exist."
+    exit
+}
 ~/Repositories/scripts/mv-kebab.sh "$1"
 
 yt_url_p='n'
