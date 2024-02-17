@@ -352,12 +352,17 @@ function download-paper {
 	&& echo -e "\033[33m:: No DOI entered.\033[0m" \
 	&& exit
     indoi="$(echo "$1" | sed 's|https://doi.org/||')" \
-	&& echo -e "\033[32m:: Going to \033[36mhttps://sci-hub.ru/$indoi\033[0m"
-    shurl="$(curl -s "https://sci-hub.ru/$indoi")" \
+	&& echo -e "\033[32m:: Going to \033[36mhttps://sci-hub.ee/$indoi\033[0m"
+    shurl="$(curl -s "https://sci-hub.ee/$indoi")" \
 	&& echo -e "\033[32m:: Sci-Hub queried!\033[0m"
-    ddurl="$(echo "$shurl" | grep -i 'pdf" src' | awk -F 'src="' '{print $2}' | awk -F '#' '{print $1}' | tr -d "\n")"
-    ddurl="$(echo "$ddurl" | sed 's|^/downloads|sci-hub.ru/downloads|;s|^/uptodate|sci-hub.ru/uptodate|')"
-    ddurl="$(echo "$ddurl" | sed 's|^/tree|sci-hub.ru/tree|;s|//||')"
+    ddurl="$(echo "$shurl" | grep -i 'iframe src' | awk -F 'src="' '{print $2}' | awk -F '#' '{print $1}' | tr -d "\n" | sed 's|https://||')"
+    mirror_urls=("downloads" "uptodate" "tree")
+    for j in ${mirror_urls[@]}
+    do
+	echo "$ddurl" | grep -q "$j" \
+	    || continue
+	ddurl="$(echo "$ddurl" | sed "s|^/$j|sci-hub.ee/$j|")"
+    done
     [[ -z "$2" ]] \
 	&& bibname="unnamed" \
 	    || bibname="$2"
