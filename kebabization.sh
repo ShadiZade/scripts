@@ -1,6 +1,6 @@
 #!/bin/bash
 
-input_phrase="$1"
+input_phrase="$@"
 echo -e "$input_phrase" \
     | iconv -c -f utf8 -t ascii//TRANSLIT \
     | perl -pe 's|&.*?;||g' \

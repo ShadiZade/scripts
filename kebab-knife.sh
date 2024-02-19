@@ -52,10 +52,10 @@ case "$proceed" in
          exit ;;
     *) init_kebab="$(echo "$init_kebab" | sed 's/–/-/g')"
        endashed_name="$(echo "$purename" | xsv select -d '-' $modnum | sed 's/,/-/g')"
-       mv -nv "$(echo "$init_kebab$ext")" "$endashed_name$ext"
+       mv -nv -- "$(echo "$init_kebab$ext")" "$endashed_name$ext"
        purename="$(echo "$endashed_name" | sed 's/–/-/g')"
        [ "$purename" = "$endashed_name" ] \
-	   || mv -n "$endashed_name$ext" "$purename$ext"
+	   || mv -n -- "$endashed_name$ext" "$purename$ext"
        ;;
     esac
 }
