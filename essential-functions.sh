@@ -206,44 +206,31 @@ function extension-determiner {
     echo $ext_det
 }
 
-function ren {
-    : function ren shortens the renaming procedure for the perl-rename package.
-    :
-    : it gives a preview using the -van flags, and then prompts the user to confirm
-    : with a <return>.
-    : then, the files are renamed using the flags -va.
-    
-    echolor white "$(rename -van -- "$1" "$2" *)"
-    echolor yellow ":: Click <return> to continue."
-    echo -n "> "
-    read -r temp
-    rename -va -- "$1" "$2" *
-}
 
-function ¿ {
-    : function ¿ interrogates functions and aliases in bash, enabling them to be self-documenting.
-    :
-    : in case $1 is an alias, ¿ will show the definition of the alias.
-    :
-    : in case $1 is a function, ¿ will show the location of the definition as well as the
-    : docstring, which is defined by the builtin bash null function ":".
+# function ¿ {
+#     : function ¿ interrogates functions and aliases in bash, enabling them to be self-documenting.
+#     :
+#     : in case $1 is an alias, ¿ will show the definition of the alias.
+#     :
+#     : in case $1 is a function, ¿ will show the location of the definition as well as the
+#     : docstring, which is defined by the builtin bash null function ":".
 
-    type_of="$(type "$1" | awk '{print $4,$5}')"
-    case "$type_of" in
-	"alias for")
-	    echolor yellow-purple ":: ““$1”” is an alias for:"
-	    type "$1" | sed "s/$1 is an alias for //g" | bat -Ppl bash
-	    ;;
-	"shell function")
-	    echolor yellow-purple ":: ““$1”” is a function defined in ““$(type "$1" | awk '{print $NF}')””"
-	    declare -f "$1" | sed '1d' | head -n -1 | grep "^\s*:" | bat -Ppl bash
-	;;
-	*)
-	    echolor red ":: Unrecognized type."
-	;;
-    esac
+#     type_of="$(type "$1" | awk '{print $4,$5}')"
+#     case "$type_of" in
+# 	"alias for")
+# 	    echolor yellow-purple ":: ““$1”” is an alias for:"
+# 	    type "$1" | sed "s/$1 is an alias for //g" | bat -Ppl bash
+# 	    ;;
+# 	"shell function")
+# 	    echolor yellow-purple ":: ““$1”” is a function defined in ““$(type "$1" | awk '{print $NF}')””"
+# 	    declare -f "$1" | sed '1d' | head -n -1 | grep "^\s*:" | bat -Ppl bash
+# 	;;
+# 	*)
+# 	    echolor red ":: Unrecognized type."
+# 	;;
+#     esac
     
     
-}
+# }
 
-# TODO add docstrings
+# # TODO find a better way for this
