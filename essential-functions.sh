@@ -206,7 +206,12 @@ function extension-determiner {
     echo $ext_det
 }
 
-
+function formatted-date-string {
+    case "$1" in
+	"long") date +"%Y-%m-%d %H:%M:%S" ;;
+	*) date +"%Y%m%d%H%M%S" ;;
+    esac
+}
 # function ¿ {
 #     : function ¿ interrogates functions and aliases in bash, enabling them to be self-documenting.
 #     :
