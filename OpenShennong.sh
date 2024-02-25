@@ -192,7 +192,7 @@ function create {
     [ -z "$1" ] \
 	&& echo -e "\033[33m:: Please enter project name.\033[0m" \
 	&& exit
-    fd -q "^$1$" \
+    fd -d 1 -q "^$1$" \
 	&& echo -e "\033[33m:: Clobber prevented. Choose a different name.\033[0m" \
 	&& exit
     xsv select 1 "$local_registry" | grep -q "$1" \

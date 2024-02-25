@@ -71,7 +71,7 @@ function scramble {
 }
 
 function kebab {
-    input_phrase="$1"
+    input_phrase="$@"
     echo -e "$input_phrase" \
 	| iconv -c -f utf8 -t ascii//TRANSLIT \
 	| perl -pe 's|&.*?;||g' \
@@ -82,6 +82,11 @@ function kebab {
 	| tr '[A-Z]' '[a-z]' \
 	| sed 's/--*/-/g;s/-$//g;s/^-//g'  \
 	      > ~/.kebab
+}
+
+function kebab-out {
+    kebab "$@"
+    cat ~/.kebab
 }
 
 function basic-commit {
@@ -197,13 +202,8 @@ function ⨯→ {
 }
 
 function extension-determiner {
-    ext_det="$(grep "$(mimetype -Mb "$1")" ~/.local/share/user-scripts/mime-extensions.csv | xsv select 2 2>/dev/null)"
-    [[ -z "$ext_det" ]] && {
-	echolor red ":: File type for ““$1”” not detected. Please enter extension manually."
-	echo -n "> "
-	read -r ext_det
-    }
-    echo $ext_det
+    grep "$(mimetype -Mb "$1")" ~/.local/share/user-scripts/mime-extensions.csv \
+	| ifne xsv select 2 2>/dev/null
 }
 
 function formatted-date-string {
