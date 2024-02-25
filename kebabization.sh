@@ -1,4 +1,5 @@
 #!/bin/bash
+source ~/Repositories/scripts/essential-functions.sh 
 
 input_phrase="$@"
 echo -e "$input_phrase" \
@@ -10,4 +11,4 @@ echo -e "$input_phrase" \
     | tr '_ .|/+=,\n–—' '-' \
     | tr '[A-Z]' '[a-z]' \
     | sed 's/--*/-/g;s/-$//g;s/^-//g'  \
-	  > ~/.kebab
+	  > "$usdd/kebab"

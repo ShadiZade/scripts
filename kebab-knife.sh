@@ -22,7 +22,7 @@ echo "$1" \
     # hyphen is sedded into an en-dash for convenience
     # this is reversed in the simple-reorder function
     
-init_kebab="$(echo "$(cat ~/.kebab)"$yt_url)"
+init_kebab="$(echo "$(cat "$usdd/kebab")"$yt_url)"
 ext="$(echo .$(echo "$1" | awk -F '.' '{print $NF}'))"
 echo "$1" | grep -q "\." \
     || ext=""

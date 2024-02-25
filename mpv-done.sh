@@ -1,4 +1,5 @@
 #!/bin/bash
+source ~/Repositories/scripts/essential-functions.sh
 
 [ -z "$1" ] \
     && ep="$(eza -f1 --no-quotes | grep -Ev 'srt$|vtt$' | fzf)" \

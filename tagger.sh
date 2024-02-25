@@ -1,4 +1,5 @@
 #!/bin/bash
+source ~/Repositories/scripts/essential-functions.sh
 
 function init {
     [[ -e .tags ]] && echo ":: Tagfile already exists." || ls -1p | grep -v '/' | sort -V | sed 's/$/|/g' > .tags

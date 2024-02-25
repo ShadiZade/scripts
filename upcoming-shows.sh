@@ -1,4 +1,5 @@
 #!/bin/bash
+source ~/Repositories/scripts/essential-functions.sh
 
 clean-o () {
 	upc=$(curl "$1" | grep -E -i -A 3 -m 1 'strong>upcoming|released' | tail -n +4 | sed 's/^\s*//g')

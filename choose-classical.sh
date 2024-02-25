@@ -1,4 +1,5 @@
 #!/bin/bash
+source ~/Repositories/scripts/essential-functions.sh
 
 music_composer=$(ls -1 ~/Misc/Backups/my-music/classical | sed 's|-works.txt||g' | rofi -normalize-match -dmenu -i -p "choose composer")
 [ -z "$music_composer" ] && exit

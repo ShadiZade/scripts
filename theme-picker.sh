@@ -1,4 +1,5 @@
 #!/bin/bash
+source ~/Repositories/scripts/essential-functions.sh
 
 temp_theme_pick=$(cat ~/Repositories/scripts/bspwm-theme.sh | grep '### ' | tr -d '# ' | sort -r | rofi -dmenu)
 

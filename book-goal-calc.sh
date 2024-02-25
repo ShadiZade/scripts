@@ -1,5 +1,6 @@
 #!/bin/bash
-source ~/Repositories/dotfiles/zsh/variables
+source ~/Repositories/scripts/essential-functions.sh
+
 # the user sets the $obpxd variable in the above file to decide their reading goal
 div="$(calc "$obpxd * 24")" 
 hours_since_newyear=$(calc "(($(date +'%j' | sed 's|^0*||g')-1)*24)+$(date +'%k' | sed 's|^0*||g')")	

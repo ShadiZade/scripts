@@ -1,4 +1,5 @@
 #!/bin/bash
+source ~/Repositories/scripts/essential-functions.sh
 
 [ -z "$1" ] && read -r -p ":: Clear frequent-words? (y/N) " clr_p
 [ "$clr_p" = "y" ] && echo "" > ~/.frequent-words | sed -i '/^$/d' ~/.frequent-words && echo ":: frequent-words cleared."

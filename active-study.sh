@@ -1,7 +1,7 @@
 #!/bin/bash
 source ~/Repositories/scripts/essential-functions.sh 
 
-storage_file="$HOME/Misc/active-study"
+storage_file="$usdd/active-study"
 
 add-study () {
 	filename_copied="$(ls -1 | grep "$1")"
@@ -26,8 +26,13 @@ open-study () {
 }
 
 view-study () {
-	cat $storage_file | awk -F '/' '{print $NF}'
-	exit
+    i=1
+    IFS=$'\n'
+    for j in $(cat $storage_file)
+    do
+	echolor purple "““$i””\t$(dirname "$j")/““$(basename "$j")””"
+	((i++))
+    done
 }
 
 while getopts 'vra:' OPTION; do

@@ -1,4 +1,5 @@
 #!/bin/bash 
+source ~/Repositories/dotfiles/zsh/variables 
 
 function echolor {
     case "$(echo "$1" | awk -F '-' '{print $1}')" in
@@ -81,12 +82,12 @@ function kebab {
 	| tr '_ .|/+,\n–—' '-' \
 	| tr '[A-Z]' '[a-z]' \
 	| sed 's/--*/-/g;s/-$//g;s/^-//g'  \
-	      > ~/.kebab
+	      > "$usdd/kebab"
 }
 
 function kebab-out {
     kebab "$@"
-    cat ~/.kebab
+    cat "$usdd/kebab"
 }
 
 function basic-commit {

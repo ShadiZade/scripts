@@ -1,4 +1,6 @@
 #!/bin/bash
+source ~/Repositories/scripts/essential-functions.sh
+
 french_api_full=$(curl -L https://repcal.info/now | sed 's/,/\n/g' )
 french_formatted=$(echo $french_api_full | grep formatted | sed 2q | awk -F '"' '{print $4}')
 french_fulldate=$(echo $french_api_full | grep -m 1 texts | awk -F ':' '{print $NF}' | tr -d '{}"')

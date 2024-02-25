@@ -1,4 +1,5 @@
 #!/bin/zsh
+source ~/Repositories/scripts/essential-functions.sh
 
 your_options="French Republican Calendar\nFrench Republican Rural Day\nHijri Calendar\nSystem Info\nUpcoming Shows\nWorld Clock"
 choice=$(echo -e "$your_options" | rofi -i -dmenu -p "Choose thingy")

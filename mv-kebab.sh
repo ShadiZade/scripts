@@ -69,7 +69,7 @@ function english-kebab {
     ext_alone="$(echo "$ext_alone" | sed 's/jpeg/jpg/;s/jpg_large/jpg/;s/JPG/jpg/;s/PNG/png/;s/JPEG/jpg/')"
     [ -z "$yt_url" ] \
 	|| name_alone="$(echo "$name_alone" | sed "s/$yt_url//")"
-    name_kebab="$(~/Repositories/scripts/kebabization.sh "$name_alone"; cat ~/.kebab)"
+    name_kebab="$(~/Repositories/scripts/kebabization.sh "$name_alone"; cat "$usdd/kebab")"
     [ -z "$yt_url" ] \
 	|| yt_url="$(echo "-[$yt_url]")"
     name_final="$(echo $name_kebab$yt_url.$ext_alone)"
