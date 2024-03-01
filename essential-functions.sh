@@ -34,7 +34,7 @@ function random-string {
     head /dev/urandom | tr -dc a-z0-9 | head -c "${1:-13}"
 }
 
-function scramble {
+function scramble-file-names {
     [[ -z "$1" ]] \
 	&& echolor yellow ":: Available options: 'files', 'dirs', and 'all'." \
 	&& return
@@ -85,9 +85,14 @@ function kebab {
 	      > "$usdd/kebab"
 }
 
-function kebab-out {
+function output-kebabized-string {
     kebab "$@"
     cat "$usdd/kebab"
+}
+
+function copy-kebabized-string {
+    output-kebabized-string "$@"
+    cat "$usdd/kebab" | xclip -selection clipboard
 }
 
 function basic-commit {
@@ -103,6 +108,7 @@ function basic-commit {
 }
 
 function list-cutter {
+# what the fuck is this function and when did I write it
     select_from=""
     IFS=$'\n'
     arr=($(echo $@))
@@ -152,20 +158,20 @@ function move-to-trash {
     }
 }
 
-function ⨯⨯ {
+function move-to-trash-recursively {
     IFS=$'\n'
     files_to_trash=("$@")
     i=0
     for j in ${files_to_trash[@]}
     do
-	((i++))
 	move-to-trash "$j"
+	((i++))
     done
-    echolor yellow ":: Trashed ““$i”” files."
+    export number_of_files_trashed="$i"
     unset IFS
 }
 
-function ⨯→ {
+function restore-files-from-trash {
     IFS=$'\n'
     trashdir="$HOME/.local/share/Trash"
     restfiles=($(cat "$trashdir"/deletetimes | sort -V | tail -n "${1:-1}" | awk -F '   ¼⅓   ' '{print $2, "¼⅓", $3}'))
@@ -210,6 +216,7 @@ function extension-determiner {
 function formatted-date-string {
     case "$1" in
 	"long") date +"%Y-%m-%d %H:%M:%S" ;;
+	"day") date +"%Y%m%d%H" ;;
 	*) date +"%Y%m%d%H%M%S" ;;
     esac
 }
@@ -235,8 +242,5 @@ function formatted-date-string {
 # 	    echolor red ":: Unrecognized type."
 # 	;;
 #     esac
-    
-    
-# }
-
 # # TODO find a better way for this
+# }
