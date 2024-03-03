@@ -65,7 +65,7 @@ function scramble-file-names {
     for file_to_scramble in ${all_files[@]};
     do
 	ext="${file_to_scramble##*.}"
-	mv -iv "$file_to_scramble" "$(random-string)"."$ext"
+	mv -iv -- "$file_to_scramble" "$(random-string)"."$ext"
 	((counter++))
     done
     echolor yellow ":: Scrambled $counter files."
@@ -135,7 +135,7 @@ function move-to-trash {
     trashdir="/home/oak/.local/share/Trash"
     fd -q "^$1$" "$trashdir"/files && {
 	postdelname="$1-$(date +"%Y_%m_%d_%H_%M_%S")"
-	command mv -n "$1" "$trashdir"/files/"$postdelname" \
+	command mv -n -- "$1" "$trashdir"/files/"$postdelname" \
 	    || {
 	    echolor red ":: Error moving ““$1”” to trash as ““$postdelname””"
 	    echolor red ":: Exiting immediately..."
@@ -143,7 +143,7 @@ function move-to-trash {
 	}
     } || {
 	postdelname="$1"
-	command mv -n "$1" "$trashdir"/files/ \
+	command mv -n -- "$1" "$trashdir"/files/ \
 	    || {
 	    echolor red ":: Error moving ““$1”” to trash"
 	    return
@@ -195,7 +195,7 @@ function restore-files-from-trash {
     do
 	normal_name="$(echo "$j" | awk -F ' ¼⅓ ' '{print $1}')"
 	trash_name="$(echo "$j" | awk -F ' ¼⅓ ' '{print $2}')"
-	command mv -n "$trashdir"/files/"$trash_name" ./"$normal_name" && {
+	command mv -n -- "$trashdir"/files/"$trash_name" ./"$normal_name" && {
 	    [ "$trash_name" = "$normal_name" ] \
 		&& echolor blue ":: File ““$normal_name”” restored from trash." \
 		    || echolor purple ":: File ““$trash_name”” restored from trash as ““$normal_name””"
