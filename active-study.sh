@@ -64,14 +64,14 @@ function view-study {
     for j in $(cat $reserve_file)
     do
 	[[ "$i" -eq 1 ]] && echolor white '-------- RESERVE --------'
-	echolor green "““$i””\t$(dirname "$j")/““$(basename "$j")””"
+	echolor green "““$i””\t$(dirname "$j" | sed "s|$HOME|~|g")/““$(basename "$j")””"
 	((i++))
     done
     i=1
     for j in $(cat $current_file)
     do
 	[[ "$i" -eq 1 ]] && echolor white '-------- CURRENT --------'
-	echolor purple "““$i””\t$(dirname "$j")/““$(basename "$j")””"
+	echolor purple "““$i””\t$(dirname "$j" | sed "s|$HOME|~|g")/““$(basename "$j")””"
 	((i++))
     done
 }
