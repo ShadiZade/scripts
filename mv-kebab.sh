@@ -62,7 +62,7 @@ function english-kebab {
     echo $orig_name \
 	| grep -q "/" \
 	&& echo ":: This operation can only be performed inside the directory." \
-	&& exit
+	&& exit 1
     ext_alone="$(echo $orig_name | awk -F '.' '{print $NF}')"
     find-yt-url
     name_alone="$(echo $orig_name | sed "s/\.$ext_alone//")"
@@ -75,10 +75,10 @@ function english-kebab {
     name_final="$(echo $name_kebab$yt_url.$ext_alone)"
     [ "$orig_name" == "$name_final" ] \
 	&& echo ":: Filename is already kebab-compliant!" \
-	&& exit
+	&& exit 1
     [ "$orig_name" == "$name_kebab" ] \
 	&& echo ":: Filename is already kebab-compliant!" \
-	&& exit
+	&& exit 1
     [ "$(stat -c %F -- "$orig_name")" = "directory" ] \
 	&& name_final="$name_kebab"
     echo "$orig_name" \
@@ -111,5 +111,13 @@ function find-yt-url {
     yt_url="$(echo "$orig_name" | awk -F '[' '{print $NF}' | awk -F ']' '{print $1}')"	
 }
 
+function detect-file {
+    [[ -e "$1" ]] || {
+	echolor red ":: File ““$1”” does not exist!"
+	exit 1
+    }
+}
+
+detect-file "$1"
 detect-language "$1"
 english-kebab "$1"

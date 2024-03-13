@@ -8,17 +8,15 @@ source ~/Repositories/scripts/essential-functions.sh
     echolor yellow ":: File does not exist."
     exit
 }
-~/Repositories/scripts/mv-kebab.sh "$1"
+~/Repositories/scripts/mv-kebab.sh "$1" 
 
 yt_url_p='n'
 echo "$1" \
-    | grep -q "\]\." \
-    && yt_url_p='y'
-[ "$yt_url_p" = "y" ] \
-    && yt_url="$(echo "$1" | awk -F '[' '{print $NF}' | awk -F ']' '{print $1}')" \
-    && yt_url="$(echo "["$yt_url"]" | sed 's/-/–/g')" \
-    && yt_url="$(echo "-$yt_url")"                           
-
+    | grep -q "\]\." && {
+    yt_url="$(echo "$1" | awk -F '[' '{print $NF}' | awk -F ']' '{print $1}')"
+    yt_url="$(echo "["$yt_url"]" | sed 's/-/–/g')"
+    yt_url="$(echo "-$yt_url")"        
+}
     # hyphen is sedded into an en-dash for convenience
     # this is reversed in the simple-reorder function
     
@@ -26,6 +24,8 @@ init_kebab="$(echo "$(cat "$usdd/kebab")"$yt_url)"
 ext="$(echo .$(echo "$1" | awk -F '.' '{print $NF}'))"
 echo "$1" | grep -q "\." \
     || ext=""
+[[ -d "$1" ]] \
+    && ext=""    
 purename="$(echo "$init_kebab" | sed 's/\..*//g')"
 headers="$(echo "$purename" | xsv headers -d '-')"
 tot_num_indices="$(echo "$headers" | tail -n 1 | awk '{print $1}')"
