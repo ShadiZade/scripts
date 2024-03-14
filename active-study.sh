@@ -1,8 +1,8 @@
 #!/bin/bash
 source ~/Repositories/scripts/essential-functions.sh 
 
-current_file="$usdd/active-study"
-reserve_file="$usdd/reserve-study"
+current_file="$usdd/zas-current-study"
+reserve_file="$usdd/zas-reserve-study"
 use_program="zathura"
 
 function add-study {
@@ -13,11 +13,13 @@ function add-study {
 	storage_file="$current_file"
 	destination="current"
     }
-    filename_copied="$(ls -1 | grep "$1")"
-    [ -z "$filename_copied" ] && echolor red ":: Nothing found." && exit
-    echo "$(realpath "$filename_copied")" >> $storage_file
+    [[ -e "$1" ]] || {
+	echolor red ":: Nothing found."
+	exit
+    }
+    echo "$(realpath "$1")" >> $storage_file
     
-    echolor purple ":: ““$filename_copied”” added to ““$destination””"
+    echolor purple ":: ““$(basename "$1")”” added to ““$destination””"
 }
 
 function delete-study {
