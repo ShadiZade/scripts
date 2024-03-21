@@ -220,6 +220,41 @@ function formatted-date-string {
 	*) date +"%Y%m%d%H%M%S" ;;
     esac
 }
+
+function exchange-names {
+    [[ -e "$1" ]] || {
+	echolor red ":: Please input valid filenames."
+	return
+    }
+    [[ -e "$2" ]] || {
+	echolor red ":: Please input second filename."
+	return
+    }
+    name1="$(echo $1 | sed 's|/||g')"
+    name2="$(echo $2 | sed 's|/||g')"
+    conf_str="$(random-string 2)"
+    echolor yellow ":: Are you sure to exchange ““$name1”” and ““$name2””?"
+    echolor yellow-green ":: Type ““$conf_str”” to confirm."
+    echo -ne "\033[37m>>> \033[0m"
+    read -r conf_str_response
+    [[ "$conf_str" != "$conf_str_response" ]] \
+	&& echolor red ":: Nothing done." \
+	&& return
+    mv -n -- "$name1" .temp-"$name2" || {
+	echolor red ":: Failure! (error code ““1””)"
+	return
+    }
+    mv -n -- "$name2" "$name1" || {
+        echolor red ":: Failure! (error code ““2””)"
+	return
+    }
+    mv -n -- .temp-"$name2" "$name2" || {
+	echolor red ":: Failure! (error code ““3””)"
+	return
+    }
+    echolor yellow ":: Files ““$name1”” and ““$name2”” have successfully exchanged names."
+}
+
 # function ¿ {
 #     : function ¿ interrogates functions and aliases in bash, enabling them to be self-documenting.
 #     :
