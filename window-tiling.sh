@@ -33,6 +33,7 @@ function gimp-mode {
     bspc config border_width 3
     bspc config window_gap 0
     bspc config top_padding 0
+    # TODO entirely replace the built-in fullscreen mode with gimp-mode
 }
 
 function fullscreen-mode {
