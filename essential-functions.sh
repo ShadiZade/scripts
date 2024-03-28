@@ -255,6 +255,17 @@ function exchange-names {
     echolor yellow ":: Files ““$name1”” and ““$name2”” have successfully exchanged names."
 }
 
+function battery-warner {
+    batterypercent="$(upower -i /org/freedesktop/UPower/devices/battery_BAT1 | grep percentage | awk '{print $2}' | tr -d '% ')"
+    [[ "$batterypercent" -gt 25 ]] \
+	&& batterystatus="0" || {
+	    batterystate="$(upower -i /org/freedesktop/UPower/devices/battery_BAT1 | grep state | awk '{print $2}' | tr -d ' ')"
+	    [[ "$batterystate" = "discharging" ]] \
+		&& batterystatus="1" \
+		    || batterystatus="0"
+	}
+}
+
 # function ¿ {
 #     : function ¿ interrogates functions and aliases in bash, enabling them to be self-documenting.
 #     :
