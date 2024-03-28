@@ -99,3 +99,4 @@ done
 (( $OPTIND == 1 )) && open-study
 
 # TODO add "this book already exists" warning
+# TODO add "done" category
