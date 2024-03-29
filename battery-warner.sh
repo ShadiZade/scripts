@@ -10,6 +10,6 @@ do
 	[[ "$battery_warning_on" -eq 0 ]] && continue
 	killall dunst
 	notify-send -u critical -t 4000 "BATTERY WARNING" "${batterypercent}%"
-	mpv --loop=10 /usr/share/sounds/freedesktop/stereo/dialog-warning.oga
+	warning-bloops
     }
 done

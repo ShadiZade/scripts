@@ -266,6 +266,10 @@ function battery-warner {
 	}
 }
 
+function warning-bloops {
+    mpv --loop=10 /usr/share/sounds/freedesktop/stereo/dialog-warning.oga
+}
+
 # function ¿ {
 #     : function ¿ interrogates functions and aliases in bash, enabling them to be self-documenting.
 #     :
