@@ -66,16 +66,39 @@ function view-study {
     for j in $(cat $reserve_file)
     do
 	[[ "$i" -eq 1 ]] && echolor white '-------- RESERVE --------'
-	echolor green "““$i””\t$(dirname "$j" | sed "s|$HOME|~|g")/““$(basename "$j")””"
+	print-name "$j" green
 	((i++))
     done
     i=1
     for j in $(cat $current_file)
     do
 	[[ "$i" -eq 1 ]] && echolor white '-------- CURRENT --------'
-	echolor purple "““$i””\t$(dirname "$j" | sed "s|$HOME|~|g")/““$(basename "$j")””"
+	print-name "$j" purple
 	((i++))
     done
+}
+
+function print-name {
+	full_name="$(realpath "$1" | sed "s|$HOME|~|g")"
+	path_string="$(dirname "$1" | sed "s|$HOME|~|g")"
+	max_length=$(($(tput cols) - 8))
+	replace_which=3
+    function replacer {
+	replace_this="$(echo -n "$path_string" | xsv select -d '/' $replace_which)"
+	path_string="$(echo -n "$path_string" | sed "s|$replace_this|...|")"
+	full_name="$(echo -n "$path_string")/$(basename "$1")"
+    }
+    while [[ "$(echo -n $full_name | wc -c)" -gt "$max_length" ]]
+    do
+	replacer "$1"
+	((replace_which++))
+    done
+    case $2 in
+	purple) color=35 ;;
+	green) color=32 ;;
+    esac	
+    path_string=$(echo -n "$path_string" | sed "s|\.\.\./\.\.\./\.\.\./|.../|g;s|\.\.\.|\\\\033[30m...\\\\033[${color}m|g")
+    echolor "$2" "““$i””\t"$path_string"/““$(basename "$1")””"
 }
 
 current_or_reserve=0
