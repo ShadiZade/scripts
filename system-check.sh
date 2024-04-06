@@ -14,13 +14,14 @@ function process-missing {
 }
 
 function process-check {
-    pidof -qx "$1" && {
-	process-exists "$1"
-	echo "$checktime,CHECK,$1,$(pidof -x "$1")" >> "$logdir"/system-check-"$logtime".log
-    } || {
-	process-missing "$1"
+    [[ -z "$(pgrep --full "$1")" ]] && {
+	process-missing "$2"
 	echo "$checktime,ERROR,$1,NOPID" >> "$logdir"/system-check-"$logtime".log
+    } || {
+	process-exists "$2"
+	echo "$checktime,CHECK,$1,$(pgrep --full "$1")" >> "$logdir"/system-check-"$logtime".log
     }
 }
 
-process-check "battery-warner.sh"
+process-check "battery-warner.sh" "battery warner"
+process-check 'emacs --daemon' "emacs daemon"
