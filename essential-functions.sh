@@ -27,7 +27,8 @@ function echolor {
 		    || highlight=37 ;;
     esac
     text="$(echo "$2" | sed "s/““/\\\\033[${highlight}m/g;s/””/\\\\033[${color}m/g")"
-    echo -e "\033["$color"m$text\033[0m"
+    [[ "$3" -eq 1 ]] && nonewline="-n" || nonewline="" # add "1" as a 3rd argument to add -n to echo
+    echo $nonewline -e "\033["$color"m$text\033[0m"
 }
 
 function random-string {
