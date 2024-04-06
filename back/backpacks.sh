@@ -16,3 +16,14 @@ fc-list > ~/Repositories/dotfiles/fonts.txt \
 echolor yellow ":: Backing diary..."
 echolor yellow "$(basic-commit ~/Misc/diary/)" \
     && echolor blue "\t\t → Done!"
+
+echolor yellow ":: Backing logs..."
+rsync -qaru ~/.local/logs/* ~/Misc/Backups/logs/
+echolor yellow "$(basic-commit ~/Misc/Backups/logs/)" \
+    && echolor blue "\t\t → Done!"
+
+echolor yellow ":: Backing user script data..."
+rsync -qaru ~/.local/share/user-scripts/* ~/Misc/Backups/user-script-data/
+echolor yellow "$(basic-commit ~/Misc/Backups/user-script-data/)" \
+    && echolor blue "\t\t → Done!"
+
