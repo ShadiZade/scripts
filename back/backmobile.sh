@@ -2,8 +2,8 @@
 source ~/Repositories/scripts/essential-functions.sh 
 
 mobiledir="$HOME/.local/mobile/Internal shared storage"
-mobilecache="$HOME/.local/share/backmobile/"
-lastback="$(cat $mobilecache/times | tail -n 1)"
+mobilecache="$HOME/.local/share/user-scripts/"
+lastback="$(cat $mobilecache/backmobile-times | tail -n 1)"
 i=1
 
 function bd {
@@ -18,7 +18,7 @@ function back-from-dir {
 	return
     }
     dir="$mobiledir/$1"
-    cor_dir="$(cat "$mobilecache"/dirs | grep "^$1," | ifne xsv select 2)"
+    cor_dir="$(cat "$mobilecache"/backmobile-dirs | grep "^$1," | ifne xsv select 2)"
     echolor green "\n:: This is operation ““$i”” "
     ((i++))
     [[ -d "$dir" ]] || {
@@ -63,7 +63,7 @@ function back-from-dir {
        return
     }
     [[ "$proceed" = "y" ]] && {
-	rsync --log-file="$mobilecache"/.transfer-log -Paru "${files[@]}" "$cor_dir"
+	rsync --log-file="$mobilecache"/backmobile-transfer-log -Paru "${files[@]}" "$cor_dir"
     } || {
 	echolor yellow ":: Nothing done."
     }
@@ -71,7 +71,7 @@ function back-from-dir {
 
 function back-all {
     IFS=$'\n'
-    all_dirs=($(cat "$mobilecache"/dirs | xsv select 1))
+    all_dirs=($(cat "$mobilecache"/backmobile-dirs | xsv select 1))
     echolor yellow ":: The following directories in mobile will be backed."
     for k in ${all_dirs[@]}
     do
@@ -127,4 +127,4 @@ do
 done
 [[ "$add_to_time_file" = "n" ]] \
     && echolor yellow "\n:: Not adding this instance to time file." \
-	|| bd >> "$mobilecache"/times
+	|| bd >> "$mobilecache"/backmobile-times
