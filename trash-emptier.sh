@@ -5,7 +5,7 @@ trash_dir="$HOME/.local/share/Trash/files"
 trash_manifest="$HOME/.local/share/Trash/deletetimes"
 log_dir="$HOME/.local/logs/trash"
 current_time="$(formatted-date-string)"
-trash_size="$(du -sh "$trash_dir" 2&>/dev/null | awk '{print $1}')"
+trash_size="$(du -sh "$trash_dir" 2>/dev/null | awk '{print $1}')"
 emptying_log="$log_dir"/emptying/emptying-"$current_time.log"
 mem_before="$(df | grep sda1 | awk '{print $5}')"
 
@@ -68,7 +68,7 @@ function safety-checks {
 	echolor red "[FAIL]"
     }
     echolor green ":: ““[6/7]”” Trash directory is not empty... " 1
-    [[ "$(eza -1a "$trash_dir" 2&>/dev/null | wc -l )" -gt 0 ]] && {
+    [[ "$(eza -1a "$trash_dir" 2>/dev/null | wc -l )" -gt 0 ]] && {
 	echolor white "[PASS]"
 	((safe_check++))
     } || {
