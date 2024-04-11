@@ -2,7 +2,7 @@
 source ~/Repositories/scripts/essential-functions.sh
 
 [ -z "$1" ] \
-    && ep="$(eza -f1 --no-quotes | grep -Ev 'srt$|vtt$' | fzf)" \
+    && ep="$(eza -f1 --no-quotes | grep -Ev 'srt$|vtt$|part$' | fzf)" \
 	|| ep="$1"
 [ -z "$ep" ] \
     && echo -e "\033[33m:: No file selected.\033[0m" \
