@@ -268,7 +268,7 @@ function battery-warner {
 }
 
 function warning-bloops {
-    mpv --loop=10 /usr/share/sounds/freedesktop/stereo/dialog-warning.oga
+    mpv --loop=10 /home/oak/.local/share/user-scripts/sounds/bloops.oga
 }
 
 # function ¿ {
