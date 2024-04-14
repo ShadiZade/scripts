@@ -10,7 +10,8 @@ pacman -Qeqm > ~/Repositories/dotfiles/aur-packages.txt \
     && echolor blue "\t\t → Done!"
 
 echolor yellow ":: Backing fonts..."
-fc-list > ~/Repositories/dotfiles/fonts.txt \
+fc-list > ~/Repositories/dotfiles/fonts.txt
+rsync -qaru /usr/share/fonts/TTF/ /home/oak/Misc/Backups/fonts \
     && echolor blue "\t\t → Done!"
 
 echolor yellow ":: Backing diary..."
