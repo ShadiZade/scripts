@@ -20,8 +20,6 @@ function print-out {
 print-out "Lower Decks" "/series/star-trek-lower-decks"
 print-out "The Mandalorian" "/series/the-mandalorian"
 print-out "Severance" "/series/severance"
-print-out "Our Flag Means Death" "/series/our-flag-means-death"
-print-out "Ahsoka" "/series/ahsoka"
 print-out "Strange New Worlds" "/series/star-trek-strange-new-worlds"
 print-out "Manhunt" "/series/manhunt-2022"
 print-out "Game Changer" "/series/game-changer"
