@@ -2,7 +2,7 @@
 source ~/Repositories/scripts/essential-functions.sh
 
 logdir="$HOME/.local/logs/system-check"
-checktime=$(formatted-date-string)
+checktime=$(date-string)
 logtime="$(echo -n $checktime | cut -c-8)"
 
 function process-exists {

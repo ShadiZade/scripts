@@ -4,7 +4,7 @@ source ~/Repositories/scripts/essential-functions.sh
 trash_dir="$HOME/.local/share/Trash/files"
 trash_manifest="$HOME/.local/share/Trash/deletetimes"
 log_dir="$HOME/.local/logs/trash"
-current_time="$(formatted-date-string)"
+current_time="$(date-string)"
 trash_size="$(du -sh "$trash_dir" 2>/dev/null | awk '{print $1}')"
 emptying_log="$log_dir"/emptying/emptying-"$current_time.log"
 mem_before="$(df | grep sda1 | awk '{print $5}')"

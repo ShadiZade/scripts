@@ -214,12 +214,20 @@ function extension-determiner {
 	| ifne xsv select 2 2>/dev/null
 }
 
-function formatted-date-string {
+function date-string {
+    date_string="$(date +"%Y%m%d%H%M%S")"
     case "$1" in
-	"long") date +"%Y-%m-%d %H:%M:%S" ;;
-	"day") date +"%Y%m%d%H" ;;
-	*) date +"%Y%m%d%H%M%S" ;;
+	"long") date_string="$(date +"%Y-%m-%d %H:%M:%S")" ;;
+	"") echo -n ;;
+	"y") date_string="$(echo $date_string | cut -c-4)" ;;
+	"ym") date_string="$(echo $date_string | cut -c-6)" ;;
+	"ymd") date_string="$(echo $date_string | cut -c-8)" ;;
+	"ymdh") date_string="$(echo $date_string | cut -c-10)" ;;
+	"ymdhm") date_string="$(echo $date_string | cut -c-12)" ;;
+	"ymdhms") date_string="$(echo $date_string | cut -c-14)" ;;
+	*) echo -n ;;
     esac
+    echo $date_string
 }
 
 function exchange-names {

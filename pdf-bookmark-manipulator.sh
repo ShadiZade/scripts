@@ -18,7 +18,7 @@ metafile="meta-$pdffile.pdfdata"
 
 function create-meta-file {
     [[ -e "$metafile" ]] \
-	&& mv "$metafile" "$metafile-$(formatted-date-string)"
+	&& mv "$metafile" "$metafile-$(date-string)"
     echolor yellow ":: Creating meta file for ““$pdffile””"
     pdftk "$pdffile" dump_data_utf8 output "$metafile" || {
 	echolor red ":: Meta file failed to generate."
