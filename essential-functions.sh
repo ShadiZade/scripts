@@ -150,7 +150,7 @@ function move-to-trash {
 	    return
 	}
     }
-    echo "$(date +"%Y-%m-%d %H:%M:%S")   ¼⅓   $(basename $1)   ¼⅓   $(basename $postdelname)" \
+    echo "$(date +"%Y-%m-%d %H:%M:%S")   ¼⅓   $(basename "$1")   ¼⅓   $(basename "$postdelname")" \
 	 >> "$trashdir"/deletetimes
     [ "$1" = "$postdelname" ] && {
 	echolor blue ":: File ““$1”” moved to trash."
