@@ -15,10 +15,9 @@ function get-series {
 }
 
 get-series "Lower Decks" "star-trek-lower-decks"
-get-series "Our Flag Means Death" "our-flag-means-death"
+get-series "Strange New Worlds" "star-trek-strange-new-worlds"
 get-series "Game Changer" "game-changer"
 get-series "The Green Veil" "the-green-veil"
-get-series "Manhunt" "manhunt-2022"
 get-series "The Mandalorian" "the-mandalorian"
 get-series "Severance" "severance"
-get-series "Strange New Worlds" "star-trek-strange-new-worlds"
+get-series "Our Flag Means Death" "our-flag-means-death"
