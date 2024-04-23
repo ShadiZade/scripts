@@ -2,24 +2,25 @@
 source ~/Repositories/scripts/essential-functions.sh
 
 function clean-o {
-	upc=$(curl -s "$1" | grep -E -i -A 3 -m 1 'strong>upcoming|released' | tail -n +4 | sed 's/^\s*//g')
-	year=$(echo $upc | awk '{print $NF}')
-	day=$(echo $upc | awk '{print $2}' | tr -d ',')
-	[[ "$(echo -n $day | wc -c)" -eq 1 ]] && day="0$day"
-	month=$(echo $upc | awk '{print $1}' | cut -c-3 | tr '[a-z]' '[A-Z]')
-	upc=$(echo $day $month $year)
-	[[ -z "$upc" ]] && upc="\033[31mNO UPCOMING\033[0m"
-	echo $upc
+    curlo="$(curl -s "$1")"
+    upcoming="$(echo "$curlo" | grep -i -C 3 'strong>upcoming' | tail -n 1 | awk '{print $2,$1,$3}' | tr -d ',')"
+    recent="$(echo "$curlo" | grep -i -C 3 recent | tail -n 1 | awk '{print $2,$1,$3}' | tr -d ',')"
+    status="$(echo "$curlo" | grep -i -C 2 status | tail -n 1 | awk '{print $1}' | cut -c-4)"
+    [[ -z "$upcoming" ]] && upcoming="\033[30mno upcoming\033[0m"
+    [[ "$status" != "Cont" ]] && upcoming="\033[31mshow has ended\033[0m"
+    export recent
+    export upcoming
 }
 
 function print-out {
-    echolor blue "$1: " 1
-    echolor yellow "$(clean-o https://thetvdb.com/"$2")"
+    clean-o "https://thetvdb.com/$2"
+    echolor blue "$1: ““$recent””"
+    echolor yellow "\t$upcoming"
 }
 
-print-out "Lower Decks" "/series/star-trek-lower-decks"
-print-out "The Mandalorian" "/series/the-mandalorian"
-print-out "Severance" "/series/severance"
-print-out "Strange New Worlds" "/series/star-trek-strange-new-worlds"
-print-out "Manhunt" "/series/manhunt-2022"
-print-out "Game Changer" "/series/game-changer"
+print-out "Lower Decks" "series/star-trek-lower-decks"
+print-out "Our Flag Means Death" "series/our-flag-means-death"
+print-out "Game Changer" "series/game-changer"
+print-out "The Mandalorian" "series/the-mandalorian"
+print-out "Severance" "series/severance"
+print-out "Strange New Worlds" "series/star-trek-strange-new-worlds"

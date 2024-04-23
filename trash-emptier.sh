@@ -126,7 +126,7 @@ function empty-trash {
 	    return
 	}
 	echo "deleting $j" >> "$emptying_log"
-	rm -rf "$trash_dir/$j"
+	rm -rf -- "$trash_dir/$j"
 	((files_deleted++))
 	printf "\r$files_deleted"
 	previously_deleted="$j"
