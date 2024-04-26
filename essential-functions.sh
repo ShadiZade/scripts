@@ -279,6 +279,10 @@ function warning-bloops {
     mpv --loop=10 /home/oak/.local/share/user-scripts/sounds/bloops.oga
 }
 
+function sfx {
+    ~/Repositories/scripts/sound-effects.sh "$@"
+}
+
 # function ¿ {
 #     : function ¿ interrogates functions and aliases in bash, enabling them to be self-documenting.
 #     :
