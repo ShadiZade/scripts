@@ -39,7 +39,7 @@ for j in "${listoffiles[@]}"
 do
     ftc="$(file -b "$j" | awk '{print $1}')"
     [[ "$ftc" = "ISO" ]] \
-	&& mpv --no-terminal --no-resume-playback --loop=inf "$j" \
+	&& mpv --osd-fractions --no-terminal --no-resume-playback --loop=inf "$j" \
 	    || xdg-open "$j"
     echo -e "--------------------------------"
     echo -e ":: Opened file \033[32m$i\033[0m"
