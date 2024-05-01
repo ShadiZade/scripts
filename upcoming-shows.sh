@@ -17,8 +17,6 @@ function get-series {
 get-series "Lower Decks" "star-trek-lower-decks"
 get-series "Strange New Worlds" "star-trek-strange-new-worlds"
 get-series "Game Changer" "game-changer"
-get-series "The Green Veil" "the-green-veil"
 get-series "The Mandalorian" "the-mandalorian"
 get-series "Severance" "severance"
-get-series "Our Flag Means Death" "our-flag-means-death"
 get-series "Tales of the Empire" "star-wars-tales-of-the-empire"
