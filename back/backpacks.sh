@@ -11,7 +11,7 @@ pacman -Qeqm > ~/Repositories/dotfiles/aur-packages.txt \
 
 echolor yellow ":: Backing fonts..."
 fc-list > ~/Repositories/dotfiles/fonts.txt
-rsync -qaru /usr/share/fonts/TTF/ /home/oak/Misc/Backups/fonts \
+rsync -qaru /usr/share/fonts/TTF/ ~/Misc/Backups/fonts \
     && echolor blue "\t\t → Done!"
 
 echolor yellow ":: Backing diary..."
@@ -28,3 +28,7 @@ rsync -qaru ~/.local/share/user-scripts/* ~/Misc/Backups/user-script-data/
 echolor yellow "$(basic-commit ~/Misc/Backups/user-script-data/)" \
     && echolor blue "\t\t → Done!"
 
+echolor yellow ":: Backing Buku bookmarks..."
+rsync -qaru ~/.local/share/buku/bookmarks.db ~/Misc/Backups/bookmarks/buku
+echolor yellow "$(basic-commit ~/Misc/Backups/bookmarks/buku/)" \
+    && echolor blue "\t\t → Done!"

@@ -2,7 +2,7 @@
 source ~/Repositories/scripts/essential-functions.sh
 
 function get-series {
-    echolor blue "$1: " 1
+    echolor blue-white "$1 ““::”” " 1
     curlo="$(curl -s "https://thetvdb.com/series/$2")"
     upcoming="$(echo "$curlo" | grep -i -C 3 'strong>upcoming' | tail -n 1 | awk '{print $2,$1,$3}' | tr -d ',')"
     recent="$(echo "$curlo" | grep -i -C 3 recent | tail -n 1 | awk '{print $2,$1,$3}' | tr -d ',')"
@@ -17,6 +17,7 @@ function get-series {
 get-series "Lower Decks" "star-trek-lower-decks"
 get-series "Strange New Worlds" "star-trek-strange-new-worlds"
 get-series "Game Changer" "game-changer"
+get-series "Star Wars: Andor" "andor"
 get-series "The Mandalorian" "the-mandalorian"
 get-series "Severance" "severance"
 get-series "Tales of the Empire" "star-wars-tales-of-the-empire"
