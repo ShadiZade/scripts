@@ -283,6 +283,16 @@ function sfx {
     ~/Repositories/scripts/sound-effects.sh "$@"
 }
 
+function clear-line {
+    printf '\r'
+    for j in {1..148}
+    do
+	echo -n ' '
+    done
+    printf '\r'
+    
+}
+
 # function ¿ {
 #     : function ¿ interrogates functions and aliases in bash, enabling them to be self-documenting.
 #     :
