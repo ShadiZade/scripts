@@ -2,7 +2,12 @@
 source ~/Repositories/scripts/essential-functions.sh
 
 rural="$HOME/Repositories/scripts/src/rural-cal"
-ao="$(curl -sL https://repcal.info/now | sed 's/repcal:/cal/g' | jq '._embedded')"
+original_json="$(curl -sL https://repcal.info/now)"
+echo "$original_json" | grep -q 'doctype html' && {
+    echolor red ":: French date fetch failure"
+    exit
+}
+ao="$(echo "$original_json" | sed 's/repcal:/cal/g' | jq '._embedded')"
 do="$(echo "$ao" | jq '.caldate.attributes')"
 to="$(echo "$ao" | jq '.caltime.attributes')"
 
