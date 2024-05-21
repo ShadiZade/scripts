@@ -4,7 +4,7 @@ source ~/Repositories/scripts/essential-functions.sh
 rural="$HOME/Repositories/scripts/src/rural-cal"
 original_json="$(curl -sL https://repcal.info/now)"
 echo "$original_json" | grep -q 'doctype html' && {
-    echolor red ":: French date fetch failure"
+    echo -n
     exit
 }
 ao="$(echo "$original_json" | sed 's/repcal:/cal/g' | jq '._embedded')"
