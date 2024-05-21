@@ -27,13 +27,12 @@ function floating-mode {
     bspc config window_gap 8
 }
 
-function gimp-mode {
+function work-mode {
     bspc node -t tiled
     pkill polybar &
     bspc config border_width 3
     bspc config window_gap 0
     bspc config top_padding 0
-    # TODO entirely replace the built-in fullscreen mode with gimp-mode
 }
 
 function fullscreen-mode {
