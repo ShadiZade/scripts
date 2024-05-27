@@ -225,7 +225,7 @@ function see-pdf-file {
     filename="$(conf-info-extract "project_name")"
     [ -z "$filename" ] && echo -e "\033[33m:: Project name not found in .conf file.\033[0m" && exit
     [ -e "$(echo $filename.pdf)" ] \
-	&& zathura "$filename".pdf \
+	&& zathura "$filename".pdf 2>/dev/null \
 	    || echo -e "\033[33m:: PDF file \033[36m$filename.pdf\033[33m not found.\033[0m" 
 }
 
