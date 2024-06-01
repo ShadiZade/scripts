@@ -1,11 +1,12 @@
 #!/bin/bash
 source ~/Repositories/scripts/essential-functions.sh 
 
-current_file="$usdd/zas-current-study"
-reserve_file="$usdd/zas-reserve-study"
+current_file="$usdd/gap-current-projects"
+reserve_file="$usdd/gap-reserve-projects"
 use_program="zathura"
+export openthis=""
 
-function add-study {
+function add-projects {
     [[ "$current_or_reserve" -eq 1 ]] && {
 	storage_file="$reserve_file"
 	destination="reserve"
@@ -13,8 +14,12 @@ function add-study {
 	storage_file="$current_file"
 	destination="current"
     }
-    [[ -e "$1" ]] || {
-	echolor red ":: Nothing found."
+    [[ -d "$1" ]] || {
+	[[ -e "$1" ]] && {
+	    echolor red ":: Only directories can be added."
+	} || {
+	    echolor red ":: Nothing found."
+	}
 	exit
     }
     echo "$(realpath "$1")" >> $storage_file
@@ -22,25 +27,24 @@ function add-study {
     echolor purple ":: ““$(basename "$1")”” added to ““$destination””"
 }
 
-function delete-study {
+function delete-projects {
     [[ "$current_or_reserve" -eq 1 ]] \
 	&& storage_file="$reserve_file" \
 		       || storage_file="$current_file"
-    removethis="$(cat $storage_file | fzf --prompt="Select file to REMOVE: ")"
+    removethis="$(cat $storage_file | fzf --prompt="Select project to REMOVE: ")"
     [ -z "$removethis" ] && echolor red ":: Nothing chosen." && exit
     sed -i "s|^$removethis$||g;/^$/d" $storage_file
     echolor purple ":: ““$(echo $removethis | awk -F '/' '{print $NF}')”” was removed."
 }
 
-function open-study {
+function open-projects {
     [[ "$current_or_reserve" -eq 1 ]] \
 	&& storage_file="$reserve_file" \
 		       || storage_file="$current_file"
     openthis="$(cat $storage_file | fzf --prompt="Select file to OPEN: ")"
     [ -z "$openthis" ] && echolor red ":: Nothing chosen." && exit
-    echolor purple ":: Opened ““$(echo $openthis | awk -F '/' '{print $NF}')”” in ““$use_program””"
-    echo -n $openthis | xclip -selection clipboard
-    "$use_program" "$openthis" 2>/dev/null
+    echolor purple ":: Copied path to ““$(echo $openthis | awk -F '/' '{print $NF}')””"
+    echo -n "cd $openthis" | xclip -selection clipboard
 }
 
 
@@ -60,7 +64,7 @@ function call-from-reserve {
     echolor purple ":: ““$(echo $callthis | awk -F '/' '{print $NF}')”” was moved to current."
 }
 
-function view-study {
+function view-projects {
     i=1
     IFS=$'\n'
     for j in $(cat $reserve_file)
@@ -104,11 +108,10 @@ function print-name {
 current_or_reserve=0
 while getopts 'movra:d' OPTION; do
     case "$OPTION" in
-	"o") use_program="okular"; open-study ;;
 	"r") current_or_reserve=1 ;;
-	"v") view-study ;;
-	"d") delete-study ;;
-	"a") add-study "$OPTARG" ;;
+	"v") view-projects ;;
+	"d") delete-projects ;;
+	"a") add-projects "$OPTARG" ;;
 	"m") case "$(echo -e "To reserve\nTo current" | fzf --prompt="Choose action: ")" in
 		 "To current") call-from-reserve ;;
 		 "To reserve") move-to-reserve ;;
@@ -119,7 +122,7 @@ while getopts 'movra:d' OPTION; do
 	*) echo incorrect input; exit ;;
 	esac
 done
-(( $OPTIND == 1 )) && open-study
+(( $OPTIND == 1 )) && open-projects
 
 # TODO add "this book already exists" warning
 # TODO add "done" category

@@ -133,7 +133,7 @@ function list-cutter {
 }
 
 function move-to-trash {
-    trashdir="/home/oak/.local/share/Trash"
+    trashdir="$HOME/.local/share/Trash"
     fd -q "^$1$" "$trashdir"/files && {
 	postdelname="$1-$(date +"%Y_%m_%d_%H_%M_%S")"
 	command mv -n -- "$1" "$trashdir"/files/"$postdelname" \
@@ -276,7 +276,7 @@ function battery-warner {
 }
 
 function warning-bloops {
-    mpv --loop=10 /home/oak/.local/share/user-scripts/sounds/bloops.oga
+    mpv --loop=10 "$HOME/.local/share/user-scripts/sounds/bloops.oga"
 }
 
 function sfx {
