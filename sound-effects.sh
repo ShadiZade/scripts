@@ -7,7 +7,7 @@ function get-from-catalogue {
 	| sed "s/^# $1//g;s/^ //g"
 }
 function a {
-    mpv --really-quiet --no-audio-display $(get-from-catalogue "$1")
+    mpv --really-quiet --no-audio-display $(get-from-catalogue "$1") --volume="${2:-60}"
 }
 
 function a10 {
@@ -22,7 +22,7 @@ case "$1" in
     "ten-bloops") a10 001 ;;
     "glass-hit") ainf 002 ;;
     "bruh") a 003 ;;
-    "jumpy-laser") a 007 ;;
+    "jumpy-laser") a 007 40;;
     *) a 002 ;;
 esac
 
