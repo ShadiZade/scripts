@@ -27,6 +27,7 @@ function zaytouna {
 	echolor blue ":: ✓  Updated newsletter ““$nlname””: " 1
 	echolor red "$dlded ““→”” " 1
 	echolor green "$urled"
+	echo "$loc"/"zaytouna-$urled-$date.pdf" >> "$HOME/Documents/newsletters/.unread"
     }
 }
 
@@ -55,6 +56,7 @@ function kassioun {
 	echolor blue ":: ✓  Updated newsletter ““$nlname””: " 1
 	echolor red "$dlded ““→”” " 1
 	echolor green "$urled"
+	echo "$loc"/"kassioun-$urled.pdf" >> "$HOME/Documents/newsletters/.unread"
     }
 }
 
