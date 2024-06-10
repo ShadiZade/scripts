@@ -293,6 +293,10 @@ function clear-line {
     
 }
 
+function sane {
+    echolor purple ":: Sanity checkpoint $1"
+}
+
 # function ¿ {
 #     : function ¿ interrogates functions and aliases in bash, enabling them to be self-documenting.
 #     :
