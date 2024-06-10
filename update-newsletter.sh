@@ -60,5 +60,37 @@ function kassioun {
     }
 }
 
+function al-akhbar {
+    nlname="Al-Akhbar"
+    nl='https://al-akhbar.com/Editions'
+    loc="$HOME/Documents/newsletters/al-akhbar"
+    dlded="$(eza -1f "$loc" | grep 'pdf$' | tail -n 1 | awk -F '-' '{print $3}')"
+    echolor green ":: Updating ““$nlname””. Current edition: ““$dlded””" 1
+    jindata="$(wget -qO- "$nl" | grep "$((dlded + 1))")"
+    [[ -z "$jindata" ]] && {
+	clear-line
+	echolor green ":: ✓  Newsletter ““$nlname”” is up to date. Current edition: ““$dlded””"
+	return
+    } || {
+	clear-line
+	urled="$(echo "$jindata" | awk -F 'data-id="' '{print $NF}' | awk -F '" data-name' '{print $1}')"
+	urldt="$(echo "$jindata" | awk -F 'data-name="' '{print $NF}' | awk -F '" data-old' '{print $1}')"
+	echolor blue ":: Downloading new edition of ““$nlname””. " 1
+	echolor red "$dlded ““→”” " 1
+	echolor green "$urled" 1
+	cd ~/Desktop/
+	filename="$(echo al-akhbar-"$urled"-$(date --iso-8601 -d "$urldt"))"
+	wget --no-use-server-timestamps -O "$filename" -nc -q -t 0 -- "https://al-akhbar.com/PDF_Files/$urled/alakhbar$urldt.pdf" || \
+	    wget --no-use-server-timestamps -O "$filename" -nc -q -t 0 -- "https://al-akhbar.com/PDF_Files/$urled/alakhbar_$urldt.pdf"
+	mv "$filename" "$loc"/"$filename".pdf
+	clear-line
+	echolor blue ":: ✓  Updated newsletter ““$nlname””: " 1
+	echolor red "$dlded ““→”” " 1
+	echolor green "$urled"
+	echo "$loc"/"$filename".pdf >> "$usdd"/unread-newsletters
+    }
+}
+
 zaytouna
 kassioun
+al-akhbar
