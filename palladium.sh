@@ -13,20 +13,31 @@ function open-book {
     # checks if more than 1 entry has the same title and prompts for volume
     if [[ "$(xsv select title "$ix" | grep -c "$sld_ttl")" -gt 1 ]]
     then
-	sld_vol="$(xsv search -s title "$sld_ttl" "$ix" | xsv select volume,subtitle | sed 1d | fzf | xsv select 1 | tr -d '"')"
-	[[ -z "$sld_vol" ]] && {
-	    echolor red ":: Nothing selected."
-	    return
-	}
-    	sld_fnm="$loc/$(xsv search -s title "$sld_ttl" "$ix" | xsv search -s volume "$sld_vol" | xsv select filename | sed -n 2p)"
+	sld_vol_sbt="$(xsv search -s title "$sld_ttl" "$ix" | xsv select volume,subtitle | sed 1d | fzf)"
+	sld_vol="$(echo "$sld_vol_sbt" | xsv select 1 | tr -d '"')"
+	sld_sbt="$(echo "$sld_vol_sbt" | xsv select 2)"
+	if [[ -z "$sld_vol" ]]
+	then
+	    if [[ -z "$sld_sbt" ]]
+	    then
+		echolor red ":: Nothing selected."
+		return
+	    else
+		sld_fnm="$loc/$(xsv search -s title "$sld_ttl" "$ix" | xsv search -s subtitle "$sld_sbt" | xsv select filename | sed -n 2p)"
+	    fi
+	else
+    	    sld_fnm="$loc/$(xsv search -s title "$sld_ttl" "$ix" | xsv search -s volume "$sld_vol" | xsv select filename | sed -n 2p)"
+	fi 
 	# checks if more than 1 entry has the same title-volume combination and prompts for edition number
 	[[ "$(xsv search -s title "$sld_ttl" "$ix" | xsv search -s volume "$sld_vol" | wc -l)" -gt 2 ]] && {
-	    sld_ed="$(xsv search -s title "$sld_ttl" "$ix" | xsv search -s volume "$sld_vol" | xsv select edition | sed 1d | fzf -p 'Select edition: ')"
-	    [[ -z "$sld_ed" ]] && {
-	    echolor red ":: Nothing selected."
-	    return
-	}
-	sld_fnm="$loc/$(xsv search -s title "$sld_ttl" "$ix" | xsv search -s volume "$sld_vol" | xsv search -s edition "$sld_ed" | xsv select filename | sed -n 2p)"
+	    [[ "$(xsv search -s title "$sld_ttl" "$ix" | xsv search -s subtitle "$sld_sbt" | wc -l)" -gt 2 ]] && {
+		sld_ed="$(xsv search -s title "$sld_ttl" "$ix" | xsv search -s volume "$sld_vol" | xsv select edition | sed 1d | fzf --prompt 'Select edition: ')"
+		[[ -z "$sld_ed" ]] && {
+		    echolor red ":: Nothing selected."
+		    return
+		}
+	    }
+	    sld_fnm="$loc/$(xsv search -s title "$sld_ttl" "$ix" | xsv search -s volume "$sld_vol" | xsv search -s edition "$sld_ed" | xsv select filename | sed -n 2p)"
 	}
     else
 	# this is activated only if the title is unique
@@ -81,7 +92,7 @@ function add-entry {
 	echolor red ":: This file does not exist."
 	return
     }
-    nix="$HOME/Desktop/ath-new-entry-$(date-string).csv"
+    nix="/tmp/ath-new-entry-$(date-string).csv"
     touch "$nix"
     IFS=$'\n'
     sed -n 1p "$ix" >> "$nix"
@@ -95,15 +106,13 @@ function add-entry {
     done
     echo -n "$(basename "$1")" >> "$nix"
     csvlens "$nix"
-    echolor yellow ":: Continue? (y/N) " 1
+    echolor yellow ":: Continue? (Y/n) " 1
     read -r continue_p
-    [[ "$continue_p" != "y" ]] && {
+    [[ "$continue_p" = "n" ]] && {
 	echolor red ":: Exiting."
-	move-to-trash "$nix"
 	return
     }
     xsv cat rows "$ix" "$nix" | xsv sort -s title > "$ix"-new 
-    move-to-trash "$nix"
     move-to-trash "$ix"
     mv "$ix"-new "$ix"
     mv "$1" "$HOME/Athenaeum/"
