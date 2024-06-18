@@ -16,11 +16,12 @@ function get-series {
 
 get-series "Lower Decks" "star-trek-lower-decks"
 get-series "Strange New Worlds" "star-trek-strange-new-worlds"
-get-series "Game Changer" "game-changer"
 get-series "Star Wars: Andor" "andor"
 get-series "The Mandalorian" "the-mandalorian"
 get-series "Severance" "severance"
+get-series "Game Changer" "game-changer"
 get-series "Very Important People" "440147-very-important-people"
 get-series "Smartypants" "smartypants"
+get-series "Thousandaires" "thousandaires"
 get-series "The Acolyte" "the-acolyte"
 get-series "House of the Dragon" "house-of-the-dragon"
