@@ -80,8 +80,12 @@ function al-akhbar {
 	echolor green "$urled" 1
 	cd ~/Desktop/
 	filename="$(echo al-akhbar-"$urled"-$(date --iso-8601 -d "$urldt"))"
-	wget --no-use-server-timestamps -O "$filename" -nc -q -t 0 -- "https://al-akhbar.com/PDF_Files/$urled/alakhbar$urldt.pdf" || \
+	echo "https://al-akhbar.com/PDF_Files/$urled/alakhbar_$urldt.pdf"
+	wget --spider -- "https://al-akhbar.com/PDF_Files/$urled/alakhbar$urldt.pdf" && {
+	    wget --no-use-server-timestamps -O "$filename" -nc -q -t 0 -- "https://al-akhbar.com/PDF_Files/$urled/alakhbar$urldt.pdf"
+	} || {
 	    wget --no-use-server-timestamps -O "$filename" -nc -q -t 0 -- "https://al-akhbar.com/PDF_Files/$urled/alakhbar_$urldt.pdf"
+	}
 	mv "$filename" "$loc"/"$filename".pdf
 	clear-line
 	echolor blue ":: ✓  Updated newsletter ““$nlname””: " 1
