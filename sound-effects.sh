@@ -23,6 +23,7 @@ case "$1" in
     "glass-hit") ainf 002 ;;
     "bruh") a 003 ;;
     "jumpy-laser") a 007 40;;
+    "d2a-d2i") a 008 70;;
     *) a 002 ;;
 esac
 
@@ -34,6 +35,6 @@ esac
 # 005 owlstorm-retro-laser.wav
 # 006 julien-laser.wav
 # 007 jalastram-jump.wav owlstorm-retro-laser.wav julien-laser.wav
-
+# 008 d2a-d2i.mp3
 
 ### TODO system check for [[ -e ]] sound catalogue files
