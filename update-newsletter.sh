@@ -66,7 +66,7 @@ function al-akhbar {
     loc="$HOME/Documents/newsletters/al-akhbar"
     dlded="$(eza -1f "$loc" | grep 'pdf$' | tail -n 1 | awk -F '-' '{print $3}')"
     echolor green ":: Updating ““$nlname””. Current edition: ““$dlded””" 1
-    jindata="$(wget -qO- "$nl" | grep "$((dlded + 1))")"
+    jindata="$(wget -qO- "$nl" | grep "data-id=\"$((dlded + 1))\"")"
     [[ -z "$jindata" ]] && {
 	clear-line
 	echolor green ":: ✓  Newsletter ““$nlname”” is up to date. Current edition: ““$dlded””"
@@ -81,7 +81,7 @@ function al-akhbar {
 	cd ~/Desktop/
 	filename="$(echo al-akhbar-"$urled"-$(date --iso-8601 -d "$urldt"))"
 	echo "https://al-akhbar.com/PDF_Files/$urled/alakhbar_$urldt.pdf"
-	wget --spider -- "https://al-akhbar.com/PDF_Files/$urled/alakhbar$urldt.pdf" && {
+	wget -q --spider -- "https://al-akhbar.com/PDF_Files/$urled/alakhbar$urldt.pdf" && {
 	    wget --no-use-server-timestamps -O "$filename" -nc -q -t 0 -- "https://al-akhbar.com/PDF_Files/$urled/alakhbar$urldt.pdf"
 	} || {
 	    wget --no-use-server-timestamps -O "$filename" -nc -q -t 0 -- "https://al-akhbar.com/PDF_Files/$urled/alakhbar_$urldt.pdf"
