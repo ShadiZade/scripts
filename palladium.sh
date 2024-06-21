@@ -3,48 +3,80 @@ source ~/Repositories/scripts/essential-functions.sh
 loc="$HOME/Athenaeum"
 ix="$usdd/athenaeum-index.csv"
 bkp="$HOME/Misc/Backups/athenaeum"
+all_attr=(type title subtitle author volume edition first_published year publisher country language trans_p original_lang transor filename)
+
+
+
+function dup-check {
+    if [[ "$(xsv search -s "$1" "$2" "$ix" | xsv select "$1" | sed 1d | wc -l)" -gt 1 ]]
+    then
+	return 0
+    else
+	return 1
+    fi
+}
+
+function dupper {
+    # dupper field_already_queried other_field_to_query term fields_to_display_comma_separated order_of_field
+    # dupper title volume XYZ volume,subtitle 1
+    # e.g. can be run if two books titled XYZ are found (in order to choose by volume)
+    dup_field="$1"
+    alt_field="$2"
+    dup_term="$3"
+    view_fields="$4"
+    alt_field_order="$5"
+    [[ -z "$view_fields" ]] && view_fields="$alt_field"
+    [[ -z "$alt_field_order" ]] && alt_field_order=1
+    xsv search -s "$dup_field" "$dup_term" "$ix" | xsv select "$view_fields" | sed 1d | fzf | xsv select "$alt_field_order"
+}
+
+function best-algo {
+    # best methods to deal with duplicates
+    best=(volume volume,subtitle language language,trans_p author author edition edition,year publisher publisher country country,language transor transor,language filename filename)
+    attr_diff=()
+    for j in $(xsv headers -j "$ix")
+    do
+	if [[ "$(xsv search -s "$1" "$2" "$ix" | xsv select "$j" | sed 1d | sort | uniq | wc -l)" -gt 1 ]]
+	then
+	    attr_diff+=("$j")
+	fi
+    done
+    [[ -z "$attr_diff" ]] && return 1
+}
 
 function open-book {
     [[ -z "$sld_ttl" ]] && sld_ttl="$(xsv select title "$ix" | tr -d '"' | sed 1d | sort | uniq | fzf)"
     [[ -z "$sld_ttl" ]] && {
 	echolor red ":: Nothing selected."
-	return
+	return 1
     }
-    # checks if more than 1 entry has the same title and prompts for volume
-    if [[ "$(xsv select title "$ix" | grep -c "$sld_ttl")" -gt 1 ]]
+    if $(dup-check title "$sld_ttl")
     then
-	sld_vol_sbt="$(xsv search -s title "$sld_ttl" "$ix" | xsv select volume,subtitle | sed 1d | fzf)"
-	sld_vol="$(echo "$sld_vol_sbt" | xsv select 1 | tr -d '"')"
-	sld_sbt="$(echo "$sld_vol_sbt" | xsv select 2)"
-	if [[ -z "$sld_vol" ]]
-	then
-	    if [[ -z "$sld_sbt" ]]
+	best-algo title "$sld_ttl"
+	i=-1
+	for j in ${best[@]}
+	do
+	    ((i++))
+	    [[ $((i%2)) -eq 1 ]] && continue
+	    if $(echo "${attr_diff[@]}" | grep -q "$j")
 	    then
-		echolor red ":: Nothing selected."
-		return
-	    else
-		sld_fnm="$loc/$(xsv search -s title "$sld_ttl" "$ix" | xsv search -s subtitle "$sld_sbt" | xsv select filename | sed -n 2p)"
+		chosen_best=${best[$i]}
+		chosen_best_config=${best[((i+1))]}
+		break
 	    fi
-	else
-    	    sld_fnm="$loc/$(xsv search -s title "$sld_ttl" "$ix" | xsv search -s volume "$sld_vol" | xsv select filename | sed -n 2p)"
-	fi 
-	# checks if more than 1 entry has the same title-volume combination and prompts for edition number
-	[[ "$(xsv search -s title "$sld_ttl" "$ix" | xsv search -s volume "$sld_vol" | wc -l)" -gt 2 ]] && {
-	    [[ "$(xsv search -s title "$sld_ttl" "$ix" | xsv search -s subtitle "$sld_sbt" | wc -l)" -gt 2 ]] && {
-		sld_ed="$(xsv search -s title "$sld_ttl" "$ix" | xsv search -s volume "$sld_vol" | xsv select edition | sed 1d | fzf --prompt 'Select edition: ')"
-		[[ -z "$sld_ed" ]] && {
-		    echolor red ":: Nothing selected."
-		    return
-		}
-	    }
-	    sld_fnm="$loc/$(xsv search -s title "$sld_ttl" "$ix" | xsv search -s volume "$sld_vol" | xsv search -s edition "$sld_ed" | xsv select filename | sed -n 2p)"
+	done
+	dup_out="$(dupper title "$chosen_best" "$sld_ttl" "$chosen_best_config" 1)"
+	[[ -z "$dup_out" ]] && {
+	    echolor red ":: Nothing selected."
+	    return 1
 	}
+	sld_fnm="$loc/$(xsv search -s title "$sld_ttl" "$ix" | xsv search -s "$chosen_best" "$dup_out" | xsv select filename | sed -n 2p)"
     else
-	# this is activated only if the title is unique
 	sld_fnm="$loc/$(xsv search -s title "$sld_ttl" "$ix" | xsv select filename | sed -n 2p)"
     fi
     zathura -P 1 "$sld_fnm" 2>/dev/null
 }
+
 
 function backup-index {
     cmp -s "$ix" "$bkp/$(eza -1f "$bkp" | tail -n 1)" || {
@@ -71,7 +103,7 @@ function search-by {
     open-book
 }
 
-function dup-check {
+function dup-check-in-index {
     # check for duplicated lines
     cat "$ix" | sort | uniq -c | grep -qv "^      1" && {
 	IFS=$'\n'
@@ -125,7 +157,7 @@ function index-sorter {
 }
 
 backup-index
-dup-check
+dup-check-in-index
 case "$1" in
     "filter") search-by ;;
     "add") add-entry "$2" ;;
