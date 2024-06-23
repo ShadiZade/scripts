@@ -80,7 +80,6 @@ function al-akhbar {
 	echolor green "$urled" 1
 	cd ~/Desktop/
 	filename="$(echo al-akhbar-"$urled"-$(date --iso-8601 -d "$urldt"))"
-	echo "https://al-akhbar.com/PDF_Files/$urled/alakhbar_$urldt.pdf"
 	wget -q --spider -- "https://al-akhbar.com/PDF_Files/$urled/alakhbar$urldt.pdf" && {
 	    wget --no-use-server-timestamps -O "$filename" -nc -q -t 0 -- "https://al-akhbar.com/PDF_Files/$urled/alakhbar$urldt.pdf"
 	} || {
