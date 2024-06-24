@@ -74,7 +74,7 @@ function open-book {
     else
 	sld_fnm="$loc/$(xsv search -s title "$sld_ttl" "$ix" | xsv select filename | sed -n 2p)"
     fi
-    zathura -P 1 "$sld_fnm" 2>/dev/null
+    zathura "$sld_fnm" 2>/dev/null
 }
 
 
@@ -145,7 +145,7 @@ function add-entry {
 	return
     }
     xsv cat rows "$ix" "$nix" | xsv sort -s title > "$ix"-new 
-    move-to-trash "$ix"
+    rm -f "$ix"
     mv "$ix"-new "$ix"
     mv "$1" "$HOME/Athenaeum/"
     backup-index
@@ -156,6 +156,10 @@ function index-sorter {
     echo
 }
 
+[[ -z "$ix" ]] && {
+    echolor red ":: Index variable not set!"
+    exit
+}
 backup-index
 dup-check-in-index
 case "$1" in
