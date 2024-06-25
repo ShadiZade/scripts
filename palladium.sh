@@ -148,6 +148,13 @@ function add-entry {
     rm -f "$ix"
     mv "$ix"-new "$ix"
     mv "$1" "$HOME/Athenaeum/"
+    continue_p=""
+    echolor yellow ":: Create symlink? (y/N) " 1
+    read -r continue_p
+    [[ "$continue_p" = "y" ]] && {
+	ln -s ~/Athenaeum/"$(basename "$1")" . && \
+	    echolor green ":: Symlink created."
+    }
     backup-index
 }
 
