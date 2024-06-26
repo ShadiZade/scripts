@@ -17,7 +17,7 @@ function add-study {
 	echolor red ":: Nothing found."
 	exit
     }
-    echo "$(realpath "$1")" >> $storage_file
+    echo "$(realpath -s "$1")" >> $storage_file
     
     echolor purple ":: ““$(basename "$1")”” added to ““$destination””"
 }
