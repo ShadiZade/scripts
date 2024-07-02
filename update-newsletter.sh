@@ -96,4 +96,4 @@ function al-akhbar {
 
 zaytouna
 kassioun
-al-akhbar
+## Cloudflare enabled on Al-Akhbar on 2024-07-01. What a pain in the ass.
