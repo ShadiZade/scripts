@@ -297,6 +297,13 @@ function sane {
     echolor purple ":: Sanity checkpoint $1"
 }
 
+function wifi-connected-p {
+    case "$(nmcli device status | grep "^wlp4s0" | awk '{print $3}')" in
+	"connected") export wc_p=0 ;;
+	*) export wc_p=1 ;;
+    esac	     
+}
+
 # function ¿ {
 #     : function ¿ interrogates functions and aliases in bash, enabling them to be self-documenting.
 #     :

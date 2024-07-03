@@ -94,6 +94,11 @@ function al-akhbar {
     }
 }
 
+wifi-connected-p
+[[ "$wc_p" -eq 1 ]] && {
+    echolor red ":: Unable to update newsletters, no connection"
+    exit
+}
 zaytouna
 kassioun
 ## Cloudflare enabled on Al-Akhbar on 2024-07-01. What a pain in the ass.
