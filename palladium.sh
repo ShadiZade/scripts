@@ -163,13 +163,13 @@ function index-sorter {
 }
 
 function symlinker {
-    choose-book
+    choose-book || return 1
     ln -sf "$sld_fnm" . &&\
 	echolor green ":: Book ““$sld_ttl”” symlinked here!"
 }
 
 function open-book {
-    choose-book
+    choose-book || return 1
     zathura "$sld_fnm" 2>/dev/null
 }
 
