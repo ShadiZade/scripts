@@ -44,7 +44,7 @@ function best-algo {
     [[ -z "$attr_diff" ]] && return 1
 }
 
-function open-book {
+function choose-book {
     [[ -z "$sld_ttl" ]] && sld_ttl="$(xsv select title "$ix" | tr -d '"' | sed 1d | sort | uniq | fzf)"
     [[ -z "$sld_ttl" ]] && {
 	echolor red ":: Nothing selected."
@@ -74,7 +74,6 @@ function open-book {
     else
 	sld_fnm="$loc/$(xsv search -s title "$sld_ttl" "$ix" | xsv select filename | sed -n 2p)"
     fi
-    zathura "$sld_fnm" 2>/dev/null
 }
 
 
@@ -100,7 +99,7 @@ function search-by {
     filterer="$(xsv select "$sterm" "$ix" | sed 1d | sed '/""/d' | tr -d '"' | sort | uniq | fzf)"
     sld_ttl="$(xsv select title,"$sterm" "$ix" | xsv search -s "$sterm" "$filterer" | xsv select title | tr -d '"' | sed 1d | sort | uniq | fzf)"
     export sld_ttl
-    open-book
+    choose-book
 }
 
 function dup-check-in-index {
@@ -163,6 +162,17 @@ function index-sorter {
     echo
 }
 
+function symlinker {
+    choose-book
+    ln -sf "$sld_fnm" . &&\
+	echolor green ":: Book ““$sld_ttl”” symlinked here!"
+}
+
+function open-book {
+    choose-book
+    zathura "$sld_fnm" 2>/dev/null
+}
+
 [[ -z "$ix" ]] && {
     echolor red ":: Index variable not set!"
     exit
@@ -171,6 +181,7 @@ backup-index
 dup-check-in-index
 case "$1" in
     "filter") search-by ;;
+    "link") symlinker ;;
     "add") add-entry "$2" ;;
     *) open-book ;;
 esac
