@@ -180,7 +180,7 @@ function open-book {
 backup-index
 dup-check-in-index
 case "$1" in
-    "filter") search-by ;;
+    "by") search-by ;;
     "link") symlinker ;;
     "add") add-entry "$2" ;;
     *) open-book ;;
