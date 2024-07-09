@@ -101,4 +101,4 @@ wifi-connected-p
 }
 zaytouna
 kassioun
-## Cloudflare enabled on Al-Akhbar on 2024-07-01. What a pain in the ass.
+al-akhbar
