@@ -173,6 +173,12 @@ function open-book {
     zathura "$sld_fnm" 2>/dev/null
 }
 
+function show-info {
+    choose-book || return 1
+    base_fnm="$(basename -- "$sld_fnm")"
+    xsv search -s filename "$base_fnm" "$ix" | xsv flatten
+}
+
 [[ -z "$ix" ]] && {
     echolor red ":: Index variable not set!"
     exit
@@ -183,5 +189,6 @@ case "$1" in
     "by") search-by ;;
     "link") symlinker ;;
     "add") add-entry "$2" ;;
+    "info") show-info ;;
     *) open-book ;;
 esac

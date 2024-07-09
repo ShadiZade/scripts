@@ -17,7 +17,7 @@ function timein {
     weekday="$(eval $tzdata date +'%a')"
     day="$(eval $tzdata date +'%d')"
     month="$(eval $tzdata date +'%m')"
-    [[ "$day" -ne "$prev_day" ]] && {
+    [[ "10#$day" -ne "10#$prev_day" ]] && {
 	echolor blue "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
     }
     echolor yellow-purple ":: ““$1””\t— " 1
