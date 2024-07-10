@@ -98,7 +98,12 @@ function print-name {
 	green) color=32 ;;
     esac	
     path_string=$(echo -n "$path_string" | sed "s|\.\.\./\.\.\./\.\.\./|.../|g;s|\.\.\.|\\\\033[30m...\\\\033[${color}m|g")
-    echolor "$2" "““$i””\t"$path_string"/““$(basename "$1")””"
+    if [[ -e "$(realpath "$1")" ]]
+    then
+	echolor "$2" "““$i””\t"$path_string"/““$(basename "$1")””"
+    else
+	echolor red "$i\t$full_name"
+    fi
 }
 
 current_or_reserve=0
