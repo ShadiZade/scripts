@@ -18,10 +18,45 @@ function prepare-file {
     fi
 }
 
-    
-function journal {
-    prepare-file "$1"
-    e "$1"
+function finished-p {
+    if [[ "$(tail -n 1 "$dir/$1")" = "Shadi" ]]
+    then
+	return 0
+    else
+	return 1
+    fi
 }
 
-journal "$today"
+function journal {
+    prepare-file "$1"
+    finished-p "$1" && {
+	echolor yellow ":: This entry is already finished. Proceed? (Y/n) " 1
+	continue_p=y
+	read -r continue_p
+	[[ "$continue_p" = "n" ]] && return
+    }
+    e "$dir/$1"
+}
+
+function view-entry {
+    if [[ -e "$dir/$1" ]]
+    then
+	bat "$dir/$1"
+    else
+	echolor red ":: File ““$1”” not found."
+    fi
+}
+
+function see-images {
+    source ~/Repositories/dotfiles/zsh/functions
+    xt "$(echo "$1" | tr -d '-')" "$HOME/Pictures/camera/"
+}
+
+while getopts 'i:v:' OPTION; do
+    case "$OPTION" in
+	"v") view-entry "$OPTARG" ;;
+	"i") see-images "$OPTARG" ;;
+	*) echolor red ":: Unknown option"; exit ;;
+	esac
+done
+(( $OPTIND == 1 )) && journal "${1:-$today}"
