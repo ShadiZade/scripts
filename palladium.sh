@@ -176,7 +176,10 @@ function open-book {
 function show-info {
     choose-book || return 1
     base_fnm="$(basename -- "$sld_fnm")"
-    xsv search -s filename "$base_fnm" "$ix" | xsv flatten
+    echolor blue "$(stat "$sld_fnm"; echo -n " MSize: ")" 1
+    echolor purple "$(du -h "$sld_fnm" | awk '{print $1}')"
+    echolor yellow '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+    echolor white "$(xsv search -s filename "$base_fnm" "$ix" | xsv flatten)"
 }
 
 [[ -z "$ix" ]] && {
