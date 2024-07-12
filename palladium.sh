@@ -8,7 +8,7 @@ all_attr=(type title subtitle author volume edition first_published year publish
 
 
 function dup-check {
-    if [[ "$(xsv search -s "$1" "$2" "$ix" | xsv select "$1" | sed 1d | wc -l)" -gt 1 ]]
+    if [[ "$(xsv search -s "$1" "^$2" "$ix" | xsv select "$1" | sed 1d | wc -l)" -gt 1 ]]
     then
 	return 0
     else
@@ -27,7 +27,7 @@ function dupper {
     alt_field_order="$5"
     [[ -z "$view_fields" ]] && view_fields="$alt_field"
     [[ -z "$alt_field_order" ]] && alt_field_order=1
-    xsv search -s "$dup_field" "$dup_term" "$ix" | xsv select "$view_fields" | sed 1d | fzf | xsv select "$alt_field_order"
+    xsv search -s "$dup_field" "^$dup_term" "$ix" | xsv select "$view_fields" | sed 1d | fzf | xsv select "$alt_field_order"
 }
 
 function best-algo {
@@ -36,7 +36,7 @@ function best-algo {
     attr_diff=()
     for j in $(xsv headers -j "$ix")
     do
-	if [[ "$(xsv search -s "$1" "$2" "$ix" | xsv select "$j" | sed 1d | sort | uniq | wc -l)" -gt 1 ]]
+	if [[ "$(xsv search -s "$1" "^$2" "$ix" | xsv select "$j" | sed 1d | sort | uniq | wc -l)" -gt 1 ]]
 	then
 	    attr_diff+=("$j")
 	fi
@@ -70,9 +70,9 @@ function choose-book {
 	    echolor red ":: Nothing selected."
 	    return 1
 	}
-	sld_fnm="$loc/$(xsv search -s title "$sld_ttl" "$ix" | xsv search -s "$chosen_best" "$dup_out" | xsv select filename | sed -n 2p)"
+	sld_fnm="$loc/$(xsv search -s title "^$sld_ttl" "$ix" | xsv search -s "$chosen_best" "^$dup_out" | xsv select filename | sed -n 2p)"
     else
-	sld_fnm="$loc/$(xsv search -s title "$sld_ttl" "$ix" | xsv select filename | sed -n 2p)"
+	sld_fnm="$loc/$(xsv search -s title "^$sld_ttl" "$ix" | xsv select filename | sed -n 2p)"
     fi
 }
 
@@ -97,7 +97,7 @@ function search-by {
 	   ;;
     esac
     filterer="$(xsv select "$sterm" "$ix" | sed 1d | sed '/""/d' | tr -d '"' | sort | uniq | fzf)"
-    sld_ttl="$(xsv select title,"$sterm" "$ix" | xsv search -s "$sterm" "$filterer" | xsv select title | tr -d '"' | sed 1d | sort | uniq | fzf)"
+    sld_ttl="$(xsv select title,"$sterm" "$ix" | xsv search -s "$sterm" "^$filterer" | xsv select title | tr -d '"' | sed 1d | sort | uniq | fzf)"
     export sld_ttl
     open-book
 }
@@ -179,7 +179,7 @@ function show-info {
     echolor blue "$(stat "$sld_fnm"; echo -n " MSize: ")" 1
     echolor purple "$(du -h "$sld_fnm" | awk '{print $1}')"
     echolor yellow '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
-    echolor white "$(xsv search -s filename "$base_fnm" "$ix" | xsv flatten)"
+    echolor white "$(xsv search -s filename "^$base_fnm" "$ix" | xsv flatten)"
 }
 
 [[ -z "$ix" ]] && {
