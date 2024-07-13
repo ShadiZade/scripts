@@ -201,5 +201,6 @@ case "$1" in
     "add") add-entry "$2" ;;
     "info") show-info ;;
     "stats") show-stats ;;
-    *) open-book ;;
+    "") open-book ;;
+    *) echolor red ":: Unknown command." ;;
 esac
