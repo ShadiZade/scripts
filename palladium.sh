@@ -79,6 +79,7 @@ function choose-book {
 
 function backup-index {
     cmp -s "$ix" "$bkp/$(eza -1f "$bkp" | tail -n 1)" || {
+	show-stats
 	echolor yellow ":: New entries detected. Backing up index..."
 	cp -- "$ix" "$bkp"/athenaeum-index-$(date-string).csv
     }
@@ -186,6 +187,12 @@ function show-info {
     echolor red ":: Index variable not set!"
     exit
 }
+
+function show-stats {
+    total="$(xsv count "$ix")"
+    echolor yellow ":: Found ““$total”” records."
+}
+
 backup-index
 dup-check-in-index
 case "$1" in
@@ -193,5 +200,6 @@ case "$1" in
     "link") symlinker ;;
     "add") add-entry "$2" ;;
     "info") show-info ;;
+    "stats") show-stats ;;
     *) open-book ;;
 esac
