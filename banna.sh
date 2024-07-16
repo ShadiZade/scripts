@@ -59,4 +59,11 @@ while getopts 'i:v:' OPTION; do
 	*) echolor red ":: Unknown option"; exit ;;
 	esac
 done
-(( $OPTIND == 1 )) && journal "${1:-$today}"
+(( $OPTIND == 1 )) && {
+    case "$1" in
+	"today") journal "$today" ;;
+	"yesterday") journal "$(date -d yesterday +%Y-%m-%d)" ;;
+	*) journal "${1:-$today}" ;;
+    esac
+}
+
