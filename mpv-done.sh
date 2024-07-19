@@ -2,7 +2,7 @@
 source ~/Repositories/scripts/essential-functions.sh
 
 [[ -z "$1" ]] && {
-    ep="$(echo -e "$(eza --no-quotes -1f)\n$(fd -t l -d 1)" | sed '/^$/d' | sort | grep -Ev 'srt$|vtt$|part$' | fzf)"
+    ep="$(eza --no-quotes -1fX --show-symlinks | sed '/^$/d' | sort | grep -Ev 'srt$|vtt$|part$' | fzf)"
 } || {
     ep="$1"
 }

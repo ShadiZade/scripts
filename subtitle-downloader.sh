@@ -10,7 +10,7 @@ sub="$(eza --no-quotes -1f .ext-sub | sed '/^$/d' | sort | grep -E 'srt$|vtt$|pa
     exit
 }
 
-ep="$(echo -e "$(eza --no-quotes -1f)\n$(fd -t l -d 1)" | sed '/^$/d' | sort | grep -Ev 'srt$|vtt$|part$' | fzf)"
+ep="$(eza --no-quotes -1fX --show-symlinks | sed '/^$/d' | sort | grep -Ev 'srt$|vtt$|part$' | fzf)"
 [[ -z "$ep" ]] && {
     echolor red ":: No file chosen."
     exit
