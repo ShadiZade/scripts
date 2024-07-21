@@ -16,7 +16,7 @@ function get-series {
 }
 
 IFS=$'\n'
-for j in $(cat "$shows" | sed 1d)
+for j in $(cat "$shows" | sed 1d | sed '/^#/d')
 do
     name="$(echo "$j" | xsv select 1)"
     url="$(echo "$j" | xsv select 2)"
