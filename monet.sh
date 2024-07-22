@@ -11,21 +11,29 @@ images=()
 hidden=0
 vids=0
 matter="images"
-while getopts 'had:s:v' OPTION; do
+children='.'
+count_only=0
+while getopts 'had:s:vc' OPTION; do
     case "$OPTION" in
-	"a") depth=999 ;;
+	"a") depth=999
+	     children=' or its children.' ;;
 	"d") img_dir="$OPTARG" ;;
 	"s") searchterm="$OPTARG" ;;
 	"h") hidden=1 ;;
 	"v") exts="$vid_exts"
 	     vids=1
 	     matter="videos" ;;
+	"c") count_only=1 ;;
 	*) echolor red ":: Unknown option"; exit ;;
     esac
 done
 [[ -z "$img_dir" ]] && img_dir="."
 [[ ! -d "$img_dir" ]] && {
-    echolor red ":: Specified directory ““$img_dir”” does not exist."
+    [[ "$count_only" -eq 0 ]] && {
+	echolor red ":: Specified directory ““$img_dir”” does not exist."
+    } || {
+	echo 0
+    }
     exit 1
 }
 IFS=$'\n'
@@ -36,26 +44,58 @@ else
     images=($(fd -d "$depth" "$exts" "$img_dir" | sort -V))
 fi
 [[ -z "$images" ]] && {
-    echolor red ":: No $matter found in directory ““$(basename $(realpath "$img_dir"))””"
+    [[ "$count_only" -eq 0 ]] && {
+	echolor red ":: No $matter found in directory ““$(basename $(realpath "$img_dir"))””$children"
+    } || {
+	echo 0
+    }
     exit 1
 }
-echolor green-yellow ":: A total of ““${#images[@]}”” $matter were found."
+[[ "$count_only" -eq 0 ]] && {
+    echolor green-yellow ":: A total of ““${#images[@]}”” $matter were found."
+}
 if [[ ! -z "$searchterm" ]]
 then
-    echolor green-purple ":: Whittling down according to search term ““$searchterm””..."
+    [[ "$count_only" -eq 0 ]] && {
+	echolor green-purple ":: Whittling down according to search term ““$searchterm””..."
+    }
     images_search=()
+    i=1
     for j in ${images[@]}
     do
 	echo "$j" | awk -F '/' '{print $NF}' | grep -q "$searchterm" && \
 	    images_search+=("$j")
+	if [[ "$(echo $((i % 50)))" -eq 0 ]] && [[ "$count_only" -eq 0 ]]
+	then
+	clear-line 
+	echolor yellow-red ":: Matching through result ““$i””" 1
+	fi		
+	((i++))
     done
+    clear-line
     [[ -z "$images_search" ]] && {
-	echolor red ":: No $matter matching ““$searchterm”” were found."
+	[[ "$count_only" -eq 0 ]] && {
+	    echolor red ":: No $matter matching ““$searchterm”” were found."
+	} || {
+	    echo 0
+	}
 	exit 1
     }
     images=(${images_search[@]})
-    echolor green-yellow ":: A total of ““${#images[@]}”” $matter were found to match the search term."
+    [[ "$count_only" -eq 0 ]] && {
+	echolor green-yellow ":: A total of ““${#images[@]}”” $matter were found to match the search term."
+    }
 fi
+[[ "$count_only" -eq 1 ]] && {
+    echo ${#images[@]}
+    exit 0
+}
+[[ "${#images[@]}" -gt 3000 ]] && {
+    open_p="y"
+    echolor yellow-red ":: The search yielded ““${#images[@]}”” results. Open? (Y/n) " 1
+    read -r open_p
+    [[ "$open_p" = "n" ]] && exit
+}
 case "$vids" in
     1) mpv --osd-fractions --audio-samplerate=88200 --no-resume-playback --loop=inf -- ${images[@]} ;;
     *) sxiv -q -- ${images[@]} ;;
