@@ -72,7 +72,7 @@ then
 	fi		
 	((i++))
     done
-    clear-line
+    [[ "$count_only" -eq 0 ]] && clear-line
     [[ -z "$images_search" ]] && {
 	[[ "$count_only" -eq 0 ]] && {
 	    echolor red ":: No $matter matching ““$searchterm”” were found."
