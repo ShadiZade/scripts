@@ -13,7 +13,8 @@ vids=0
 matter="images"
 children='.'
 count_only=0
-while getopts 'had:s:vc' OPTION; do
+log_results=0
+while getopts 'had:s:vcl' OPTION; do
     case "$OPTION" in
 	"a") depth=999
 	     children=' or its children.' ;;
@@ -24,6 +25,7 @@ while getopts 'had:s:vc' OPTION; do
 	     vids=1
 	     matter="videos" ;;
 	"c") count_only=1 ;;
+	"l") log_results=1 ;;
 	*) echolor red ":: Unknown option"; exit ;;
     esac
 done
@@ -86,6 +88,16 @@ then
 	echolor green-yellow ":: A total of ““${#images[@]}”” $matter were found to match the search term."
     }
 fi
+[[ "$log_results" -eq 1 ]] && {
+    logfile="$HOME/.local/logs/monet/monet-$(date-string)-$searchterm.log"
+    for j in ${images[@]}
+    do
+	echo "$j" >> "$logfile"
+    done
+    [[ "$count_only" -eq 0 ]] && {
+	echolor green-yellow ":: Results logged to ““$logfile””"
+    }
+}
 [[ "$count_only" -eq 1 ]] && {
     echo ${#images[@]}
     exit 0
