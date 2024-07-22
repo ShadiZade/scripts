@@ -11,7 +11,7 @@ images=()
 hidden=0
 vids=0
 matter="images"
-children='.'
+children=' itself.'
 count_only=0
 log_results=0
 while getopts 'had:s:vcl' OPTION; do
@@ -54,7 +54,7 @@ fi
     exit 1
 }
 [[ "$count_only" -eq 0 ]] && {
-    echolor green-yellow ":: A total of ““${#images[@]}”” $matter were found."
+    echolor green-yellow ":: ““${#images[@]}”” $matter were found in directory ““$(basename $(realpath "$img_dir"))””$children"
 }
 if [[ ! -z "$searchterm" ]]
 then
