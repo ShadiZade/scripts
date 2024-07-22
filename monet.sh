@@ -90,11 +90,15 @@ then
 fi
 [[ "$log_results" -eq 1 ]] && {
     logfile="$HOME/.local/logs/monet/monet-$(date-string)-$searchterm.log"
+    [[ "$count_only" -eq 0 ]] && {
+	echolor green-yellow ":: Logging results to ““$logfile”””" 1
+    }
     for j in ${images[@]}
     do
-	echo "$j" >> "$logfile"
+	echo "$(realpath $j)" >> "$logfile"
     done
     [[ "$count_only" -eq 0 ]] && {
+	clear-line
 	echolor green-yellow ":: Results logged to ““$logfile””"
     }
 }
