@@ -61,20 +61,7 @@ then
     [[ "$count_only" -eq 0 ]] && {
 	echolor green-purple ":: Whittling down according to search term ““$searchterm””..."
     }
-    images_search=()
-    i=1
-    for j in ${images[@]}
-    do
-	echo "$j" | awk -F '/' '{print $NF}' | grep -q "$searchterm" && \
-	    images_search+=("$j")
-	if [[ "$(echo $((i % 50)))" -eq 0 ]] && [[ "$count_only" -eq 0 ]]
-	then
-	clear-line 
-	echolor yellow-red ":: Matching through result ““$i””" 1
-	fi		
-	((i++))
-    done
-    [[ "$count_only" -eq 0 ]] && clear-line
+    images_search=($(for j in ${images[@]}; do echo "$j"; done | awk "/$searchterm/"))
     [[ -z "$images_search" ]] && {
 	[[ "$count_only" -eq 0 ]] && {
 	    echolor red ":: No $matter matching ““$searchterm”” were found."
