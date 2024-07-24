@@ -61,7 +61,7 @@ then
     [[ "$count_only" -eq 0 ]] && {
 	echolor green-purple ":: Whittling down according to search term ““$searchterm””..."
     }
-    images_search=($(for j in ${images[@]}; do echo "$j"; done | awk -F '/' "match(\$NF, /$searchterm/)"))
+    images_search=($(for j in ${images[@]}; do echo "$j"; done | awk -F '/' "\$NF ~ /$searchterm/"))
     [[ -z "$images_search" ]] && {
 	[[ "$count_only" -eq 0 ]] && {
 	    echolor red ":: No $matter matching ““$searchterm”” were found."
