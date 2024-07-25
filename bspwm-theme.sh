@@ -52,7 +52,7 @@ bspwm_theme_color_dark_redeye_crimson="3a0b0a"
 bspwm_theme_color_redeye_blue="54b1c0"
 
 ### aero-white
-bspwm_theme_color_aero_white=$bspwm_basic_color_white
+bspwm_theme_color_aero_white="ffffff"
 bspwm_theme_color_aero_orange="ca5917"
 bspwm_theme_color_aero_grey="c8c8c8"
 bspwm_theme_color_aero_gold="c0a02f"

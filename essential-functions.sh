@@ -304,6 +304,10 @@ function wifi-connected-p {
     esac	     
 }
 
+function esa {
+    eza -1fX --show-symlinks "$@"
+}
+
 # function ¿ {
 #     : function ¿ interrogates functions and aliases in bash, enabling them to be self-documenting.
 #     :

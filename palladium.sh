@@ -171,7 +171,7 @@ function symlinker {
 
 function open-book {
     choose-book || return 1
-    zathura "$sld_fnm" 2>/dev/null
+    zathura "$sld_fnm" 2>/dev/null &
 }
 
 function show-info {
