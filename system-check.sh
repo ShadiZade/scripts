@@ -23,5 +23,11 @@ function process-check {
     }
 }
 
+echolor green-yellow ":: Kernel:\t““$(uname -r)””"
+echolor green-yellow ":: Uptime:\t““$(uptime -p | sed 's/up //g')””"
+echolor green-yellow ":: Battery:\t““$(upower -i /org/freedesktop/UPower/devices/battery_BAT1 | grep perce | awk '{print $2}')””"
+echolor green-yellow ":: Memory:\t““$(df | grep sda1 | awk '{print $5}')””"
+echolor green-yellow ":: Brightness:\t““$(brightnessctl i | grep Current | awk '{print $4}' | tr -d '()')””"
+echolor green-yellow ":: Fan speed:\t““$(cat /proc/acpi/ibm/fan | grep speed | awk '{print $NF}')””"
 process-check "battery-warner.sh" "battery warner"
 process-check 'emacs --daemon' "emacs daemon"
