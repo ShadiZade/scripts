@@ -1,7 +1,13 @@
 #!/bin/bash
 source ~/Repositories/scripts/essential-functions.sh
 
-wget --continue --no-use-server-timestamps -O ".sub.zip" -nc -t 0 -- "$1"
+if [[ -e "$1" ]]
+then
+    mv "$1" "./.sub.zip"
+else
+    wget --continue --no-use-server-timestamps -O ".sub.zip" -nc -t 0 -- "$1" || exit
+fi
+
 unzip -d .ext-sub .sub.zip
 
 sub="$(eza --no-quotes -1f .ext-sub | sed '/^$/d' | sort | grep -E 'srt$|vtt$|part$' | fzf)"
