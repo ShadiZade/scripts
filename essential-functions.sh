@@ -308,6 +308,10 @@ function esa {
     eza -1fX --show-symlinks "$@"
 }
 
+function choose-font {
+    ~/Repositories/scripts/font-chooser.sh "$@"
+}
+
 # function ¿ {
 #     : function ¿ interrogates functions and aliases in bash, enabling them to be self-documenting.
 #     :
