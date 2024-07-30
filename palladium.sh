@@ -172,6 +172,7 @@ function symlinker {
 function open-book {
     choose-book || return 1
     zathura "$sld_fnm" 2>/dev/null &
+    echo "$(date-string ymdhm),\"$sld_ttl\",$sld_fnm" >> "$HOME/.local/logs/palladium/pall-open-book-log.csv"
 }
 
 function show-info {
