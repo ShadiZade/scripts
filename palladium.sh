@@ -98,7 +98,9 @@ function search-by {
 	   ;;
     esac
     filterer="$(xsv select "$sterm" "$ix" | sed 1d | sed '/""/d' | tr -d '"' | sort | uniq | fzf)"
+    [[ -z "$filterer" ]] && return 1
     sld_ttl="$(xsv select title,"$sterm" "$ix" | xsv search -s "$sterm" "^$filterer" | xsv select title | tr -d '"' | sed 1d | sort | uniq | fzf)"
+    [[ -z "$sld_ttl" ]] && return 1
     export sld_ttl
     open-book
 }
