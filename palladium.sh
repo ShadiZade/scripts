@@ -3,6 +3,7 @@ source ~/Repositories/scripts/essential-functions.sh
 loc="$HOME/Athenaeum"
 ix="$usdd/athenaeum-index.csv"
 bkp="$HOME/Misc/Backups/athenaeum"
+log="$HOME/.local/logs/palladium/pall-open-book-log.csv"
 all_attr=(type title subtitle author volume edition first_pub year publisher country language trans_p orig_lang transor filename)
 
 
@@ -177,6 +178,7 @@ function symlinker {
 
 function open-book {
     choose-book || return 1
+    [[ -z "$sld_fnm" ]] && return 1
     zathura "$sld_fnm" 2>/dev/null &
     echo "$(date-string ymdhm),\"$sld_ttl\",$sld_fnm" >> "$HOME/.local/logs/palladium/pall-open-book-log.csv"
 }
@@ -200,6 +202,12 @@ function show-stats {
     echolor yellow ":: Found ““$total”” records."
 }
 
+function open-history {
+    sld_fnm="$(tac "$log" | grep $(date-string ymd) | xsv select -n 3 | awk -F '/' '{print $NF}' | fzf)"
+    [[ -z "$sld_fnm" ]] && return 1
+    zathura "$loc/$sld_fnm" 2>/dev/null &
+}
+
 backup-index
 dup-check-in-index
 case "$1" in
@@ -208,6 +216,7 @@ case "$1" in
     "add") add-entry "$2" ;;
     "info") show-info ;;
     "stats") show-stats ;;
+    "hist") open-history ;;
     "") open-book ;;
     *) echolor red ":: Unknown command." ;;
 esac
