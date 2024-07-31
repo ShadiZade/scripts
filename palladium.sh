@@ -3,7 +3,7 @@ source ~/Repositories/scripts/essential-functions.sh
 loc="$HOME/Athenaeum"
 ix="$usdd/athenaeum-index.csv"
 bkp="$HOME/Misc/Backups/athenaeum"
-all_attr=(type title subtitle author volume edition first_published year publisher country language trans_p original_lang transor filename)
+all_attr=(type title subtitle author volume edition first_pub year publisher country language trans_p orig_lang transor filename)
 
 
 
@@ -92,7 +92,7 @@ function search-by {
 	"Language") sterm=language ;;
 	"Publisher") sterm=publisher ;;
 	"Type") sterm=type ;;
-	"Year") sterm=first_published ;;
+	"Year") sterm=first_pub ;;
 	*) echolor red ":: No search parameter chosen."
 	   return
 	   ;;
@@ -125,14 +125,18 @@ function add-entry {
 	return
     }
     nix="/tmp/ath-new-entry-$(date-string).csv"
-    touch "$nix"
+    nixf="$nix.form"
+    touch "$nix" "$nixf"
     IFS=$'\n'
     sed -n 1p "$ix" >> "$nix"
     for j in $(xsv headers -j "$ix" | sed '/^filename$/d')
     do
-	echolor green "$j: " 1
-	read -r value
-	value="$(echo "$value" | sed "s/'/’/g")"
+	echo -e "$j ––– \t" >> "$nixf"
+    done
+    emacsclient -nw -a emacs "$nixf"
+    for j in $(cat "$nixf")
+    do
+	value="$(echo "$j" | awk -F '–––' '{print $NF}' | sed 's/\t//g;s/^ *//g;s/ *$//g' | sed "s/'/’/g")"
 	echo "$value" | grep -q ',' && value="\"$value\""
 	echo -n "$value," >> "$nix"
     done
