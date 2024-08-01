@@ -121,11 +121,15 @@ function dup-check-in-index {
 function add-entry {
     [[ -z "$1" ]] && {
 	echolor red ":: No filename chosen."
-	return
+	return 1
     }
     [[ -e "$1" ]] || {
 	echolor red ":: This file does not exist."
-	return
+	return 1
+    }
+    [[ -e "$loc/$1" ]] && {
+	echolor red ":: This file already exists in index."
+	return 1
     }
     nix="/tmp/ath-new-entry-$(date-string).csv"
     nixf="$nix.form"
@@ -203,7 +207,7 @@ function show-stats {
 }
 
 function open-history {
-    sld_fnm="$(tac "$log" | grep $(date-string ymd) | xsv select -n 3 | awk -F '/' '{print $NF}' | fzf)"
+    sld_fnm="$(tac "$log" | grep $(date-string ymd) | xsv select -n 3 | awk -F '/' '{print $NF}' | sort | uniq | fzf)"
     [[ -z "$sld_fnm" ]] && return 1
     zathura "$loc/$sld_fnm" 2>/dev/null &
 }
