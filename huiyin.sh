@@ -17,9 +17,10 @@ function choose {
 
 
 function generate {
-
+    
     theme_name="$(choose)"
     theme_file="$(grep -l "theme_name: $theme_name$" "$dir/"*"yaml")"
+    [[ -z "$theme_name" ]] && exit
     
     function extract {
 	cat "$theme_file" | yq -r "$1"
@@ -149,7 +150,7 @@ function remake-all {
 }
 
 
-while getopts 'c:ar' OPTION; do
+while getopts 'c:ar:' OPTION; do
     case "$OPTION" in
 	'c') create "$OPTARG" ;;
 	'a') remake-all ;;
