@@ -14,7 +14,9 @@ matter="images"
 children=' itself.'
 count_only=0
 log_results=0
-while getopts 'had:s:vcl' OPTION; do
+time_after=''
+time_before=''
+while getopts 'had:s:vclA:B:' OPTION; do
     case "$OPTION" in
 	"a") depth=999
 	     children=' or its children.' ;;
@@ -26,6 +28,8 @@ while getopts 'had:s:vcl' OPTION; do
 	     matter="videos" ;;
 	"c") count_only=1 ;;
 	"l") log_results=1 ;;
+	"A") time_after="$OPTARG" ;;
+	"B") time_before="$OPTARG" ;;
 	*) echolor red ":: Unknown option"; exit ;;
     esac
 done
@@ -74,6 +78,44 @@ then
     [[ "$count_only" -eq 0 ]] && {
 	echolor green-yellow ":: A total of ““${#images[@]}”” $matter were found to match the search term."
     }
+fi
+if [[ ! -z "$time_after" ]] || [[ ! -z "$time_before" ]]
+then
+    function date-formatter {
+	date -d "$1" +'%Y-%m-%d %H:%M:%S' 2>/dev/null || return 1
+    }
+    [[ "$count_only" -eq 0 ]] && {
+	echolor green-purple ":: Whittling down according to timeframe..."
+    }
+    [[ ! -z "$time_after" ]] && {
+	date-formatter "$time_after" >/dev/null || exit 1
+	images_search=($(for j in ${images[@]}; do fd --newer="$(date-formatter "$time_after")" "^$(basename "$j")$" "$img_dir"; done))
+	[[ -z "$images_search" ]] && {
+	    [[ "$count_only" -eq 0 ]] && {
+		echolor red ":: No $matter matching the timeframe ““after $time_after”” were found."
+	    } || {
+		echo 0
+	    }
+	    exit 1
+	}
+	images=(${images_search[@]})
+    }
+    [[ ! -z "$time_before" ]] && {
+	date-formatter "$time_before" >/dev/null || exit 1
+	images_search=($(for j in ${images[@]}; do fd --older="$(date-formatter "$time_before")" "^$(basename "$j")$" "$img_dir"; done))
+	[[ -z "$images_search" ]] && {
+	    [[ "$count_only" -eq 0 ]] && {
+		echolor red ":: No $matter matching the timeframe ““before $time_before”” were found."
+	    } || {
+		echo 0
+	    }
+	    exit 1
+	}
+	images=(${images_search[@]})
+    }
+    [[ "$count_only" -eq 0 ]] && {
+	echolor green-yellow ":: A total of ““${#images[@]}”” $matter were found to match the timeframe."
+    }	
 fi
 [[ "$log_results" -eq 1 ]] && {
     logfile="$HOME/.local/logs/monet/monet-$(date-string)-$searchterm.log"
