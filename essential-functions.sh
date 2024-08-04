@@ -2,30 +2,13 @@
 source ~/Repositories/dotfiles/zsh/variables 
 
 function echolor {
-    case "$(echo "$1" | awk -F '-' '{print $1}')" in
-	"black") color=30 ;;
-	"red") color=31 ;;
-	"green") color=32 ;;
-	"yellow") color=33 ;;
-	"blue") color=34 ;;
-	"purple") color=35 ;;
-	"default") color=36 ;;
-	"white") color=37 ;;
-	*) color=36 ;;
-    esac
-    case "$(echo "$1" | awk -F '-' '{print $2}')" in
-	"black") highlight=30 ;;
-	"red") highlight=31 ;;
-	"green") highlight=32 ;;
-	"yellow") highlight=33 ;;
-	"blue") highlight=34 ;;
-	"purple") highlight=35 ;;
-	"default") highlight=36 ;;
-	"white") highlight=37 ;;
-	*) [[ "$color" -eq 37 ]] \
-		&& highlight=33 \
-		    || highlight=37 ;;
-    esac
+    clrs="$usdd/echolors.csv"
+    xsv search -ns 1 "$(echo "$1" | awk -F '-' '{print $1}')" "$clrs" | xsv select -n 2 | read -r color
+    xsv search -ns 1 "$(echo "$1" | awk -F '-' '{print $2}')" "$clrs" | xsv select -n 2 | read -r highlight
+    [[ -z "$color" ]] && color=36
+    [[ -z "$highlight" ]] && {
+	[[ "$color" -eq 37 ]] && highlight=33 || highlight=37
+    }
     text="$(echo "$2" | sed "s/““/\\\\033[${highlight}m/g;s/””/\\\\033[${color}m/g")"
     [[ "$3" -eq 1 ]] && nonewline="-n" || nonewline="" # add "1" as a 3rd argument to add -n to echo
     echo $nonewline -e "\033["$color"m$text\033[0m"
