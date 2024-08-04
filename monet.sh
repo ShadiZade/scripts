@@ -15,7 +15,7 @@ children=' itself.'
 count_only=0
 log_results=0
 time_after="1970-01-01"
-time_before="$(date +'%Y-%m-%d')"
+time_before="$(date -d tomorrow +'%Y-%m-%d')"
 function date-formatter {
     date -d "$1" +'%Y-%m-%d %H:%M:%S' 2>/dev/null || return 1
 }
