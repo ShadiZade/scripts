@@ -9,16 +9,18 @@ function echolor {
     [[ -z "$highlight" ]] && {
 	[[ "$color" = "37" ]] && highlight=33 || highlight=37
     }
-    echo "$1" | awk -F '-' '{print $1}' | grep -q '←' && {
-	color="7;$color"
-	highlight="0;$highlight"
+    echo "$1" | grep -q '←' && {
+	echo "$1" | awk -F '-' '{print $1}' | grep -q '←' && {
+	    color="7;$color"
+	    highlight="0;$highlight"
+	}
+	echo "$1" | awk -F '-' '{print $2}' | grep -q '←' && {
+	    highlight="7;$highlight"
+	    color="0;$color"
+	}
+	color="$(echo "$color" | ifne sed 's/7;0;/7;/g')"
+	highlight="$(echo "$highlight" | ifne sed 's/7;0;/7;/g')"
     }
-    echo "$1" | awk -F '-' '{print $2}' | grep -q '←' && {
-	highlight="7;$highlight"
-	color="0;$color"
-    }
-    color="$(echo "$color" | ifne sed 's/7;0;/7;/g')"
-    highlight="$(echo "$highlight" | ifne sed 's/7;0;/7;/g')"
     text="$(echo "$2" | sed "s/““/\\\\033[${highlight}m/g;s/””/\\\\033[${color}m/g")"
     [[ "$3" -eq 1 ]] && nonewline="-n" || nonewline="" # add "1" as a 3rd argument to add -n to echo
     echo $nonewline -e "\033["$color"m$text\033[0m"
