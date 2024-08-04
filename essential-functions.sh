@@ -3,8 +3,8 @@ source ~/Repositories/dotfiles/zsh/variables
 
 function echolor {
     clrs="$usdd/echolors.csv"
-    xsv search -ns 1 "$(echo "$1" | awk -F '-' '{print $1}')" "$clrs" | xsv select -n 2 | read -r color
-    xsv search -ns 1 "$(echo "$1" | awk -F '-' '{print $2}')" "$clrs" | xsv select -n 2 | read -r highlight
+    color="$(xsv search -ns 1 "^$(echo "$1" | awk -F '-' '{print $1}')$" "$clrs" | ifne xsv select -n 2)"
+    highlight="$(xsv search -ns 1 "^$(echo "$1" | awk -F '-' '{print $2}')$" "$clrs" | ifne xsv select -n 2)"
     [[ -z "$color" ]] && color=36
     [[ -z "$highlight" ]] && {
 	[[ "$color" -eq 37 ]] && highlight=33 || highlight=37
