@@ -28,12 +28,12 @@ function dupper {
     alt_field_order="$5"
     [[ -z "$view_fields" ]] && view_fields="$alt_field"
     [[ -z "$alt_field_order" ]] && alt_field_order=1
-    xsv search -s "$dup_field" "^$dup_term" "$ix" | xsv select "$view_fields" | sed 1d | fzf | xsv select "$alt_field_order"
+    xsv search -s "$dup_field" "^$dup_term" "$ix" | xsv select "$view_fields" | sed 1d | fzf | ifne xsv select "$alt_field_order"
 }
 
 function best-algo {
     # best methods to deal with duplicates
-    best=(volume volume,subtitle language language,trans_p author author edition edition,year publisher publisher country country,language transor transor,language filename filename)
+    best=(author author volume volume,subtitle language language,trans_p edition edition,year publisher publisher country country,language transor transor,language filename filename)
     attr_diff=()
     for j in $(xsv headers -j "$ix")
     do
@@ -47,10 +47,7 @@ function best-algo {
 
 function choose-book {
     [[ -z "$sld_ttl" ]] && sld_ttl="$(xsv select title "$ix" | tr -d '"' | sed 1d | sort | uniq | fzf)"
-    [[ -z "$sld_ttl" ]] && {
-	echolor red ":: Nothing selected."
-	return 1
-    }
+    [[ -z "$sld_ttl" ]] && return 1
     if $(dup-check title "$sld_ttl")
     then
 	best-algo title "$sld_ttl"
@@ -67,10 +64,7 @@ function choose-book {
 	    fi
 	done
 	dup_out="$(dupper title "$chosen_best" "$sld_ttl" "$chosen_best_config" 1)"
-	[[ -z "$dup_out" ]] && {
-	    echolor red ":: Nothing selected."
-	    return 1
-	}
+	[[ -z "$dup_out" ]] && return 1
 	sld_fnm="$loc/$(xsv search -s title "^$sld_ttl" "$ix" | xsv search -s "$chosen_best" "^$dup_out" | xsv select filename | sed -n 2p)"
     else
 	sld_fnm="$loc/$(xsv search -s title "^$sld_ttl" "$ix" | xsv select filename | sed -n 2p)"
