@@ -7,15 +7,20 @@ function zaytouna {
     loc="$HOME/Documents/newsletters/zaytouna-palestine-today"
     dlded="$(eza -1f "$loc" | grep 'pdf$' | tail -n 1 | awk -F '-' '{print $2}')"
     echolor orange ":: ❯❯ Updating ““$nlname”” now. Current edition: ““$dlded””" 1
-    jinurl="$(curl -s "$nl" | grep '\.pdf'  | awk -F '" rel="' '{print $1}' | awk -F 'href="' '{print $NF}')"
+    jinurl="$(curl -m 15 -s "$nl" | grep '\.pdf'  | awk -F '" rel="' '{print $1}' | awk -F 'href="' '{print $NF}')"
     urled="$(echo "$jinurl" | awk -F '_' '{print $4}')"
+    [[ -z "$urled" ]] && {
+	clear-line
+	echolor red ":: ⨯  Error extracting ““$nlname”” data, update failed."
+	return
+    }
     [[ "$dlded" -eq "$urled" ]] && {
 	clear-line
 	echolor green ":: ✓  Newsletter ““$nlname”” is up to date. Current edition: ““$dlded””"
 	return
     } || {
 	clear-line
-	echolor blue ":: Downloading new edition of ““$nlname””. " 1
+	echolor blue ":: ❯❯ Downloading new edition of ““$nlname””. " 1
 	echolor red "$dlded ““→”” " 1
 	echolor green "$urled" 1
 	cd ~/Desktop/
@@ -37,15 +42,21 @@ function kassioun {
     loc="$HOME/Documents/newsletters/kassioun"
     dlded="$(eza -1f "$loc" | grep 'pdf$' | tail -n 1 | awk -F '-' '{print $2}' | awk -F '.' '{print $1}')"
     echolor orange ":: ❯❯ Updating ““$nlname”” now. Current edition: ““$dlded””" 1
-    jinurl="$(curl -s "$nl" | grep 'href="/pdf-archive/' | awk -F 'href="' '{print $NF}' | tr -d '"' | sed 1q)"
+    jinurl="$(curl -m 15 -s "$nl" | grep 'href="/pdf-archive/' | awk -F 'href="' '{print $NF}' | tr -d '"' | sed 1q)"
     urled="$(echo "$jinurl" | awk -F '-' '{print $3}' | awk -F '/' '{print $1}')"
+    [[ -z "$urled" ]] && {
+	clear-line
+	echolor red ":: ⨯  Error extracting ““$nlname”” data, update failed."
+	return
+    }
     [[ "$dlded" -eq "$urled" ]] && {
 	clear-line
 	echolor green ":: ✓  Newsletter ““$nlname”” is up to date. Current edition: ““$dlded””"
 	return
     } || {
 	clear-line
-	echolor blue ":: Downloading new edition of ““$nlname””. " 1
+	
+	echolor blue ":: ❯❯ Downloading new edition of ““$nlname””. " 1
 	echolor red "$dlded ““→”” " 1
 	echolor green "$urled" 1
 	cd ~/Desktop/
@@ -66,7 +77,12 @@ function al-akhbar {
     loc="$HOME/Documents/newsletters/al-akhbar"
     dlded="$(eza -1f "$loc" | grep 'pdf$' | tail -n 1 | awk -F '-' '{print $3}')"
     echolor orange ":: ❯❯ Updating ““$nlname”” now. Current edition: ““$dlded””" 1
-    jindata="$(wget -qO- "$nl" | grep "data-id=\"$((dlded + 1))\"")"
+    jindata="$(wget --timeout=15 -qO- "$nl" | grep "data-id=\"$((dlded + 1))\"")"
+    [[ -z "$urled" ]] && {
+	clear-line
+	echolor red ":: ⨯  Error extracting ““$nlname”” data, update failed."
+	return
+    }
     [[ -z "$jindata" ]] && {
 	clear-line
 	echolor green ":: ✓  Newsletter ““$nlname”” is up to date. Current edition: ““$dlded””"
@@ -75,7 +91,7 @@ function al-akhbar {
 	clear-line
 	urled="$(echo "$jindata" | awk -F 'data-id="' '{print $NF}' | awk -F '" data-name' '{print $1}')"
 	urldt="$(echo "$jindata" | awk -F 'data-name="' '{print $NF}' | awk -F '" data-old' '{print $1}')"
-	echolor blue ":: Downloading new edition of ““$nlname””. " 1
+	echolor blue ":: ❯❯ Downloading new edition of ““$nlname””. " 1
 	echolor red "$dlded ““→”” " 1
 	echolor green "$urled" 1
 	cd ~/Desktop/

@@ -39,20 +39,22 @@ function translate-kebab {
     echo "$orig_name" \
 	| grep -q "\." \
 	|| name_final="$name_translated"
-    echo -e ":: $detected_lang name is \033[33m$orig_name\033[0m"
-    echo -e ":: English name is \033[37m$name_final\033[0m"
-    read -r -p ":: Perform the move? (Y/n/d) " proceed
+    echolor blue-aquamarine ":: $detected_lang name is ““$orig_name””"
+    echolor blue-orange     ":: English name is ““$name_final””"
+    echolor green ":: Perform the move? (Y/n/d) " 1
+    read -r proceed
     proceed=${proceed:-y}
     case "$proceed" in
-	"n") echo ":: Move NOT performed."
+	"n") echolor red ":: Move not performed."
 	     exit ;;
-	"d") read -r -p ":: Enter alternative translation: " name_translated
+	"d") echolor orange ":: Enter alternative translation: " 1
+	     read -r name_translated
 	     name_final="$(echo $name_translated$yt_url.$ext_alone)"
 	     echo "$orig_name" \
 		 | grep -q "\." \
 		 || name_final="$name_translated"
-	     mv -niv -- "$orig_name" "$name_final" ;;
-	  *) mv -niv -- "$orig_name" "$name_final" ;;	
+	     mv -ni -- "$orig_name" "$name_final" ;;
+	  *) mv -ni -- "$orig_name" "$name_final" ;;	
     esac
     name_after_trans="$name_final"
 }
@@ -74,30 +76,32 @@ function english-kebab {
 	|| yt_url="$(echo "-[$yt_url]")"
     name_final="$(echo $name_kebab$yt_url.$ext_alone)"
     [ "$orig_name" == "$name_final" ] \
-	&& echo ":: Filename is already kebab-compliant!" \
+	&& echolor ashy ":: Filename is already kebab-compliant!" \
 	&& exit 1
     [ "$orig_name" == "$name_kebab" ] \
-	&& echo ":: Filename is already kebab-compliant!" \
+	&& echolor ashy ":: Filename is already kebab-compliant!" \
 	&& exit 1
     [ "$(stat -c %F -- "$orig_name")" = "directory" ] \
 	&& name_final="$name_kebab"
     echo "$orig_name" \
 	| grep -q "\." \
 	|| name_final="$name_kebab"
-    echo -e ":: old name is \033[33m$orig_name\033[0m"
-    echo -e ":: new name is \033[37m$name_final\033[0m"
-    read -r -p ":: Perform the move? (Y/n/d) " proceed
+    echolor blue-white  ":: old name is ““$orig_name””"
+    echolor blue-yellow ":: new name is ““$name_final””"
+    echolor green ":: Perform the move? (Y/n/d) " 1
+    read -r proceed
     proceed=${proceed:-y}
      case "$proceed" in
-	"n") echo ":: Move NOT performed."
+	"n") echolor red ":: Move not performed."
 	     exit ;;
-	"d") read -r -p ":: Enter alternative name: " name_kebab
+	"d") echolor yellow  ":: Enter alternative name: " 1
+	     read -r name_kebab
 	     name_final="$(echo $name_kebab$yt_url.$ext_alone)"
 	     echo "$orig_name" \
 		 | grep -q "\." \
 		 || name_final="$name_kebab"
-	     mv -niv -- "$orig_name" "$name_final" ;;
-	  *) mv -niv -- "$orig_name" "$name_final" ;;	
+	     mv -ni -- "$orig_name" "$name_final" ;;
+	  *) mv -ni -- "$orig_name" "$name_final" ;;	
     esac
 }
 
