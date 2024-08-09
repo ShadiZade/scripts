@@ -197,7 +197,7 @@ function show-info {
 
 function show-stats {
     total="$(xsv count "$ix")"
-    echolor yellow ":: Found ““$total”” records."
+    echolor violet-orange ":: Found ““$total”” records."
 }
 
 function open-history {
