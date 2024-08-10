@@ -20,7 +20,9 @@ function dup-check {
 function dupper {
     # dupper field_already_queried other_field_to_query term fields_to_display_comma_separated order_of_field
     # dupper title volume XYZ volume,subtitle 1
-    # e.g. can be run if two books titled XYZ are found (in order to choose by volume)
+    # e.g. can be run if two books titled XYZ are found (in order to choose by volume).
+    # $5 is the order in which the chosen variable in $4 is located, so if "subtitle" is to be
+    # used, $5 would be "2" in the previous example. This is reflected in $best.
     dup_field="$1"
     alt_field="$2"
     dup_term="$3"
@@ -33,7 +35,7 @@ function dupper {
 
 function best-algo {
     # best methods to deal with duplicates
-    best=(author author volume volume,series,subtitle language language,trans_p edition edition,year publisher publisher country country,language transor transor,language filename filename)
+    best=(author author 1 volume series,volume,subtitle 2 language language,trans_p 1 edition edition,year 1 publisher publisher 1 country country,language 1 transor transor,language 1 filename filename 1)
     attr_diff=()
     for j in $(xsv headers -j "$ix")
     do
@@ -55,15 +57,18 @@ function choose-book {
 	for j in ${best[@]}
 	do
 	    ((i++))
-	    [[ $((i%2)) -eq 1 ]] && continue
-	    if $(echo "${attr_diff[@]}" | grep -q "$j")
-	    then
-		chosen_best=${best[$i]}
-		chosen_best_config=${best[((i+1))]}
-		break
-	    fi
+	    [[ $((i%3)) -eq 0 ]] && {
+		if $(echo "${attr_diff[@]}" | grep -q "$j")
+		then
+		    chosen_best=${best[$i]}
+		    chosen_best_config=${best[((i+1))]}
+		    chosen_order_of_field=${best[((i+2))]}
+		    break
+		fi
+		continue
+	    }
 	done
-	dup_out="$(dupper title "$chosen_best" "$sld_ttl" "$chosen_best_config" 1)"
+	dup_out="$(dupper title "$chosen_best" "$sld_ttl" "$chosen_best_config" "$chosen_order_of_field")"
 	[[ -z "$dup_out" ]] && return 1
 	sld_fnm="$loc/$(xsv search -s title "^$sld_ttl" "$ix" | xsv search -s "$chosen_best" "^$dup_out" | xsv select filename | sed -n 2p)"
     else
