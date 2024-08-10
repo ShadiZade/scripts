@@ -86,13 +86,14 @@ function backup-index {
 }
 
 function search-by {
-    case "$(echo -e "Author\nCountry\nLanguage\nPublisher\nType\nYear" | fzf)" in
+    case "$(echo -e "Author\nCountry\nLanguage\nPublisher\nSeries\nType\nYear" | fzf)" in
 	"Author") sterm=author ;;
 	"Country") sterm=country ;;
 	"Language") sterm=language ;;
 	"Publisher") sterm=publisher ;;
 	"Type") sterm=type ;;
 	"Year") sterm=first_pub ;;
+	"Series") sterm=series ;;
 	*) echolor red ":: No search parameter chosen."
 	   return
 	   ;;
