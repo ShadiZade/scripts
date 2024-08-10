@@ -4,7 +4,7 @@ loc="$HOME/Athenaeum"
 ix="$usdd/athenaeum-index.csv"
 bkp="$HOME/Misc/Backups/athenaeum"
 log="$HOME/.local/logs/palladium/pall-open-book-log.csv"
-all_attr=(type title subtitle author volume edition first_pub year publisher country language trans_p orig_lang transor filename)
+all_attr=(type title subtitle author volume edition first_pub year publisher country language trans_p orig_lang transor filename id)
 
 
 
@@ -130,7 +130,7 @@ function add-entry {
     touch "$nix" "$nixf"
     IFS=$'\n'
     sed -n 1p "$ix" >> "$nix"
-    for j in $(xsv headers -j "$ix" | sed '/^filename$/d')
+    for j in $(xsv headers -j "$ix" | sed '/^filename$/d;/^id$/d')
     do
 	echo -e "$j ––– \t" >> "$nixf"
     done
@@ -141,7 +141,12 @@ function add-entry {
 	echo "$value" | grep -q ',' && value="\"$value\""
 	echo -n "$value," >> "$nix"
     done
-    echo -n "$(basename "$1")" >> "$nix"
+    while true
+    do
+	identifier="$(random-string 8)"
+	xsv select id "$ix" | grep -q "$identifier" || break
+    done
+    echo -n "$(basename "$1"),$identifier" >> "$nix"
     csvlens "$nix"
     echolor yellow ":: Continue? (Y/n) " 1
     read -r continue_p
