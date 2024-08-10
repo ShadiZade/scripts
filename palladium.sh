@@ -4,7 +4,7 @@ loc="$HOME/Athenaeum"
 ix="$usdd/athenaeum-index.csv"
 bkp="$HOME/Misc/Backups/athenaeum"
 log="$HOME/.local/logs/palladium/pall-open-book-log.csv"
-all_attr=(type title subtitle author volume edition first_pub year publisher country language trans_p orig_lang transor filename id)
+all_attr=(type title subtitle author series volume edition first_pub year publisher country language trans_p orig_lang transor filename id)
 
 
 
@@ -33,7 +33,7 @@ function dupper {
 
 function best-algo {
     # best methods to deal with duplicates
-    best=(author author volume volume,subtitle language language,trans_p edition edition,year publisher publisher country country,language transor transor,language filename filename)
+    best=(author author volume volume,series,subtitle language language,trans_p edition edition,year publisher publisher country country,language transor transor,language filename filename)
     attr_diff=()
     for j in $(xsv headers -j "$ix")
     do
