@@ -102,7 +102,6 @@ function search-by {
 	[[ -z "$dup_out" ]] && return 1
 	sld_fnm="$loc/$(xsv search -s series "^$filterer" "$ix" | xsv search -s volume "^$dup_out" | xsv select filename | sed -n 2p)"
 	[[ -z "$sld_fnm" ]] && return 1
-	sane $sld_fnm
 	export sld_fnm
 	open-book
     }
