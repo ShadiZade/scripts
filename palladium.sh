@@ -48,6 +48,7 @@ function best-algo {
 }
 
 function choose-book {
+    [[ ! -z "$sld_fnm" ]] && return 0
     [[ -z "$sld_ttl" ]] && sld_ttl="$(xsv select title "$ix" | tr -d '"' | sed 1d | sort | uniq | fzf)"
     [[ -z "$sld_ttl" ]] && return 1
     if $(dup-check title "$sld_ttl")
@@ -86,24 +87,37 @@ function backup-index {
 }
 
 function search-by {
+    function search-by-default {
+	filterer="$(xsv select "$1" "$ix" | sed 1d | sed '/""/d' | tr -d '"' | sort | uniq | fzf)"
+	[[ -z "$filterer" ]] && return 1
+	sld_ttl="$(xsv select title,"$1" "$ix" | xsv search -s "$1" "^$filterer" | xsv select title | tr -d '"' | sed 1d | sort | uniq | fzf)"
+	[[ -z "$sld_ttl" ]] && return 1
+	export sld_ttl
+	open-book
+    }
+    function search-by-series {
+	filterer="$(xsv select series "$ix" | sed 1d | sed '/""/d' | tr -d '"' | sort | uniq | fzf)"
+	[[ -z "$filterer" ]] && return 1
+	dup_out="$(dupper series volume "$filterer" "series,volume,title,subtitle" 2)"
+	[[ -z "$dup_out" ]] && return 1
+	sld_fnm="$loc/$(xsv search -s series "^$filterer" "$ix" | xsv search -s volume "^$dup_out" | xsv select filename | sed -n 2p)"
+	[[ -z "$sld_fnm" ]] && return 1
+	sane $sld_fnm
+	export sld_fnm
+	open-book
+    }
     case "$(echo -e "Author\nCountry\nLanguage\nPublisher\nSeries\nType\nYear" | fzf)" in
-	"Author") sterm=author ;;
-	"Country") sterm=country ;;
-	"Language") sterm=language ;;
-	"Publisher") sterm=publisher ;;
-	"Type") sterm=type ;;
-	"Year") sterm=first_pub ;;
-	"Series") sterm=series ;;
+	"Author") search-by-default author ;;
+	"Country") search-by-default country ;;
+	"Language") search-by-default language ;;
+	"Publisher") search-by-default publisher ;;
+	"Type") search-by-default type ;;
+	"Year") search-by-default first_pub ;;
+	"Series") search-by-series ;;
 	*) echolor red ":: No search parameter chosen."
 	   return
 	   ;;
     esac
-    filterer="$(xsv select "$sterm" "$ix" | sed 1d | sed '/""/d' | tr -d '"' | sort | uniq | fzf)"
-    [[ -z "$filterer" ]] && return 1
-    sld_ttl="$(xsv select title,"$sterm" "$ix" | xsv search -s "$sterm" "^$filterer" | xsv select title | tr -d '"' | sed 1d | sort | uniq | fzf)"
-    [[ -z "$sld_ttl" ]] && return 1
-    export sld_ttl
-    open-book
 }
 
 function dup-check-in-index {

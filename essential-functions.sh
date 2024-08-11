@@ -40,6 +40,7 @@ function scramble-file-names {
     [[ "$conf_str" != "$conf_str_response" ]] \
 	&& echolor yellow ":: Nothing done." \
 	&& return
+    IFS=$'\n'
     case "$1" in
 	"files")
 	    all_files=($(eza -1f))
