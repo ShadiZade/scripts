@@ -30,7 +30,7 @@ function dupper {
     alt_field_order="$5"
     [[ -z "$view_fields" ]] && view_fields="$alt_field"
     [[ -z "$alt_field_order" ]] && alt_field_order=1
-    xsv search -s "$dup_field" "^$dup_term" "$ix" | xsv select "$view_fields" | sed 1d | fzf | ifne xsv select "$alt_field_order"
+    xsv search -s "$dup_field" "^$dup_term" "$ix" | xsv select "$view_fields" | sed 1d | sort -V | fzf | ifne xsv select "$alt_field_order"
 }
 
 function best-algo {

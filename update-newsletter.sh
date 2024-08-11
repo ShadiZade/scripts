@@ -14,6 +14,11 @@ function zaytouna {
 	echolor red ":: ⨯  Error extracting ““$nlname”” data, update failed."
 	return
     }
+    [[ "$(echo -n "$urled" | wc -c)" -ne 4 ]] && {
+	clear-line
+	echolor red ":: ⨯ ““$nlname:”” Inexplicable result ““$urled””"
+	return
+    }
     [[ "$dlded" -eq "$urled" ]] && {
 	clear-line
 	echolor green ":: ✓  Newsletter ““$nlname”” is up to date. Current edition: ““$dlded””"
@@ -49,6 +54,11 @@ function kassioun {
 	echolor red ":: ⨯  Error extracting ““$nlname”” data, update failed."
 	return
     }
+    [[ "$(echo -n "$urled" | wc -c)" -ne 4 ]] && {
+	clear-line
+	echolor red ":: ⨯ ““$nlname:”” Inexplicable result ““$urled””"
+	return
+    }
     [[ "$dlded" -eq "$urled" ]] && {
 	clear-line
 	echolor green ":: ✓  Newsletter ““$nlname”” is up to date. Current edition: ““$dlded””"
@@ -81,6 +91,11 @@ function al-akhbar {
     [[ -z "$urled" ]] && {
 	clear-line
 	echolor red ":: ⨯  Error extracting ““$nlname”” data, update failed."
+	return
+    }
+    [[ "$(echo -n "$urled" | wc -c)" -ne 4 ]] && {
+	clear-line
+	echolor red ":: ⨯ ““$nlname:”” Inexplicable result ““$urled””"
 	return
     }
     [[ -z "$jindata" ]] && {
