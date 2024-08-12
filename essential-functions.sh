@@ -3,25 +3,25 @@ source ~/Repositories/dotfiles/zsh/variables
 
 function echolor {
     clrs="$usdd/echolors.csv"
-    color="$(xsv search -ns 1 "^$(echo "$1" | awk -F '-' '{print $1}' | tr -d '←→')$" "$clrs" | ifne xsv select -n 2)"
-    highlight="$(xsv search -ns 1 "^$(echo "$1" | awk -F '-' '{print $2}' | tr -d '←→')$" "$clrs" | ifne xsv select -n 2)"
+    color="$(cat "$clrs" | grep "^$(echo "$1" | awk -F '-' '{print $1}' | tr -d '←→')," | ifne awk -F ',' '{print $2}')"
+    hlght="$(cat "$clrs" | grep "^$(echo "$1" | awk -F '-' '{print $2}' | tr -d '←→')," | ifne awk -F ',' '{print $2}')"
     [[ -z "$color" ]] && color=36
-    [[ -z "$highlight" ]] && {
-	[[ "$color" = "37" ]] && highlight=33 || highlight=37
+    [[ -z "$hlght" ]] && {
+	[[ "$color" = "37" ]] && hlght=33 || hlght=37
     }
     echo "$1" | grep -q '←' && {
 	echo "$1" | awk -F '-' '{print $1}' | grep -q '←' && {
 	    color="7;$color"
-	    highlight="0;$highlight"
+	    hlght="0;$hlght"
 	}
 	echo "$1" | awk -F '-' '{print $2}' | grep -q '←' && {
-	    highlight="7;$highlight"
+	    hlght="7;$hlght"
 	    color="0;$color"
 	}
 	color="$(echo "$color" | ifne sed 's/7;0;/7;/g')"
-	highlight="$(echo "$highlight" | ifne sed 's/7;0;/7;/g')"
+	hlght="$(echo "$hlght" | ifne sed 's/7;0;/7;/g')"
     }
-    text="$(echo "$2" | sed "s/““/\\\\033[${highlight}m/g;s/””/\\\\033[${color}m/g")"
+    text="$(echo "$2" | sed "s/““/\\\\033[${hlght}m/g;s/””/\\\\033[${color}m/g")"
     [[ "$3" -eq 1 ]] && nonewline="-n" || nonewline="" # add "1" as a 3rd argument to add -n to echo
     echo $nonewline -e "\033["$color"m$text\033[0m"
 }
