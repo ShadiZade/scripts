@@ -90,7 +90,7 @@ function search-by {
     function search-by-default {
 	filterer="$(xsv select "$1" "$ix" | sed 1d | sed '/""/d' | tr -d '"' | sort | uniq | fzf)"
 	[[ -z "$filterer" ]] && return 1
-	sld_ttl="$(xsv select title,"$1" "$ix" | xsv search -s "$1" "^$filterer" | xsv select title | tr -d '"' | sed 1d | sort | uniq | fzf)"
+	sld_ttl="$(xsv select title,"$1" "$ix" | xsv search -s "$1" "^$filterer$" | xsv select title | tr -d '"' | sed 1d | sort | uniq | fzf)"
 	[[ -z "$sld_ttl" ]] && return 1
 	export sld_ttl
 	open-book
@@ -100,7 +100,7 @@ function search-by {
 	[[ -z "$filterer" ]] && return 1
 	dup_out="$(dupper series volume "$filterer" "series,volume,title,subtitle" 2)"
 	[[ -z "$dup_out" ]] && return 1
-	sld_fnm="$loc/$(xsv search -s series "^$filterer" "$ix" | xsv search -s volume "^$dup_out" | xsv select filename | sed -n 2p)"
+	sld_fnm="$loc/$(xsv search -s series "^$filterer$" "$ix" | xsv search -s volume "^$dup_out" | xsv select filename | sed -n 2p)"
 	[[ -z "$sld_fnm" ]] && return 1
 	export sld_fnm
 	open-book

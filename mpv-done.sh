@@ -31,6 +31,8 @@ esac
 [[ "$done_exists" = "y" ]] && choose_done="$(echo -e 'yes\nno' | fzf --prompt='Move to done? ')"
 ext_alone="$(echo "$ep" | awk -F '.' '{print $NF}')"
 allrelatedfiles="$(echo "$ep" | sed "s/\.$ext_alone//")"
-[[ "$choose_done" = "yes" ]] && mv -v "$allrelatedfiles"* done/
-touch .record.log
-echo "$allrelatedfiles is done at $(date +"%Y-%m-%d %H:%M")" >> .record.log
+[[ "$choose_done" = "yes" ]] && {
+    mv -v "$allrelatedfiles"* done/
+    touch .record.log
+    echo "$allrelatedfiles is done at $(date +"%Y-%m-%d %H:%M")" >> .record.log
+}
