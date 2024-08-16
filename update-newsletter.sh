@@ -87,7 +87,9 @@ function al-akhbar {
     loc="$HOME/Documents/newsletters/al-akhbar"
     dlded="$(eza -1f "$loc" | grep 'pdf$' | tail -n 1 | awk -F '-' '{print $3}')"
     echolor orange ":: ❯❯ Updating ““$nlname”” now. Current edition: ““$dlded””" 1
-    jindata="$(wget --timeout=15 -qO- "$nl" | grep "data-id=\"$((dlded + 1))\"")"
+    jindata="$(wget -qO- "$nl" | grep -B 5 -m 2 '<div class="row month-wrap">' | sed -n 8p)"
+    urled="$(echo "$jindata" | awk -F 'data-id="' '{print $NF}' | awk -F '" data-name' '{print $1}')"
+    urldt="$(echo "$jindata" | awk -F 'data-name="' '{print $NF}' | awk -F '" data-old' '{print $1}')"
     [[ -z "$urled" ]] && {
 	clear-line
 	echolor red ":: ⨯  Error extracting ““$nlname”” data, update failed."
@@ -98,14 +100,12 @@ function al-akhbar {
 	echolor red ":: ⨯ ““$nlname:”” Inexplicable result ““$urled””"
 	return
     }
-    [[ -z "$jindata" ]] && {
+    [[ "$dlded" -eq "$urled" ]] && {
 	clear-line
 	echolor green ":: ✓  Newsletter ““$nlname”” is up to date. Current edition: ““$dlded””"
 	return
     } || {
 	clear-line
-	urled="$(echo "$jindata" | awk -F 'data-id="' '{print $NF}' | awk -F '" data-name' '{print $1}')"
-	urldt="$(echo "$jindata" | awk -F 'data-name="' '{print $NF}' | awk -F '" data-old' '{print $1}')"
 	echolor blue ":: ❯❯ Downloading new edition of ““$nlname””. " 1
 	echolor red "$dlded ““→”” " 1
 	echolor green "$urled" 1
