@@ -4,14 +4,18 @@ source ~/Repositories/scripts/essential-functions.sh
 fwf="$usdd/frequent-words"
 [[ ! -e "$fwf" ]] && return 1
 
-function copy-slot {
+function output-slot {
     IFS=$'\n'
     contents=($(cat "$fwf" | sed 's/^$/EMPTYSLOT/g'))
     echo {1..9} | grep -q "$1" || return 1
     echo ' ' | grep -q "$1" && return 1
     # pia = position in array
     pia=$(($1-1))
-    echo "${contents[$pia]}" | sed 's/EMPTYSLOT//g' | tr -d '\n' | xclip -selection clipboard
+    echo "${contents[$pia]}" | sed 's/EMPTYSLOT//g' | tr -d '\n'
+}
+
+function copy-slot {
+    output-slot "$1" | xclip -selection clipboard
 }
 
 function mod-slot {
@@ -52,9 +56,18 @@ function view-slots {
 	| xclip -selection clipboard
 }
 
+function clear-slots {
+    for j in {1..9}
+    do
+	mod-slot "$j"
+    done
+}
+
 case "$1" in
     "view") view-slots ;;
+    "out") output-slot "$2" ;;
     "copy") copy-slot "$2" ;;
+    "clear") clear-slots ;;
     "mod") mod-slot "$2" "$3" ;;
     '') view-slots ;;
     *) echolor red ":: Unknown command"
