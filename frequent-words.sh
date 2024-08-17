@@ -43,7 +43,13 @@ function mod-slot {
 }
 
 function view-slots {
-    cat "$fwf" | nl -ba -s ' ' | sed 's/^ *//g' | rofi -dmenu | cut -c3- | tr -d '\n' | xclip -selection clipboard
+    cat "$fwf"                                    \
+	| nl -ba -s ' '                           \
+	| sed 's/^ *//g'                          \
+	| rofi -normalize-match -dmenu -i         \
+	| cut -c3-                                \
+	| tr -d '\n'                              \
+	| xclip -selection clipboard
 }
 
 case "$1" in
