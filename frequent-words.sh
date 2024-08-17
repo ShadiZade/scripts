@@ -6,12 +6,12 @@ fwf="$usdd/frequent-words"
 
 function copy-slot {
     IFS=$'\n'
-    contents=($(cat "$fwf"))
+    contents=($(cat "$fwf" | sed 's/^$/EMPTYSLOT/g'))
     echo {1..9} | grep -q "$1" || return 1
     echo ' ' | grep -q "$1" && return 1
     # pia = position in array
     pia=$(($1-1))
-    echo ${contents[$pia]} | xclip -selection clipboard
+    echo "${contents[$pia]}" | sed 's/EMPTYSLOT//g' | tr -d '\n' | xclip -selection clipboard
 }
 
 function mod-slot {
