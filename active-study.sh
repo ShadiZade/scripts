@@ -3,6 +3,7 @@ source ~/Repositories/scripts/essential-functions.sh
 
 current_file="$usdd/zas-current-study"
 reserve_file="$usdd/zas-reserve-study"
+alldone_file="$usdd/zas-alldone-study"
 use_program="zathura"
 
 function add-study {
@@ -43,6 +44,13 @@ function open-study {
     "$use_program" "$openthis" 2>/dev/null
 }
 
+function move-to-alldone {
+    stashthis="$(cat $current_file | fzf --prompt="Select file to MOVE TO ALLDONE: ")"
+    [ -z "$stashthis" ] && echolor red ":: Nothing chosen." && exit
+    sed -i "s|$stashthis||g;/^$/d" "$current_file"
+    echo "$stashthis" >> "$alldone_file"
+    echolor purple ":: ““$(echo $stashthis | awk -F '/' '{print $NF}')”” was moved to alldone."
+}
 
 function move-to-reserve {
     stashthis="$(cat $current_file | fzf --prompt="Select file to MOVE TO RESERVE: ")"
@@ -63,14 +71,21 @@ function call-from-reserve {
 function view-study {
     i=1
     IFS=$'\n'
-    for j in $(cat $reserve_file)
+    for j in $(cat "$alldone_file")
+    do
+	[[ "$i" -eq 1 ]] && echolor white '-------- ALLDONE --------'
+	print-name "$j" blue
+	((i++))
+    done
+    i=1
+    for j in $(cat "$reserve_file")
     do
 	[[ "$i" -eq 1 ]] && echolor white '-------- RESERVE --------'
 	print-name "$j" green
 	((i++))
     done
     i=1
-    for j in $(cat $current_file)
+    for j in $(cat "$current_file")
     do
 	[[ "$i" -eq 1 ]] && echolor white '-------- CURRENT --------'
 	print-name "$j" purple
@@ -114,9 +129,10 @@ while getopts 'movra:d' OPTION; do
 	"v") view-study ;;
 	"d") delete-study ;;
 	"a") add-study "$OPTARG" ;;
-	"m") case "$(echo -e "To reserve\nTo current" | fzf --prompt="Choose action: ")" in
+	"m") case "$(echo -e "To reserve\nTo current\nTo alldone" | fzf --prompt="Choose action: ")" in
 		 "To current") call-from-reserve ;;
 		 "To reserve") move-to-reserve ;;
+		 "To alldone") move-to-alldone ;;
 		 *) echolor red ":: No option chosen"
 		    exit ;;
 	     esac
