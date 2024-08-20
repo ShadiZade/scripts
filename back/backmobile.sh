@@ -80,7 +80,8 @@ function back-all {
     echo -ne "\033[33m:: Proceed? (y/N) "
     read -r proceed
     [[ "$proceed" = "y" ]] || {
-	echolor yellow ":: Nothing done."
+	echolor red ":: Nothing done."
+	add_to_time_file=n
 	return
 	}
     for k in ${all_dirs[@]}
