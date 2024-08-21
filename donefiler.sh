@@ -28,3 +28,4 @@ do
 	    }
     move-to-trash-recursively "$HOME/Movies/$j"
 done
+unset IFS

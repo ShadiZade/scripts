@@ -66,6 +66,7 @@ function scramble-file-names {
 	((counter++))
     done
     echolor yellow ":: Scrambled $counter files."
+    unset IFS
 }
 
 function kebab {
@@ -126,6 +127,7 @@ function list-cutter {
     echo -n ':: Select range: '
     read -r sel_range
     echo "$select_from" | xsv select "${sel_range:-$(seq -s ',' 1 ${#arr[@]})}"
+    unset IFS
 }
 
 function move-to-trash {

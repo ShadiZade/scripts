@@ -142,6 +142,7 @@ function empty-trash {
     echolor yellow ":: Trash manifest cleared."
     echolor yellow-white ":: Occupied memory before: ““$mem_before””"
     echolor yellow-white ":: Occupied memory after:  ““$(df | grep sda1 | awk '{print $5}')””"
+    unset IFS
 }
 
 manifest-log

@@ -80,6 +80,7 @@ function view-projects {
 	print-name "$j" purple
 	((i++))
     done
+    unset IFS
 }
 
 function print-name {

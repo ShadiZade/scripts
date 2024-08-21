@@ -15,3 +15,4 @@ do
     rm -f "$j" || echolor red ":: Failed to remove ““$j””."
     echo "$j was removed on $(date +"%Y-%m-%d %H:%M")" >> "$tv/$show/.record.log"
 done
+unset IFS

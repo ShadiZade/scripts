@@ -12,6 +12,7 @@ function output-slot {
     # pia = position in array
     pia=$(($1-1))
     echo "${contents[$pia]}" | sed 's/EMPTYSLOT//g' | tr -d '\n'
+    unset IFS
 }
 
 function copy-slot {
@@ -44,6 +45,7 @@ function mod-slot {
 	}
     done
     mv -f "$fwf"-temp "$fwf"
+    unset IFS
 }
 
 function view-slots {

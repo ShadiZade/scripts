@@ -11,5 +11,4 @@ do
     ~/Repositories/scripts/mv-kebab.sh "$j"
     ((i++))
 done
-
-	
+unset IFS

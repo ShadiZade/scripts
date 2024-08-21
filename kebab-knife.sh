@@ -73,6 +73,7 @@ function delete-some {
 	((i++))
     done
     simple-reorder
+    unset IFS
 }
 
 function add-more {

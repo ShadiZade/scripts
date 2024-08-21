@@ -127,6 +127,7 @@ function dup-check-in-index {
 	do
 	    echolor red ":: Duplication detected in index file: ““$j””"
 	done
+	unset IFS
 	exit
     }
 }
@@ -185,6 +186,7 @@ function add-entry {
 	    echolor green ":: Symlink created."
     }
     backup-index
+    unset IFS
 }
 
 function index-sorter {

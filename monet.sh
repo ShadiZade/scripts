@@ -113,3 +113,5 @@ case "$vids" in
     1) mpv --osd-fractions --really-quiet --audio-samplerate=88200 --no-resume-playback --loop=inf -- ${images[@]} ;;
     *) sxiv -q -- ${images[@]} ;;
 esac
+
+unset IFS
