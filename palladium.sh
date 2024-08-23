@@ -35,7 +35,7 @@ function dupper {
     xsv search -s "$dup_field" "^$dup_term" "$dup_file" > "$dup_tmp"
 }
 
-function dup_filter {
+function dup-filter {
     cat "$dup_tmp"                                \
 	| xsv select "$view_fields"               \
 	| sed 1d                                  \
@@ -48,12 +48,10 @@ function dup_filter {
 function redupper {
     [[ ! -e "$dup_tmp" ]] && return 1
     [[ "$(cat "$dup_tmp" | wc -l)" -eq 2 ]] && return 0
-    sane "BESTALGO $alt_field $dup_out $dup_tmp"
     best-algo "$alt_field" "$dup_out" "$dup_tmp"
-    sane "DUPPER $dup_tmp $alt_field $chosen_best $dup_out $chosen_best_config $chosen_order_of_field"
-    echolor white "$(cat $dup_tmp)"
     dupper "$dup_tmp" "$alt_field" "$chosen_best" "$dup_out" "$chosen_best_config" "$chosen_order_of_field"
-    dup_out=$(dup_filter)
+    [[ "$(cat "$dup_tmp" | wc -l)" -eq 2 ]] && return 0
+    dup_out=$(dup-filter)
     redupper
 }
 
@@ -94,11 +92,10 @@ function choose-book {
     then
 	best-algo title "$sld_ttl" "$ix"
 	dupper "$ix" title "$chosen_best" "$sld_ttl" "$chosen_best_config" "$chosen_order_of_field"
-	dup_out=$(dup_filter)
+	dup_out=$(dup-filter)
     	[[ -z "$dup_out" ]] && return 1
 	redupper
 	sld_fnm="$loc/$(xsv search -s title "^$sld_ttl" "$ix" | xsv search -s "$chosen_best" "^$dup_out" | xsv select filename | sed -n 2p)"
-	sane "$sld_fnm"
     else
 	sld_fnm="$loc/$(xsv search -s title "^$sld_ttl" "$ix" | xsv select filename | sed -n 2p)"
     fi
