@@ -9,7 +9,7 @@ all_attr=(type title subtitle author series volume edition first_pub year publis
 
 
 function dup-check {
-    if [[ "$(xsv search -s "$1" "^$2" "$ix" | xsv select "$1" | sed 1d | wc -l)" -gt 1 ]]
+    if [[ "$(xsv search -s "$1" "^$2" "$3" | xsv select "$1" | sed 1d | wc -l)" -gt 1 ]]
     then
 	return 0
     else
@@ -18,19 +18,43 @@ function dup-check {
 }
 
 function dupper {
-    # dupper field_already_queried other_field_to_query term fields_to_display_comma_separated order_of_field
-    # dupper title volume XYZ volume,subtitle 1
+    # dupper index_file field_already_queried other_field_to_query term fields_to_display_comma_separated order_of_field
+    # dupper "$ix" title volume XYZ volume,subtitle 1
     # e.g. can be run if two books titled XYZ are found (in order to choose by volume).
     # $5 is the order in which the chosen variable in $4 is located, so if "subtitle" is to be
     # used, $5 would be "2" in the previous example. This is reflected in $best.
-    dup_field="$1"
-    alt_field="$2"
-    dup_term="$3"
-    view_fields="$4"
-    alt_field_order="$5"
+    dup_file="$1"
+    dup_field="$2"
+    alt_field="$3"
+    dup_term="$4"
+    view_fields="$5"
+    alt_field_order="$6"
     [[ -z "$view_fields" ]] && view_fields="$alt_field"
     [[ -z "$alt_field_order" ]] && alt_field_order=1
-    xsv search -s "$dup_field" "^$dup_term" "$ix" | xsv select "$view_fields" | sed 1d | sort -V | fzf | ifne xsv select "$alt_field_order"
+    dup_tmp="/tmp/pall-dupper-$(random-string).csv"
+    xsv search -s "$dup_field" "^$dup_term" "$dup_file" > "$dup_tmp"
+}
+
+function dup_filter {
+    cat "$dup_tmp"                                \
+	| xsv select "$view_fields"               \
+	| sed 1d                                  \
+	| sort -V                                 \
+	| uniq                                    \
+	| fzf                                     \
+	| ifne xsv select "$alt_field_order"      
+}
+
+function redupper {
+    [[ ! -e "$dup_tmp" ]] && return 1
+    [[ "$(cat "$dup_tmp" | wc -l)" -eq 2 ]] && return 0
+    sane "BESTALGO $alt_field $dup_out $dup_tmp"
+    best-algo "$alt_field" "$dup_out" "$dup_tmp"
+    sane "DUPPER $dup_tmp $alt_field $chosen_best $dup_out $chosen_best_config $chosen_order_of_field"
+    echolor white "$(cat $dup_tmp)"
+    dupper "$dup_tmp" "$alt_field" "$chosen_best" "$dup_out" "$chosen_best_config" "$chosen_order_of_field"
+    dup_out=$(dup_filter)
+    redupper
 }
 
 function best-algo {
@@ -39,44 +63,46 @@ function best-algo {
     attr_diff=()
     for j in $(xsv headers -j "$ix")
     do
-	if [[ "$(xsv search -s "$1" "^$2" "$ix" | xsv select "$j" | sed 1d | sort | uniq | wc -l)" -gt 1 ]]
+	if [[ "$(xsv search -s "$1" "^$2" "$3" | xsv select "$j" | sed 1d | sort | uniq | wc -l)" -gt 1 ]]
 	then
 	    attr_diff+=("$j")
 	fi
     done
     [[ -z "$attr_diff" ]] && return 1
+    i=-1
+    for j in ${best[@]}
+    do
+	((i++))
+	[[ $((i%3)) -eq 0 ]] && {
+	    if $(echo "${attr_diff[@]}" | grep -q "$j")
+	    then
+		chosen_best=${best[$i]}
+		chosen_best_config=${best[((i+1))]}
+		chosen_order_of_field=${best[((i+2))]}
+		break
+	    fi
+	    continue
+	}
+    done
 }
 
 function choose-book {
     [[ ! -z "$sld_fnm" ]] && return 0
     [[ -z "$sld_ttl" ]] && sld_ttl="$(xsv select title "$ix" | tr -d '"' | sed 1d | sort | uniq | fzf)"
     [[ -z "$sld_ttl" ]] && return 1
-    if $(dup-check title "$sld_ttl")
+    if $(dup-check title "$sld_ttl" "$ix")
     then
-	best-algo title "$sld_ttl"
-	i=-1
-	for j in ${best[@]}
-	do
-	    ((i++))
-	    [[ $((i%3)) -eq 0 ]] && {
-		if $(echo "${attr_diff[@]}" | grep -q "$j")
-		then
-		    chosen_best=${best[$i]}
-		    chosen_best_config=${best[((i+1))]}
-		    chosen_order_of_field=${best[((i+2))]}
-		    break
-		fi
-		continue
-	    }
-	done
-	dup_out="$(dupper title "$chosen_best" "$sld_ttl" "$chosen_best_config" "$chosen_order_of_field")"
-	[[ -z "$dup_out" ]] && return 1
+	best-algo title "$sld_ttl" "$ix"
+	dupper "$ix" title "$chosen_best" "$sld_ttl" "$chosen_best_config" "$chosen_order_of_field"
+	dup_out=$(dup_filter)
+    	[[ -z "$dup_out" ]] && return 1
+	redupper
 	sld_fnm="$loc/$(xsv search -s title "^$sld_ttl" "$ix" | xsv search -s "$chosen_best" "^$dup_out" | xsv select filename | sed -n 2p)"
+	sane "$sld_fnm"
     else
 	sld_fnm="$loc/$(xsv search -s title "^$sld_ttl" "$ix" | xsv select filename | sed -n 2p)"
     fi
 }
-
 
 function backup-index {
     cmp -s "$ix" "$bkp/$(eza -1f "$bkp" | tail -n 1)" || {
@@ -98,7 +124,7 @@ function search-by {
     function search-by-series {
 	filterer="$(xsv select series "$ix" | sed 1d | sed '/""/d' | tr -d '"' | sort | uniq | fzf)"
 	[[ -z "$filterer" ]] && return 1
-	dup_out="$(dupper series volume "$filterer" "series,volume,title,subtitle" 2)"
+	dup_out="$(dupper "$ix" series volume "$filterer" "series,volume,title,subtitle" 2)"
 	[[ -z "$dup_out" ]] && return 1
 	sld_fnm="$loc/$(xsv search -s series "^$filterer$" "$ix" | xsv search -s volume "^$dup_out" | xsv select filename | sed -n 2p)"
 	[[ -z "$sld_fnm" ]] && return 1
