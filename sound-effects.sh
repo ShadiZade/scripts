@@ -24,6 +24,8 @@ case "$1" in
     "bruh") a 003 ;;
     "jumpy-laser") a 007 40;;
     "d2a-d2i") a 008 70;;
+    "done") a 009;;
+    "too-low") a 010 80;;
     *) a 002 ;;
 esac
 
@@ -36,5 +38,7 @@ esac
 # 006 julien-laser.wav
 # 007 jalastram-jump.wav owlstorm-retro-laser.wav julien-laser.wav
 # 008 d2a-d2i.mp3
+# 009 angelic-ding.wav
+# 010 too-low.mp3
 
 ### TODO system check for [[ -e ]] sound catalogue files

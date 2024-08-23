@@ -11,6 +11,11 @@ do
 	killall dunst
 	notify-send -u critical -t 4000 "BATTERY WARNING" "${batterypercent}%"
 	quodlibet --pause
-	sfx ten-bloops
+	if [[ "$batterypercent" -gt 10 ]]
+	then
+	    sfx ten-bloops
+	else
+	    sfx too-low
+	fi
     }
 done

@@ -30,6 +30,10 @@ function random-string {
     head /dev/urandom | tr -dc a-z0-9 | head -c "${1:-13}"
 }
 
+function random-number {
+    head /dev/urandom | tr -dc 0-9 | head -c "${1:-8}"
+}
+
 function scramble-file-names {
     [[ -z "$1" ]] \
 	&& echolor yellow ":: Available options: 'files', 'dirs', and 'all'." \
@@ -267,9 +271,7 @@ function battery-warner {
     [[ "$batterypercent" -gt 25 ]] \
 	&& batterystatus="0" || {
 	    batterystate="$(upower -i /org/freedesktop/UPower/devices/battery_BAT1 | grep state | awk '{print $2}' | tr -d ' ')"
-	    [[ "$batterystate" = "discharging" ]] \
-		&& batterystatus="1" \
-		    || batterystatus="0"
+	    [[ "$batterystate" = "discharging" ]] && batterystatus="1" || batterystatus="0"
 	}
 }
 
