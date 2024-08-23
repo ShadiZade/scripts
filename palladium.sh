@@ -52,6 +52,7 @@ function redupper {
     dupper "$dup_tmp" "$alt_field" "$chosen_best" "$dup_out" "$chosen_best_config" "$chosen_order_of_field"
     [[ "$(cat "$dup_tmp" | wc -l)" -eq 2 ]] && return 0
     dup_out=$(dup-filter)
+    [[ -z "$dup_out" ]] && return 1
     redupper
 }
 
@@ -94,7 +95,7 @@ function choose-book {
 	dupper "$ix" title "$chosen_best" "$sld_ttl" "$chosen_best_config" "$chosen_order_of_field"
 	dup_out=$(dup-filter)
     	[[ -z "$dup_out" ]] && return 1
-	redupper
+	redupper || return 1
 	sld_fnm="$loc/$(xsv search -s title "^$sld_ttl" "$ix" | xsv search -s "$chosen_best" "^$dup_out" | xsv select filename | sed -n 2p)"
     else
 	sld_fnm="$loc/$(xsv search -s title "^$sld_ttl" "$ix" | xsv select filename | sed -n 2p)"
@@ -121,8 +122,10 @@ function search-by {
     function search-by-series {
 	filterer="$(xsv select series "$ix" | sed 1d | sed '/""/d' | tr -d '"' | sort | uniq | fzf)"
 	[[ -z "$filterer" ]] && return 1
-	dup_out="$(dupper "$ix" series volume "$filterer" "series,volume,title,subtitle" 2)"
+	dupper "$ix" series volume "$filterer" "series,volume,title,subtitle" 2
+	dup_out="$(dup-filter)"
 	[[ -z "$dup_out" ]] && return 1
+	redupper || return 1
 	sld_fnm="$loc/$(xsv search -s series "^$filterer$" "$ix" | xsv search -s volume "^$dup_out" | xsv select filename | sed -n 2p)"
 	[[ -z "$sld_fnm" ]] && return 1
 	export sld_fnm
