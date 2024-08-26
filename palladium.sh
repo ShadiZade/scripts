@@ -32,7 +32,7 @@ function dupper {
     [[ -z "$view_fields" ]] && view_fields="$alt_field"
     [[ -z "$alt_field_order" ]] && alt_field_order=1
     dup_tmp="/tmp/pall-dupper-$(random-string).csv"
-    xsv search -s "$dup_field" "^$dup_term" "$dup_file" > "$dup_tmp"
+    xsv search -s "$dup_field" "^$dup_term$" "$dup_file" > "$dup_tmp"
 }
 
 function dup-filter {
