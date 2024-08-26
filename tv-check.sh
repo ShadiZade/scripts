@@ -9,7 +9,7 @@ do
     [[ -e "$j" ]] && continue
     show="$(realpath -ms "$j" | awk -F '/TV/' '{print $2}' | awk -F '/' '{print $1}')"
     remove_p='y'
-    echolor yellow-purple ":: Episode ““$j”” in show ““$show”” is broken. Remove? (Y/n) " 1
+    echolor yellow-purple ":: Episode ““$(basename "$j")”” in show ““$show”” is broken. Remove? (Y/n) " 1
     read -r remove_p
     [[ "$remove_p" = "n" ]] && continue
     rm -f "$j" || echolor red ":: Failed to remove ““$j””."
