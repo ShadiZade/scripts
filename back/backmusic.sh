@@ -6,17 +6,16 @@ echolor yellow ":: Detected ${#music_folders[@]} folders\n"
 
 for j in ${music_folders[@]};
 do
-    cd ~/Music/ > /dev/null \
-	|| exit
-    taffy -- "$j"/*.mp3 > ~/Misc/Backups/my-music/txt/"$j".txt 2>/dev/null \
-	&& echolor green ":: ““$j”” done!"
+    cd ~/Music/ > /dev/null || exit
+    tagutil -- "$j"/*.mp3 > ~/Misc/Backups/my-music/txt/"$j".txt 2>/dev/null \
+	&& echolor green-pink ":: ““$j”” done!"
     if [ -n "$(eza -1D "$j")" ];
     then
 	music_subfolders=($(eza -1D "$j"))
 	for k in ${music_subfolders[@]}
 	do
-	    taffy -- "$j"/"$k"/*.mp3 > ~/Misc/Backups/my-music/txt/"$j"-"$k".txt 2>/dev/null \
-		&& echolor green ":: ─────── ““$j/$k”” done!"
+	    tagutil -- "$j"/"$k"/*.mp3 > ~/Misc/Backups/my-music/txt/"$j"-"$k".txt 2>/dev/null \
+		&& echolor green-pink ":: ─────── ““$j/$k”” done!"
 	done
     fi
 done

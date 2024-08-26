@@ -12,7 +12,7 @@ i=0
 for j in ${piece_list[@]}
 do
     ((i++))
-    working_metadata="$(taffy "$j")"
+    working_metadata="$(tagutil -- "$j")"
     working_title="$(echo "$working_metadata" | grep 'title:' | awk -F ':' '{print $NF}' | sed 's|^ *||g')"
     working_artist="$(echo "$working_metadata" | grep 'artist:' | awk -F ':' '{print $NF}' | sed 's|^ *||g')"
     [ -z "$working_artist" ] && working_artist="Unknown"
