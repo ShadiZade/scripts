@@ -258,6 +258,45 @@ function open-history {
     zathura "$loc/$sld_fnm" 2>/dev/null &
 }
 
+function from-id {
+    xsv -s id "$1" "$3" | ifne xsv select "$2" | sed 1d
+}
+
+function open-from-file {
+    sld_fnm="$(tac "$usdd/pall-$1" | ifne awk -F '/' '{print $NF}' | sort | uniq | ifne fzf)"
+    [[ -z "$sld_fnm" ]] && return 1
+    zathura "$loc/$sld_fnm" 2>/dev/null &
+}
+
+function put-in {
+    pc="$usdd/pall-current"
+    pd="$usdd/pall-done"
+    case "$(echo -e "To current\nTo done" | fzf)" in
+	"To current")   choose-book || return 1
+			[[ -z "$sld_fnm" ]] && return 1
+			cat "$pc" | grep -q "^$sld_fnm$" && {
+			    echolor red ":: Book ““$sld_ttl”” is already in ““current””"
+			    return 1
+			}
+			echo "$sld_fnm" >> "$pc"
+		       	echolor green ":: Book ““$sld_ttl”” added to ““current””"
+			;;
+	"To done")    choose-book || return 1
+		      [[ -z "$sld_fnm" ]] && return 1
+		      cat "$pc" | grep -q "^$sld_fnm$" \
+			  && echolor yellow-violet ":: Book ““$sld_ttl”” found in ““current””, removing..."
+		      sed -i "s|^$sld_fnm$||g;/^$/d" "$pc" || return 1
+		      cat "$pd" | grep -q "^$sld_fnm$" && {
+			  echolor red ":: Book ““$sld_ttl”” is already in ““done””"
+			  return 1
+		      }
+		      echo "$sld_fnm" >> "$pd"
+		      echolor green ":: Book ““$sld_ttl”” added to ““done””"
+		      ;;
+	*) return 1 ;;
+    esac
+}
+
 backup-index
 dup-check-in-index
 case "$1" in
@@ -267,6 +306,9 @@ case "$1" in
     "info") show-info ;;
     "stats") show-stats ;;
     "hist") open-history ;;
+    "curr") open-from-file current ;;
+    "done") open-from-file done ;;
+    "put") put-in ;;
     "") open-book ;;
     *) echolor red ":: Unknown command." ;;
 esac
