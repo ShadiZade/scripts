@@ -3,6 +3,10 @@ source ~/Repositories/scripts/essential-functions.sh
 
 rural="$HOME/Repositories/scripts/src/rural-cal"
 original_json="$(curl -sL https://repcal.info/now)"
+[[ -z "$original_json" ]] && {
+    echo -n
+    exit
+}
 echo "$original_json" | grep -q 'doctype html' && {
     echo -n
     exit
