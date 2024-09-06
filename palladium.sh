@@ -183,7 +183,7 @@ function add-entry {
     emacsclient -nw -a emacs "$nixf"
     for j in $(cat "$nixf")
     do
-	value="$(echo "$j" | awk -F '–––' '{print $NF}' | sed 's/\t//g;s/^ *//g;s/ *$//g' | sed "s/'/’/g")"
+	value="$(echo "$j" | awk -F '–––' '{print $NF}' | sed 's/\t//g;s/^ *//g;s/ *$//g' | sed "s/'/’/g;s/(/⟮/g;s/)/⟯/g")"
 	echo "$value" | grep -q ',' && value="\"$value\""
 	echo -n "$value," >> "$nix"
     done
