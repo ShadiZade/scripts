@@ -122,7 +122,7 @@ function search-by {
     function search-by-series {
 	filterer="$(xsv select series "$ix" | sed 1d | sed '/""/d' | tr -d '"' | sort | uniq | fzf)"
 	[[ -z "$filterer" ]] && return 1
-	dupper "$ix" series volume "$filterer" "series,volume,title,subtitle" 2
+	dupper "$ix" series volume "$filterer" "series,volume,author,title,subtitle" 2
 	dup_out="$(dup-filter)"
 	[[ -z "$dup_out" ]] && return 1
 	redupper || return 1
@@ -193,7 +193,7 @@ function add-entry {
 	xsv select id "$ix" | grep -q "$identifier" || break
     done
     echo -n "$(basename "$1"),$identifier" >> "$nix"
-    csvlens "$nix"
+    xsv flatten "$nix" | sed 's/,/⸴/g' | csvlens --no-headers
     echolor yellow ":: Continue? (Y/n) " 1
     read -r continue_p
     [[ "$continue_p" = "n" ]] && {
