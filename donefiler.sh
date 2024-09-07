@@ -2,7 +2,7 @@
 source ~/Repositories/scripts/essential-functions.sh 
 
 IFS=$'\n'
-donemovies=($(fd donefile ~/Movies | awk -F '/' '{print $5}' | sed 's/\n/ /g'))
+donemovies=($(fd donefile ~/Films | awk -F '/' '{print $5}' | sed 's/\n/ /g'))
 [[ "${#donemovies[@]}" -eq 0 ]] \
     && \
     {
@@ -19,13 +19,13 @@ do
 	    echolor yellow-white ":: Doing nothing to ““$j””."
 	    continue
 	}
-    mv "$(eza -1f $HOME/Movies/$j/donefile*)" ~/Misc/Backups/video/donefiles/ \
+    mv "$(eza -1f $HOME/Films/$j/donefile*)" ~/Misc/Backups/video/donefiles/ \
 	&& echolor yellow ":: Moved donefile of ““$j”” to backup" \
 	    || \
 	    {
 		echolor red ":: Error moving donefile! Exiting..."
 		exit
 	    }
-    move-to-trash-recursively "$HOME/Movies/$j"
+    move-to-trash-recursively "$HOME/Films/$j"
 done
 unset IFS
