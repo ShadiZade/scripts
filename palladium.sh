@@ -181,6 +181,11 @@ function add-entry {
 	echo -e "$j ––– \t" >> "$nixf"
     done
     emacsclient -nw -a emacs "$nixf"
+    sed -i '/^$/d' "$nixf"
+    cat "$nixf" | grep -v '–––' && {
+	echolor red ":: Input error!"
+	return 1
+    }
     for j in $(cat "$nixf")
     do
 	value="$(echo "$j" | awk -F '–––' '{print $NF}' | sed 's/\t//g;s/^ *//g;s/ *$//g' | sed "s/'/’/g;s/,/‚/g;s/(/⟮/g;s/)/⟯/g")"
@@ -194,6 +199,10 @@ function add-entry {
     done
     echo -n "$(basename "$1"),$identifier" >> "$nix"
     xsv flatten "$nix" | sed 's/,/⸴/g' | csvlens --no-headers
+    [[ "$(xsv select title "$nix" | sed 1d)" = '""' ]] && {
+	echolor red ":: Title can't be empty!"
+	return 1
+    }
     echolor yellow ":: Continue? (Y/n) " 1
     read -r continue_p
     [[ "$continue_p" = "n" ]] && {
