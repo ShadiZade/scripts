@@ -62,7 +62,7 @@ function best-algo {
     attr_diff=()
     for j in $(xsv headers -j "$ix")
     do
-	if [[ "$(xsv search -s "$1" "^$2" "$3" | xsv select "$j" | sed 1d | sort | uniq | sed '/^""$/d' | wc -l)" -gt 1 ]]
+	if [[ "$(xsv search -s "$1" "^$2$" "$3" | xsv select "$j" | sed 1d | sort | uniq | sed '/^""$/d' | wc -l)" -gt 1 ]]
 	then
 	    attr_diff+=("$j")
 	fi
@@ -87,7 +87,7 @@ function best-algo {
 
 function choose-book {
     [[ ! -z "$sld_fnm" ]] && return 0
-    [[ -z "$sld_ttl" ]] && sld_ttl="$(xsv select title "$ix" | tr -d '"' | sed 1d | sort | uniq | fzf)"
+    [[ -z "$sld_ttl" ]] && sld_ttl="$(xsv select title "$ix" | tr -d '"' | sed 1d | sort | uniq | fzf | sed 's/?/\\?/g')"
     [[ -z "$sld_ttl" ]] && return 1
     if $(dup-check title "$sld_ttl" "$ix")
     then
@@ -96,9 +96,9 @@ function choose-book {
 	dup_out=$(dup-filter)
     	[[ -z "$dup_out" ]] && return 1
 	redupper || return 1
-	sld_fnm="$loc/$(xsv search -s title "^$sld_ttl" "$ix" | xsv search -s "$chosen_best" "^$dup_out" | xsv select filename | sed -n 2p)"
+	sld_fnm="$loc/$(xsv search -s title "^$sld_ttl$" "$ix" | xsv search -s "$chosen_best" "^$dup_out" | xsv select filename | sed -n 2p)"
     else
-	sld_fnm="$loc/$(xsv search -s title "^$sld_ttl" "$ix" | xsv select filename | sed -n 2p)"
+	sld_fnm="$loc/$(xsv search -s title "^$sld_ttl$" "$ix" | xsv select filename | sed -n 2p)"
     fi
 }
 
@@ -183,7 +183,7 @@ function add-entry {
     emacsclient -nw -a emacs "$nixf"
     for j in $(cat "$nixf")
     do
-	value="$(echo "$j" | awk -F '–––' '{print $NF}' | sed 's/\t//g;s/^ *//g;s/ *$//g' | sed "s/'/’/g;s/(/⟮/g;s/)/⟯/g")"
+	value="$(echo "$j" | awk -F '–––' '{print $NF}' | sed 's/\t//g;s/^ *//g;s/ *$//g' | sed "s/'/’/g;s/,/‚/g;s/(/⟮/g;s/)/⟯/g")"
 	echo "$value" | grep -q ',' && value="\"$value\""
 	echo -n "$value," >> "$nix"
     done
