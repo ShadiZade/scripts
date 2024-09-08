@@ -62,7 +62,7 @@ function best-algo {
     attr_diff=()
     for j in $(xsv headers -j "$ix")
     do
-	if [[ "$(xsv search -s "$1" "^$2" "$3" | xsv select "$j" | sed 1d | sort | uniq | wc -l)" -gt 1 ]]
+	if [[ "$(xsv search -s "$1" "^$2" "$3" | xsv select "$j" | sed 1d | sort | uniq | sed '/^""$/d' | wc -l)" -gt 1 ]]
 	then
 	    attr_diff+=("$j")
 	fi
