@@ -198,11 +198,11 @@ function add-entry {
 	xsv select id "$ix" | grep -q "$identifier" || break
     done
     echo -n "$(basename "$1"),$identifier" >> "$nix"
-    xsv flatten "$nix" | sed 's/,/⸴/g' | csvlens --no-headers
     [[ "$(xsv select title "$nix" | sed 1d)" = '""' ]] && {
 	echolor red ":: Title can't be empty!"
 	return 1
     }
+    xsv flatten "$nix" | sed 's/,/⸴/g' | csvlens --no-headers
     echolor yellow ":: Continue? (Y/n) " 1
     read -r continue_p
     [[ "$continue_p" = "n" ]] && {

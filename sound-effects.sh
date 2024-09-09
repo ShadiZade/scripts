@@ -7,15 +7,15 @@ function get-from-catalogue {
 	| sed "s/^# $1//g;s/^ //g"
 }
 function a {
-    mpv --really-quiet --no-audio-display $(get-from-catalogue "$1") --volume="${2:-60}"
+    mpv --really-quiet --profile=fast --no-audio-display $(get-from-catalogue "$1") --volume="${2:-60}"
 }
 
 function a10 {
-    mpv --really-quiet --no-audio-display --loop=10 "$(get-from-catalogue "$1")"
+    mpv --really-quiet --profile=fast --no-audio-display --loop=10 "$(get-from-catalogue "$1")"
 }
 
 function ainf {
-    mpv --really-quiet --no-audio-display --loop=inf "$(get-from-catalogue "$1")"
+    mpv --really-quiet --profile=fast --no-audio-display --loop=inf "$(get-from-catalogue "$1")"
 }
 
 case "$1" in
