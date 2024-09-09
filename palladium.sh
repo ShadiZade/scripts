@@ -259,6 +259,23 @@ function show-info {
 function show-stats {
     total="$(xsv count "$ix")"
     echolor violet-orange ":: Found ““$total”” records."
+    [[ "$1" = "all" ]] || return
+    function get-totals {
+	xsv select "$1" "$ix" | sed 1d | sed '/^""$/d' | sort | uniq | wc -l
+    }
+    echolor pink-mintgreen ":: Titles \t““$(get-totals title)””"
+    echolor pink-mintgreen ":: Authors \t““$(get-totals author)””"
+    echolor pink-mintgreen ":: Years \t““$(get-totals first_pub)””"
+    echolor pink-mintgreen ":: Series \t““$(get-totals series)””"
+    echolor pink-mintgreen ":: Countries \t““$(get-totals country)””"
+    echolor pink-mintgreen ":: Languages \t““$(get-totals language)””"
+    echolor pink-mintgreen ":: Publishers \t““$(get-totals publisher)””"
+    echolor pink-mintgreen ":: Translators \t““$(get-totals transor)””"
+    echolor pink-mintgreen ":: Types\t““$(get-totals type)””"
+    for j in $(xsv select type "$ix" | sed 1d | sort | uniq)
+    do
+	echolor pink-mintgreen "   └──── $j  \t““$(xsv select type "$ix" | sed 1d | grep -c "^$j$")””"
+    done
 }
 
 function open-history {
@@ -313,7 +330,7 @@ case "$1" in
     "link") symlinker ;;
     "add") add-entry "$2" ;;
     "info") show-info ;;
-    "stats") show-stats ;;
+    "stats") show-stats all ;;
     "hist") open-history ;;
     "curr") open-from-file current ;;
     "done") open-from-file done ;;
