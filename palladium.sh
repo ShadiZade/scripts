@@ -220,6 +220,7 @@ function add-entry {
 	ln -s ~/Athenaeum/"$(basename "$1")" . && \
 	    echolor green ":: Symlink created."
     }
+    make-cover "$identifier"
     backup-index
     unset IFS
 }
@@ -323,6 +324,36 @@ function put-in {
     esac
 }
 
+function give-id {
+    [[ -z "$1" ]] && {
+	choose-book || return 1
+	[[ -z "$sld_fnm" ]] && return 1
+	xsv search -s filename "$(echo "$sld_fnm" | awk -F '/' '{print $NF}')" "$ix" \
+	    | xsv select id                     \
+	    | sed 1d
+	return 0
+    }
+    xsv search -s id "$1" "$ix" | xsv select filename | sed 1d
+}
+
+function make-cover {
+    # enter id as $1
+    IFS=$'\n'
+    [[ -z "$1" ]] && return 1
+    bfn="$(xsv search -s id "$1" "$ix" | xsv select filename | sed 1d)"
+    [[ -e "$loc/covers/$1.jxl" ]] && {
+	echolor red ":: cover ““$1.jxl”” for ““$bfn”” already exists!"
+	continue
+    }
+    echolor yellow ":: Making cover..."
+    pdftk "$loc/$bfn" cat 1 output /tmp/cover.pdf || {
+	echolor red ":: Failed to make cover!"
+	continue
+    }
+    magick /tmp/cover.pdf "$loc/covers/$1.jxl"
+}
+
+
 backup-index
 dup-check-in-index
 case "$1" in
@@ -335,6 +366,7 @@ case "$1" in
     "curr") open-from-file current ;;
     "done") open-from-file done ;;
     "put") put-in ;;
+    "id") give-id "$2" ;;
     "") open-book ;;
     *) echolor red ":: Unknown command." ;;
 esac
