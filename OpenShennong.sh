@@ -58,13 +58,13 @@ function list-project-files {
     case $runcase in
 	1) case "$1" in
 	       "year") ;;
-	       *) eza -l --icons --no-user --time-style=iso --sort=newest --color-scale all && exit ;;
+	       *) eza -lX --icons --no-user --time-style=iso --sort=newest --color-scale all && exit ;;
 	   esac
 	   ;;
-	2) eza -l --icons --no-user --time-style=iso --sort=newest --color-scale all && exit ;;
+	2) eza -lX --icons --no-user --time-style=iso --sort=newest --color-scale all && exit ;;
 # 	F) goto-project ;;
 	0) runcase-dealer only 0
-	   eza -l --icons --no-user --time-style=iso --sort=modified --color-scale all --color=always \
+	   eza -lX --icons --no-user --time-style=iso --sort=modified --color-scale all --color=always \
 	       --group-directories-first --no-quotes --no-permissions --git -I "*log|*aux|*toc|*conf|*blg|*bbl|set.sh" ;;
 	*) echo -e "\033[33:: list-project-files: Unknown runcase.\033[0m" && exit ;;
     esac
@@ -328,7 +328,7 @@ function count-all {
 	    && undwarning=" \t\033[34m<--- UNCOMMENTED\033[0m"
 	echo -e "$thispaper $undwarning" && ((unused++))
     done
-    allpapers=($(eza -1 ./papers | sed 's/\.pdf//g')) # reuse allpapers to list all pdfs
+    allpapers=($(eza -1X ./papers | sed 's/\.pdf//g')) # reuse allpapers to list all pdfs
     i=0
     unbibbed=0
     while [ "$i" -le "${#allpapers[@]}" ]; do
