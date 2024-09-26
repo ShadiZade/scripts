@@ -100,6 +100,7 @@ function choose-book {
     else
 	sld_fnm="$loc/$(xsv search -s title "^$sld_ttl$" "$ix" | xsv select filename | sed -n 2p)"
     fi
+    sld_id="$(switch-param filename id "$(echo "$sld_fnm" | awk -F '/' '{print $NF}')")"
 }
 
 function backup-index {
@@ -244,7 +245,8 @@ function open-book {
 }
 
 function show-info {
-    choose-book || return 1
+    [[ -n "$1" ]] && sld_fnm="$1"
+    [[ -z "$sld_fnm" ]] && return 1
     base_fnm="$(basename -- "$sld_fnm")"
     echolor blue "$(stat "$sld_fnm"; echo -n " MSize: ")" 1
     echolor purple "$(du -h "$sld_fnm" | awk '{print $1}')"
@@ -336,6 +338,14 @@ function give-id {
     xsv search -s id "$1" "$ix" | xsv select filename | sed 1d
 }
 
+function switch-param {
+    if [[ -z "$1" ]] || [[ -z "$2" ]] || [[ -z "$3" ]]
+    then
+	return 1
+    fi
+    xsv search -s "$1" "^$3$" "$ix" | xsv select "$2" | sed 1d
+}
+
 function make-cover {
     # enter id as $1
     IFS=$'\n'
@@ -353,6 +363,39 @@ function make-cover {
     magick /tmp/cover.pdf "$loc/covers/$1.jxl"
 }
 
+function add-to-stack {
+    stackdir="$HOME/.local/share/user-scripts/palladium/stacks"
+    choose-book || return 1
+    sld_id="$(switch-param filename id "$(echo "$sld_fnm" | awk -F '/' '{print $NF}')")"
+    sld_stack="$(fd 'csv$' "$stackdir" | awk -F '/' '{print $NF}' | sed 's/\.csv$//g' | fzf )"
+    grep -q "^$sld_id," "$stackdir/$sld_stack.csv" && {
+	echolor yellow-aquamarine ":: A book with ID ““$sld_id”” is already in stack ““$sld_stack””"
+	return 1
+    }
+    stacknote="/tmp/stacknote-$sld_stack-$sld_id-$(date-string).csv"
+    emacsclient -nw -a emacs "$stacknote"
+    [[ -z "$(cat "$stacknote")" ]] && echo "NO NOTE" >> "$stacknote"
+    echo "$sld_id,\"$sld_ttl\",\"$(cat "$stacknote" | perl -pe 's/\n/—–/g' | sed 's/—–*$//g')\"" >> "$stackdir/$sld_stack.csv"
+}
+
+function see-stack {
+    stackdir="$HOME/.local/share/user-scripts/palladium/stacks"
+    sld_stack="$(fd 'csv$' "$stackdir" | awk -F '/' '{print $NF}' | sed 's/\.csv$//g' | fzf )"
+    IFS=$'\n'
+    for j in $(cat "$stackdir/$sld_stack.csv")
+    do
+	echo -n "$j" | xsv select -n 1 | tr -d '\n'
+	echo -n ' // '
+	echo -n "$j" | xsv select -n 2
+    done | fzf
+
+    # | fzf --preview "source ~/Repositories/scripts/palladium.sh; whole_line="{}"; this_id=\"$(echo $this_id | awk -F ' // ' '{print $1}')\"; grep \"^$this_id\" \"$stackdir/$sld_stack.csv\" | xsv select 3 "
+    # | fzf --preview "source ~/Repositories/scripts/palladium.sh; this_id="{}"; show-info \"$(switch-param id filename \"$(echo $this_id | awk -F ' // ' '{print $1}')\")\""
+    unset IFS
+
+    # make this work somehow
+    # fzf preview loves to destroy itself
+}
 
 backup-index
 dup-check-in-index
@@ -360,13 +403,16 @@ case "$1" in
     "by") search-by ;;
     "link") symlinker ;;
     "add") add-entry "$2" ;;
-    "info") show-info ;;
+    "info") choose-book || return 1
+	    show-info ;;
     "stats") show-stats all ;;
     "hist") open-history ;;
     "curr") open-from-file current ;;
     "done") open-from-file done ;;
     "put") put-in ;;
     "id") give-id "$2" ;;
+#    "stack") add-to-stack ;;
+#    "sees") see-stack ;;
     "") open-book ;;
     *) echolor red ":: Unknown command." ;;
 esac
