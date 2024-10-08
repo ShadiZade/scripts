@@ -185,8 +185,8 @@ function update-reading-notes-file {
     runcase-dealer only 0
     for j in $(eza -1X "$(pwd)/papers")
     do
-	grep -q "^* ${j/.pdf/}$" reading-notes.org && continue
-	echo "* ${j/.pdf/}" >> reading-notes.org
+	grep -q "^* \[\[file:papers/$j\]" reading-notes.org && continue
+	echo "* [[file:papers/$j][${j/.pdf/}]]" >> reading-notes.org
 	echolor green-aquamarine ":: Added ““${j/.pdf/}”” to reading notes file!"
     done
     
