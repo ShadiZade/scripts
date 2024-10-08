@@ -28,7 +28,7 @@
 #   神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农
 #   神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农
 #
-
+source ~/Repositories/scripts/essential-functions.sh
 data_dir="$XDG_DATA_HOME/OpenShennong"
 local_registry="$data_dir/projects.csv"
 
@@ -178,8 +178,19 @@ function update-project-info-file {
 	    || echo -e "\033[32m:: Project info already up-to-date.\033[0m"
     # TODO: also add check for project name
     # TODO: add parameter in project.conf to indicate whether project is in local registry
+    update-reading-notes-file
 }
 
+function update-reading-notes-file {
+    runcase-dealer only 0
+    for j in $(eza -1X "$(pwd)/papers")
+    do
+	grep -q "^* ${j/.pdf/}$" reading-notes.org && continue
+	echo "* ${j/.pdf/}" >> reading-notes.org
+	echolor green-aquamarine ":: Added ““${j/.pdf/}”” to reading notes file!"
+    done
+    
+}
 
 function check-dependencies {
     dependencies=("texlive-xetex" "texlive-bibtexextra" "texlive-binextra" "eza" "fd" "zathura" "xsv" "bat" "pdfgrep")

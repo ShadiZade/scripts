@@ -141,4 +141,4 @@ wifi-connected-p
 
 zaytouna
 kassioun
-al-akhbar
+# al-akhbar
