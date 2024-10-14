@@ -285,7 +285,7 @@ function sfx {
 
 function clear-line {
     printf '\r'
-    for j in {1..148}
+    for j in {1..$(tput cols)}
     do
 	echo -n ' '
     done
@@ -298,7 +298,7 @@ function sane {
 }
 
 function wifi-connected-p {
-    case "$(nmcli device status | grep "^wlp4s0" | awk '{print $3}')" in
+    case "$(nmcli device status | grep "^wlp" | awk '{print $3}')" in
 	"connected") export wc_p=0 ;;
 	*) export wc_p=1 ;;
     esac	     
