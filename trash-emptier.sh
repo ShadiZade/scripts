@@ -7,7 +7,7 @@ log_dir="$HOME/.local/logs/trash"
 current_time="$(date-string)"
 trash_size="$(du -sh "$trash_dir" 2>/dev/null | awk '{print $1}')"
 emptying_log="$log_dir"/emptying/emptying-"$current_time.log"
-mem_before="$(df | grep sda1 | awk '{print $5}')"
+mem_before="$(df | grep ' /$' | awk '{print $5}')"
 
 function manifest-log {
     [[ -d "$log_dir" ]] || {
@@ -32,56 +32,77 @@ function manifest-log {
 function safety-checks {
     safe_check=0
     echolor green ":: Running safety checks..."
-    echolor green ":: ““[1/7]”” Trash directory definition is not empty... " 1
+    echolor green ":: ““[1/8]”” Trash directory definition is not empty... " 1
     [[ -z "$trash_dir" ]] && {
 	echolor red "[FAIL]"
     } || {
 	echolor white "[PASS]"
 	((safe_check++))
     }
-    echolor green ":: ““[2/7]”” Trash directory definition contains the word 'trash'... " 1
+    echolor green ":: ““[2/8]”” Trash directory definition contains the word 'trash'... " 1
     echo -n "$trash_dir" | grep -qi "trash" && {
 	echolor white "[PASS]"
 	((safe_check++))
     } || {
 	echolor red "[FAIL]"
     }
-    echolor green ":: ““[3/7]”” Trash directory exists... " 1
+    echolor green ":: ““[3/8]”” Trash directory exists... " 1
     [[ -d "$trash_dir" ]] && {
 	echolor white "[PASS]"
 	((safe_check++))
     } || {
 	echolor red "[FAIL]"
     }	
-    echolor green ":: ““[4/7]”” Trash manifest exists... " 1
+    echolor green ":: ““[4/8]”” Trash manifest exists... " 1
     [[ -e "$trash_manifest" ]] && {
 	echolor white "[PASS]"
 	((safe_check++))
     } || {
 	echolor red "[FAIL]"
     }
-    echolor green ":: ““[5/7]”” Trash manifest has been backed up... " 1
+    echolor green ":: ““[5/8]”” Trash manifest has been backed up... " 1
     [[ -e "$log_dir"/manifests/manifest-"$current_time" ]] && {
 	echolor white "[PASS]"
 	((safe_check++))
     } || {
 	echolor red "[FAIL]"
     }
-    echolor green ":: ““[6/7]”” Trash directory is not empty... " 1
+    echolor green ":: ““[6/8]”” Trash directory is not empty... " 1
     [[ "$(eza -1a "$trash_dir" 2>/dev/null | wc -l )" -gt 0 ]] && {
 	echolor white "[PASS]"
 	((safe_check++))
     } || {
 	echolor red "[FAIL]"
     }
-    echolor green ":: ““[7/7]”” Emptying log file exists... " 1
+    echolor green ":: ““[7/8]”” Emptying log file exists... " 1
     [[ -e "$log_dir/emptying/emptying-$current_time.log" ]] && {
 		echolor white "[PASS]"
 	((safe_check++))
     } || {
 	echolor red "[FAIL]"
     }
-    echolor green-purple ":: Safety score is ““${safe_check}”” out of 7"
+    echolor green ":: ““[8/8]”” File spot checks... " 1
+    spot_check_fail=0
+    if [[ -s "$log_dir"/manifests/manifest-"$current_time" ]]
+    then
+	IFS=$'\n'
+	for m in $(sed 10q "$log_dir"/manifests/manifest-"$current_time")
+	do
+	    fd -Hq "$(echo "$m" | awk -F '   ¼⅓   ' '{print $2}')" "$trash_dir" || {
+		spot_check_fail=1
+		echolor red "[FAIL]"
+		break
+	    }
+	done
+	[[ "$spot_check_fail" -eq 0 ]] && {
+	    echolor white "[PASS]"
+	    ((safe_check++))
+	}
+    else
+	echolor red "[FAIL]"
+    fi
+    unset IFS
+    echolor green-purple ":: Safety score is ““${safe_check}”” out of 8"
     export safe_check
 }
 
@@ -141,13 +162,13 @@ function empty-trash {
     echo -n > "$trash_manifest"
     echolor yellow ":: Trash manifest cleared."
     echolor yellow-white ":: Occupied memory before: ““$mem_before””"
-    echolor yellow-white ":: Occupied memory after:  ““$(df | grep sda1 | awk '{print $5}')””"
+    echolor yellow-white ":: Occupied memory after:  ““$(df | grep ' /$' | awk '{print $5}')””"
     unset IFS
 }
 
 manifest-log
 safety-checks
-[[ "$safe_check" -ne 7 ]] && {
+[[ "$safe_check" -ne 8 ]] && {
     echo "error 01 security check fail with score $safe_check" >> "$emptying_log" 
     echolor red ":: ERROR: Safety checks have failed. Exiting."
     exit
