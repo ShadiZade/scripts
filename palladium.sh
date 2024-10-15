@@ -414,5 +414,6 @@ case "$1" in
 #    "stack") add-to-stack ;;
 #    "sees") see-stack ;;
     "") open-book ;;
+    "cover") make-cover "$2" ;;
     *) echolor red ":: Unknown command." ;;
 esac
