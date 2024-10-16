@@ -125,7 +125,7 @@ function empty-trash {
     cd "$trash_dir"
     echolor yellow ":: Emptying trash..."
     IFS=$'\n'
-    for j in $(eza -1a --no-quotes "$trash_dir"); do
+    for j in $(eza -1aX --no-quotes "$trash_dir"); do
 	[[ -z "$j" ]] && {
 	    echo "fatal error 01 $j" >> "$emptying_log" 
 	    echolor red ":: FATAL ERROR: Script attempted to delete an nonexistent file"
