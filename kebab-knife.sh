@@ -1,10 +1,11 @@
 #!/bin/bash
 source ~/Repositories/scripts/essential-functions.sh
 
-[ -z "$1" ] \
-    && echo -e "\033[33m:: Please enter filename.\033[0m" \
-    && exit
-[ -e "$1" ] || {
+[[ -z "$1" ]] && {
+    echolor red ":: Please enter filename."
+    exit
+}
+[[ ! -e "$1" ]] && {
     echolor yellow ":: File does not exist."
     exit
 }
@@ -20,7 +21,7 @@ echo "$1" \
     # hyphen is sedded into an en-dash for convenience
     # this is reversed in the simple-reorder function
     
-init_kebab="$(echo "$(cat "$usdd/kebab")"$yt_url)"
+init_kebab="$(echo "$(kebab "$1")"$yt_url)"
 ext="$(echo .$(echo "$1" | awk -F '.' '{print $NF}'))"
 echo "$1" | grep -q "\." \
     || ext=""

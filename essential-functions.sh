@@ -74,8 +74,7 @@ function scramble-file-names {
 }
 
 function kebab {
-    input_phrase="$@"
-    echo -e "$input_phrase" \
+    echo -e "$@" \
 	| iconv -c -f utf8 -t ascii//TRANSLIT \
 	| perl -pe 's|&.*?;||g' \
 	| tr -d '"’“”!?*=$:;#@^~()[]{}<>\t\\' \
@@ -83,18 +82,7 @@ function kebab {
 	| tr -d "'" \
 	| tr '_ .|/+,\n–—' '-' \
 	| tr '[A-Z]' '[a-z]' \
-	| sed 's/--*/-/g;s/-$//g;s/^-//g'  \
-	      > "$usdd/kebab"
-}
-
-function output-kebabized-string {
-    kebab "$@"
-    cat "$usdd/kebab"
-}
-
-function copy-kebabized-string {
-    output-kebabized-string "$@"
-    cat "$usdd/kebab" | xclip -selection clipboard
+	| sed 's/--*/-/g;s/-$//g;s/^-//g'
 }
 
 function basic-commit {

@@ -71,7 +71,7 @@ function english-kebab {
     ext_alone="$(echo "$ext_alone" | sed 's/jpeg/jpg/;s/jpg_large/jpg/;s/JPG/jpg/;s/PNG/png/;s/JPEG/jpg/')"
     [ -z "$yt_url" ] \
 	|| name_alone="$(echo "$name_alone" | sed "s/$yt_url//")"
-    name_kebab="$(~/Repositories/scripts/kebabization.sh "$name_alone"; cat "$usdd/kebab")"
+    name_kebab="$(kebab "$name_alone")"
     [ -z "$yt_url" ] \
 	|| yt_url="$(echo "-[$yt_url]")"
     name_final="$(echo $name_kebab$yt_url.$ext_alone)"
@@ -125,3 +125,5 @@ function detect-file {
 detect-file "$1"
 detect-language "$1"
 english-kebab "$1"
+
+# TODO optimize this horrendous piece of shit script
