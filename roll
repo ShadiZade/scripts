@@ -1,0 +1,108 @@
+#!/bin/bash
+source ~/Repositories/scripts/essential-functions.sh
+log="$HOME/.local/logs/roll/roll-$(date-string ymd)"
+
+function x-url {
+    echo "$1" | grep -q '\]\.' || {
+	v_url=''
+	return 1
+    }
+    echo "$1" | grep -q '\['   || {
+	v_url=''
+	return 1
+    }
+    v_url="$(echo "$1" | awk -F '[' '{print $NF}' | awk -F '].' '{print $1}')"
+}
+
+function x-ext {
+    [[ -d "$1" ]] && {
+	v_ext=''
+	return 1
+    }
+    echo "$1" | grep -q '\.' || {
+	v_ext=''
+	return 1
+    }
+    v_ext=".${1##*.}"
+}
+
+function x-stump {
+    v_stump="$1"
+    [[ ! -z "$v_ext" ]] && v_stump="${v_stump%%$v_ext}"
+    [[ ! -z "$v_url" ]] && {
+	v_stump="$(echo "$v_stump" | sed "s/\[${v_url/\//\\\/}]//")"
+	v_url="-[$v_url]"
+    }
+}
+
+function segment {
+    x-url "$1"
+    x-ext "$1"
+    x-stump "$1"
+}
+
+function d-lang {
+    wifi-connected-p
+    [[ "$wc_p" -eq 1 ]] && return 1
+    if ! cmp -s <(echo "$1") <(echo "$1" | iconv -c -f utf8 -t ascii//TRANSLIT)
+    then
+	if echo "$1" | grep -qP '\P{ASCII}'
+	   # \P in pcresyntax(3) manual
+	   # https://perldoc.perl.org/perlrecharclass#Unicode-Properties
+	then
+	    return 0
+	else
+	    return 1
+       fi
+    else
+	return 1
+    fi    
+}
+
+function prepare {
+    [[ ! -e "$1" ]] && {
+	echolor red ":: No such file as ““$1”” exists."
+	return 1
+    }
+    original_full="$(realpath "$1")"
+    original_dir="$(realpath "$(dirname "$1")")"
+    original="$(basename "$1")"
+    segment "$original"
+#    echo "$v_stump /// $v_url /// $v_ext"
+    d-lang "$v_stump" && {
+	echolor blue-aquamarine ":: Translating ““$v_stump””"
+	v_stump="$(trans -identify -b -e google "$v_stump") "
+	echolor blue-orange ":: To ““$v_stump””\n:: Alternative? > " 1
+	echo -ne "\033[38;5;208m"
+	trans_alt=''
+	read -r trans_alt
+	echo -ne "\033[0m"
+	[[ ! -z "$trans_alt" ]] && v_stump="$trans_alt "
+    }
+    v_stump="$(kebab "$v_stump")"
+    final="$v_stump$v_url$v_ext"
+    cmp -s <(echo "$original") <(echo "$final") && {
+	echolor ashy ":: No difference, skipping"
+	return 1
+    }
+    echolor blue-aquamarine ":: Moving ““$original””"
+    echolor blue-orange     ":: To ““$final””"
+    echolor blue            ":: Do it? (Y/n) > " 1
+    echo -ne "\033[38;5;208m"
+    continue_p=''
+    read -r continue_p
+    echo -ne "\033[0m"
+    [[ "${continue_p:-y}" != "y" ]] && return 1
+    echo -ne "\033[38;5;208m:: "
+    mv -vn "$original_full" "$original_dir/$final" && echo "$original_full --> $original_dir/$final" >> "$log"
+    echo -ne "\033[0m"
+}
+
+echolor blue-orange ":: Rolling ““${#@}”” files"
+i=1
+for j in "${@}"
+do    
+    echolor blue-orange ">““>””>““>””>““>””>““>””>““>””>““>””>““>”” (““$(printf '%.3d' "$i")””/$(printf '%.3d' "${#@}"))"
+    prepare "$j"
+    ((i++))
+done
