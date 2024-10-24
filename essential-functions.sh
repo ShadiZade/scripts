@@ -272,13 +272,7 @@ function sfx {
 }
 
 function clear-line {
-    printf '\r'
-    for j in {1..$(tput cols)}
-    do
-	echo -n ' '
-    done
-    printf '\r'
-    
+    printf '\r\033[K'
 }
 
 function sane {
