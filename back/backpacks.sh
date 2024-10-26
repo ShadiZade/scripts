@@ -24,7 +24,7 @@ echolor yellow "$(basic-commit ~/Misc/Backups/logs/)" \
     && echolor blue "\t\t → Done!"
 
 echolor yellow ":: Backing user script data..."
-rsync -qaru ~/.local/share/user-scripts/* ~/Misc/Backups/user-script-data/
+rsync -qarul ~/.local/share/user-scripts/* ~/Misc/Backups/user-script-data/
 echolor yellow "$(basic-commit ~/Misc/Backups/user-script-data/)" \
     && echolor blue "\t\t → Done!"
 

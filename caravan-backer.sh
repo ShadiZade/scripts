@@ -36,5 +36,13 @@ do
     orig="$HOME/$(echo "$j" | xsv select -n 1)"
     dest="$(echo "$j" | xsv select -n 2)"
     echolor orange-purple ":: From ““$orig”” to ““$dest””"
+    [[ "$orig" = "$HOME/" ]] && {
+	echolor red ":: Origin (““$orig””) is incorrect!"
+	exit 1
+    }
+    [[ ! -e "$dest" ]] && {
+	echolor red ":: Destination (““$dest””) is incorrect!"
+	exit 1
+    }
     sudo rsync -PparulXv --delete --log-file="$logfile" "$orig"/* "$dest"
 done
