@@ -88,7 +88,8 @@ function safety-checks {
 	IFS=$'\n'
 	for m in $(sed 10q "$log_dir"/manifests/manifest-"$current_time")
 	do
-	    fd -Hq "$(echo "$m" | awk -F '   ¼⅓   ' '{print $2}')" "$trash_dir" || {
+	    fd -FHq -- "$(echo "$m" | awk -F '   ¼⅓   ' '{print $2}')" "$trash_dir" || {
+		echo "test 8 failed to find $(echo "$m" | awk -F '   ¼⅓   ' '{print $2}')" >> "$emptying_log"
 		spot_check_fail=1
 		echolor red "[FAIL]"
 		break
