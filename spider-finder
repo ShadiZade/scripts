@@ -3,7 +3,7 @@ source ~/Repositories/scripts/essential-functions.sh
 source ~/Repositories/private/private-aliases.sh
 
 wscfile="$(fd -- spider-catalog $HOME/Study/academia/wsc | sort -Vr | sed 1q)"
-lsid="$(xsv select 2,3,4,5,7,8 $wscfile | sed 1d | fzf | xsv select 1)"
+lsid="$(xsv select 2,3,4,5,7,8 $wscfile | sed 1d | fzf | ifne xsv select 1)"
 [[ -z "$lsid" ]] && exit 1
 xdg-open "https://wsc.nmbe.ch/lsid/${lsid}?apiKey=$wscapikey" > /dev/null 
 # xdg-open "https://wsc.nmbe.ch/api/lsid/${lsid}?apiKey=$wscapikey"
