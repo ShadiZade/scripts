@@ -1,5 +1,9 @@
 #!/bin/zsh
 source ~/Repositories/scripts/essential-functions.sh
+wifi-connected-p
+[[ "$wc_p" -eq 1 ]] && {
+    exit 1
+}
 
 spiderdir="$HOME/Study/academia/wsc"
 oldspider="${${${$(fd -S +1b -- spider-catalog "$spiderdir" | sort -Vr | sed 1q)##*-}%.*}:-19700101}"
@@ -41,7 +45,7 @@ clear-line
 echolor blue ":: ✓  Updated ““World Spider Catalog””: " 1
 echolor red "$oldspider ““→”” " 1
 echolor green "$newspider"
-[[ "$(fd -- spider-catalog "$spiderdir" | wc -l)" -gt 9 ]] && {
+[[ "$(fd -- spider-catalog "$spiderdir" | wc -l)" -gt 19 ]] && {
     echolor beige-blue ":: There are too many versions of the WSC in ““$spiderdir””. Please clean."
 }
 [[ "$oldspider" = "19700101" ]] && exit 0
