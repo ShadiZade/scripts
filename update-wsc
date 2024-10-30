@@ -1,0 +1,64 @@
+#!/bin/zsh
+source ~/Repositories/scripts/essential-functions.sh
+
+spiderdir="$HOME/Study/academia/wsc"
+oldspider="${${${$(fd -S +1b -- spider-catalog "$spiderdir" | sort -Vr | sed 1q)##*-}%.*}:-19700101}"
+newspider="$(date +"%Y%m%d")"
+echolor blue  ":: ❯❯ Updating ““World Spider Catalog”” now. " 1
+echolor red "$oldspider ““→”” " 1
+wget --quiet --spider "https://wsc.nmbe.ch/resources/species_export_$newspider.csv" || {
+    i=1
+    while true
+    do
+	newspider="$(date -d "$i days ago" +"%Y%m%d")"
+	wget --quiet --spider "https://wsc.nmbe.ch/resources/species_export_$newspider.csv" && break
+	((i++))
+	[[ "$i" -gt 5 ]] && {
+	    echolor red ":: ““World Spider Catalog”” update failed: link not found."
+	    exit 1
+	}
+    done
+}
+
+[[ -z "$newspider" || -z "$oldspider" || ! -e "$spiderdir" ]] && {
+    clear-line
+    echolor red ":: ““World Spider Catalog”” update failed: incorrect values."
+    exit 1
+}
+[[ "$oldspider" = "$newspider" ]] && {
+    clear-line
+    echolor green-white ":: ✓  ““World Spider Catalog”” is up to date. Current edition: ““$oldspider””"
+    exit 0
+}
+echolor green "$newspider" 1
+wget --no-use-server-timestamps -O "$spiderdir/spider-catalog-$newspider.csv" -nc -q -t 0 -- \
+     "https://wsc.nmbe.ch/resources/species_export_$newspider.csv"
+clear-line
+[[ ! -s "$spiderdir/spider-catalog-$newspider.csv" ]] && {
+    echolor red ":: ““World Spider Catalog”” update failed: file does not exist."
+    exit 1
+}	
+echolor blue ":: ✓  Updated ““World Spider Catalog””: " 1
+echolor red "$oldspider ““→”” " 1
+echolor green "$newspider"
+[[ "$(fd -- spider-catalog "$spiderdir" | wc -l)" -gt 9 ]] && {
+    echolor beige-blue ":: There are too many versions of the WSC in ““$spiderdir””. Please clean."
+}
+[[ "$oldspider" = "19700101" ]] && exit 0
+diff -w \
+     --unchanged-line-format='' \
+     --old-line-format='\033[34mSTRUCK:\033[31m %L' \
+     --new-line-format='\033[34mJOINED:\033[32m %L' \
+     <(xsv select 4,5,7 "$spiderdir/spider-catalog-$oldspider.csv" | sort | uniq) \
+     <(xsv select 4,5,7 "$spiderdir/spider-catalog-$newspider.csv" | sort | uniq) \
+    | awk -F ',' '{print($1" "$2" ("$3") ")}' \
+    | tr -d '"' \
+	  > "$spiderdir/diffs/spider-diff-$newspider-$oldspider"
+spideretc='\033\[0m'
+[[ "$(cat "$spiderdir/diffs/spider-diff-$newspider-$oldspider" | wc -l)" -eq 0 ]] && {
+    spideretc="\\n\033[37m —————— no changes.\033[0m"    
+}
+[[ "$(cat "$spiderdir/diffs/spider-diff-$newspider-$oldspider" | wc -l)" -gt 10 ]] && {
+    spideretc="\\n\033[37m —————— and $(cat "$spiderdir/diffs/spider-diff-$newspider-$oldspider" | tail -n +11 | wc -l) other changes.\033[0m"
+}
+echo -e "$(cat "$spiderdir/diffs/spider-diff-$newspider-$oldspider" | sed 10q)$spideretc"
