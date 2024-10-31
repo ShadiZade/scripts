@@ -124,7 +124,7 @@ function list-cutter {
 
 function move-to-trash {
     trashdir="$HOME/.local/share/Trash"
-    fd -q "^$1$" "$trashdir"/files && {
+    fd -Fq "^$1$" "$trashdir"/files && {
 	postdelname="$1-$(date +"%Y_%m_%d_%H_%M_%S")"
 	command mv -n -- "$1" "$trashdir"/files/"$postdelname" \
 	    || {

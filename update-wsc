@@ -60,7 +60,7 @@ diff -w \
 	  > "$spiderdir/diffs/spider-diff-$newspider-$oldspider"
 spideretc='\033\[0m'
 [[ "$(cat "$spiderdir/diffs/spider-diff-$newspider-$oldspider" | wc -l)" -eq 0 ]] && {
-    spideretc="\\n\033[37m —————— no changes.\033[0m"    
+    spideretc="\033[37m —————— no changes.\033[0m"    
 }
 [[ "$(cat "$spiderdir/diffs/spider-diff-$newspider-$oldspider" | wc -l)" -gt 10 ]] && {
     spideretc="\\n\033[37m —————— and $(cat "$spiderdir/diffs/spider-diff-$newspider-$oldspider" | tail -n +11 | wc -l) other changes.\033[0m"
