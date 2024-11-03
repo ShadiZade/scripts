@@ -58,7 +58,7 @@ diff -w \
     | awk -F ',' '{print($1" "$2" ("$3") ")}' \
     | tr -d '"' \
 	  > "$spiderdir/diffs/spider-diff-$newspider-$oldspider"
-spideretc='\033\[0m'
+spideretc='\033[0m'
 [[ "$(cat "$spiderdir/diffs/spider-diff-$newspider-$oldspider" | wc -l)" -eq 0 ]] && {
     spideretc="\033[37m —————— no changes.\033[0m"    
 }
