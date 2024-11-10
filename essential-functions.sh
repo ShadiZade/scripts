@@ -255,12 +255,13 @@ function exchange-names {
 }
 
 function battery-warner {
-    batterypercent="$(upower -i /org/freedesktop/UPower/devices/battery_BAT1 | grep percentage | awk '{print $2}' | tr -d '% ')"
-    [[ "$batterypercent" -gt 25 ]] \
-	&& batterystatus="0" || {
-	    batterystate="$(upower -i /org/freedesktop/UPower/devices/battery_BAT1 | grep state | awk '{print $2}' | tr -d ' ')"
-	    [[ "$batterystate" = "discharging" ]] && batterystatus="1" || batterystatus="0"
-	}
+    batterypercent="$(acpi -b | grep 'Battery 1' | awk -F ',' '{print $2}' | tr -d '% ')"
+    [[ "$batterypercent" -gt 25 ]] && {
+	batterystatus="0"
+    } || {
+	adapterstatus="$(acpi -a | awk '{print $NF}')"
+	[[ "$adapterstatus" = "off-line" ]] && batterystatus="1" || batterystatus="0"
+    }
 }
 
 function warning-bloops {

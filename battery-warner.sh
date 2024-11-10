@@ -9,7 +9,8 @@ do
 	source ~/Repositories/dotfiles/zsh/variables
 	[[ "$battery_warning_on" -eq 0 ]] && continue
 	killall dunst
-	notify-send -u critical -t 4000 "BATTERY WARNING" "${batterypercent}%"
+	remaining="$(acpi -b | sed -n 2p | awk -F ', ' '{print $NF}')"
+	notify-send -u critical -t 4000 "BATTERY WARNING" "${batterypercent}%\n$remaining"
 	quodlibet --pause
 	if [[ "$batterypercent" -gt 10 ]]
 	then
