@@ -2,43 +2,23 @@
 source ~/Repositories/scripts/essential-functions.sh
 cd "$HOME"/.local/share/user-scripts/sounds
 function get-from-catalogue {
-    cat ~/Repositories/scripts/sound-effects.sh \
-	| grep "^# $1" \
-	| sed "s/^# $1//g;s/^ //g"
-}
-function a {
-    mpv --really-quiet --profile=fast --no-audio-display $(get-from-catalogue "$1") --volume="${2:-60}"
+    cat "$HOME"/.local/share/user-scripts/sound-catalogue \
+	| grep -m 1 -- "^$1," \
+	| awk -F ',' '{print $2}'
 }
 
-function a10 {
-    mpv --really-quiet --profile=fast --no-audio-display --loop=10 "$(get-from-catalogue "$1")"
+function play {
+    mpv --really-quiet --profile=fast --no-audio-display $(get-from-catalogue "$1") --volume="${2:-80}" --loop="${3:-0}"
 }
-
-function ainf {
-    mpv --really-quiet --profile=fast --no-audio-display --loop=inf "$(get-from-catalogue "$1")"
-}
-
 case "$1" in
-    "ten-bloops") a10 001 ;;
-    "glass-hit") ainf 002 ;;
-    "bruh") a 003 ;;
-    "jumpy-laser") a 007 40;;
-    "d2a-d2i") a 008 70;;
-    "done") a 009;;
-    "too-low") a 010 80;;
-    *) a 002 ;;
+    "ten-bloops") play sound-001 150 10 ;;
+    "glass-hit") play sound-002 '' inf ;;
+    "bruh") play sound-003 ;;
+    "jumpy-laser") play sound-007;;
+    "d2a-d2i") play sound-008;;
+    "done") play sound-009;;
+    "too-low") play sound-010 110;;
+    "adapter-removed") play sound-011 100 2 ;;
+    "adapter-connect") play sound-012 100 ;;
+    *) play sound-002 ;;
 esac
-
-# SOUND CATALOGUE
-# 001 bloops.oga
-# 002 glass-hit.wav
-# 003 bruh.mp3
-# 004 jalastram-jump.wav
-# 005 owlstorm-retro-laser.wav
-# 006 julien-laser.wav
-# 007 jalastram-jump.wav owlstorm-retro-laser.wav julien-laser.wav
-# 008 d2a-d2i.mp3
-# 009 angelic-ding.wav
-# 010 too-low.mp3
-
-### TODO system check for [[ -e ]] sound catalogue files

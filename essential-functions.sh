@@ -254,14 +254,9 @@ function exchange-names {
     echolor yellow ":: Files ““$name1”” and ““$name2”” have successfully exchanged names."
 }
 
-function battery-warner {
+function battery-low-detect {
     batterypercent="$(acpi -b | grep 'Battery 1' | awk -F ',' '{print $2}' | tr -d '% ')"
-    [[ "$batterypercent" -gt 25 ]] && {
-	batterystatus="0"
-    } || {
-	adapterstatus="$(acpi -a | awk '{print $NF}')"
-	[[ "$adapterstatus" = "off-line" ]] && batterystatus="1" || batterystatus="0"
-    }
+    [[ "$batterypercent" -gt 25 ]] && batterylow="0" ||	batterylow="1"
 }
 
 function warning-bloops {
