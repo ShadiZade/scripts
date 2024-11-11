@@ -1,7 +1,7 @@
 #!/bin/bash
 case $(qdbus "org.fcitx.Fcitx5" "/controller" "org.fcitx.Fcitx.Controller1.CurrentInputMethod") in 
-    keyboard-us) echo "en" ;;
-    keyboard-ara) echo "ar" ;;
-    keyboard-ru) echo "ru" ;;
-    pinyin) echo "zh" ;;
+    keyboard-us) echo "eng" ;;
+    keyboard-ara) echo "ضـاد" | fribidi | awk '{gsub(/^\s+|\s+$/,"")} {print $0}';;
+    keyboard-pt) echo "ção" ;;
+    pinyin) echo "汉语" ;;
 esac
