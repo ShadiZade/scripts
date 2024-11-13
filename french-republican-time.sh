@@ -1,7 +1,7 @@
 #!/bin/bash
 source ~/Repositories/scripts/essential-functions.sh
 
-rural="$HOME/Repositories/scripts/src/rural-cal"
+rural="$HOME/.local/share/user-scripts/rural-cal"
 command -v repcal >/dev/null || {
     echo -n
     exit
