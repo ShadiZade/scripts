@@ -60,8 +60,8 @@ function prepare {
 	echolor red ":: No such file as ““$1”” exists."
 	return 1
     }
-    original_full="$(realpath "$1")"
-    original_dir="$(realpath "$(dirname "$1")")"
+    original_full="$(realpath -s "$1")"
+    original_dir="$(realpath -s "$(dirname "$1")")"
     original="$(basename "$1")"
     x-url "$original"
     x-ext "$original"

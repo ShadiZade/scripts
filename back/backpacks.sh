@@ -28,6 +28,11 @@ rsync -qarul ~/.local/share/user-scripts/* ~/Misc/Backups/user-script-data/
 echolor yellow "$(basic-commit ~/Misc/Backups/user-script-data/)" \
     && echolor blue "\t\t → Done!"
 
+echolor yellow ":: Backing user bins..."
+rsync -qaruL ~/.local/bin/* ~/Misc/Backups/local-bins/
+echolor yellow "$(basic-commit ~/Misc/Backups/local-bins/)" \
+    && echolor blue "\t\t → Done!"
+
 echolor yellow ":: Backing Buku bookmarks..."
 rsync -qaru ~/.local/share/buku/bookmarks.db ~/Misc/Backups/bookmarks/buku
 echolor yellow "$(basic-commit ~/Misc/Backups/bookmarks/buku/)" \

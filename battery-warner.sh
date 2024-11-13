@@ -22,11 +22,22 @@ do
 	remaining="$(acpi -b | sed -n 2p | awk -F ', ' '{print $NF}')"
 	notify-send -u critical -t 4000 "BATTERY WARNING" "${batterypercent}%\n$remaining"
 	quodlibet --pause
-	if [[ "$batterypercent" -gt 10 ]]
-	then
-	    sfx ten-bloops
-	else
+
+	[[ "$batterypercent" -eq 25 ]] && {
+	    sfx dont-sink
+	    continue
+	}
+	[[ "$batterypercent" -gt 19 ]] && {
+	    sfx terrain
+	    continue
+	}
+	[[ "$batterypercent" -gt 9 ]] && {
 	    sfx too-low
-	fi
+	    continue
+	}
+	[[ "$batterypercent" -ge 0 ]] && {
+	    sfx pull-up
+	    continue
+	}
     }
 done

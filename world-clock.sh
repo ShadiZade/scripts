@@ -1,11 +1,6 @@
 #!/bin/bash
 source ~/Repositories/scripts/essential-functions.sh
 
-lon_time="$(TZ='Europe/London' date +'%H:%M on %A')"
-jo_time="$(TZ='Asia/Amman' date +'%H:%M on %A')"
-my_time="$(date +'%H:%M on %A')"
-nz_time="$(TZ='NZ' date +'%H:%M on %A')"
-
 prev_day="$(TZ='Pacific/Honolulu' date +'%d')"
 
 function timein {
@@ -27,6 +22,7 @@ function timein {
 	
     prev_day="$day"
 }
+
 echolor yellow "======================================"
 timein "Honolulu" "Pacific/Honolulu"
 timein "Los Angeles" "America/Los_Angeles"
