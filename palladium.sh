@@ -168,7 +168,7 @@ function add-entry {
 	echolor red ":: This file does not exist."
 	return 1
     }
-    [[ -e "$loc/$1" ]] && {
+    [[ -e "$loc/$(basename "$1")" ]] && {
 	echolor red ":: This file already exists in index."
 	return 1
     }
