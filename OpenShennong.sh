@@ -28,7 +28,7 @@
 #   神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农
 #   神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农
 #
-source ~/Repositories/scripts/essential-functions.sh
+source ~/Repositories/scripts/essential-functions
 data_dir="$XDG_DATA_HOME/OpenShennong"
 local_registry="$data_dir/projects.csv"
 

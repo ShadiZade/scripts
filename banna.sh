@@ -1,5 +1,5 @@
 #!/bin/bash
-source ~/Repositories/scripts/essential-functions.sh
+source ~/Repositories/scripts/essential-functions
 dir="$HOME/Misc/diary"
 today="$(date +%Y-%m-%d)"
 

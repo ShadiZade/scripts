@@ -1,5 +1,5 @@
 #!/bin/bash
-source ~/Repositories/scripts/essential-functions.sh
+source ~/Repositories/scripts/essential-functions
 
 rural="$HOME/.local/share/user-scripts/rural-cal"
 command -v repcal >/dev/null || {

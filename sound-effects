@@ -1,5 +1,5 @@
 #!/bin/bash
-source ~/Repositories/scripts/essential-functions.sh
+source ~/Repositories/scripts/essential-functions
 cd "$HOME"/.local/share/user-scripts/sounds || exit 1
 function catalogue {
     grep -m 1 -- "^$1," "$HOME"/.local/share/user-scripts/sfx-catalogue.csv   \

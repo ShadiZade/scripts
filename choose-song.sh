@@ -1,5 +1,5 @@
 #!/bin/bash
-source ~/Repositories/scripts/essential-functions.sh
+source ~/Repositories/scripts/essential-functions
 
 music_category=$(ls -1 ~/Misc/Backups/my-music/titles | sed 's|-titles.txt||g' | rofi -dmenu -i -p "choose category")
 [ -z "$music_category" ] && exit

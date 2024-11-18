@@ -1,5 +1,5 @@
 #!/bin/bash
-source ~/Repositories/scripts/essential-functions.sh
+source ~/Repositories/scripts/essential-functions
 
 hijri_raw="$(curl -s http://api.aladhan.com/v1/gToH/$(date +%d-%m-%Y) | sed 's/[{,]/\n/g')"
 echo -e "$hijri_raw" | grep -q "API limit exceeded" && notify-send -t 3000 "API rate limit exceeded" "try again later." && exit

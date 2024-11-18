@@ -1,5 +1,5 @@
 #!/bin/bash
-source ~/Repositories/scripts/essential-functions.sh
+source ~/Repositories/scripts/essential-functions
 
 # the user sets the $obpxd variable in the above file to decide their reading goal
 div="$(calc "$obpxd * 24")" 

@@ -1,5 +1,5 @@
 #!/bin/bash
-source ~/Repositories/scripts/essential-functions.sh
+source ~/Repositories/scripts/essential-functions
 
 function tagger {
     ~/Repositories/scripts/tagger.sh "$1" "$2"

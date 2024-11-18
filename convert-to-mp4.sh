@@ -1,5 +1,5 @@
 #!/bin/bash
-source ~/Repositories/scripts/essential-functions.sh
+source ~/Repositories/scripts/essential-functions
 
 working="$1"
 [ -z "$working" ] && echo -e "\033[31m:: Missing argument!\033[0m" && return

@@ -1,5 +1,5 @@
 #!/bin/bash
-source ~/Repositories/scripts/essential-functions.sh
+source ~/Repositories/scripts/essential-functions
 
 trash_dir="$HOME/.local/share/Trash/files"
 trash_manifest="$HOME/.local/share/Trash/deletetimes"

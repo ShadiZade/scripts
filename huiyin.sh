@@ -1,5 +1,5 @@
 #!/bin/bash
-source ~/Repositories/scripts/essential-functions.sh
+source ~/Repositories/scripts/essential-functions
 # generates current-theme in $usdd and symlinks program theme files
 
 dir="$HOME/Repositories/dotfiles/themes"

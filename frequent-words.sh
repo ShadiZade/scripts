@@ -1,5 +1,5 @@
 #!/bin/bash
-source ~/Repositories/scripts/essential-functions.sh
+source ~/Repositories/scripts/essential-functions
 [[ -z "$usdd" ]] && return 1
 fwf="$usdd/frequent-words"
 [[ ! -e "$fwf" ]] && return 1

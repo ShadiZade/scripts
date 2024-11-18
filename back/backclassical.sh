@@ -1,5 +1,5 @@
 #!/bin/bash
-source ~/Repositories/scripts/essential-functions.sh
+source ~/Repositories/scripts/essential-functions
 
 cd ~/Misc/Backups/my-music/classical > /dev/null \
     || exit

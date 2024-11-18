@@ -1,5 +1,5 @@
 #!/bin/bash 
-source ~/Repositories/scripts/essential-functions.sh
+source ~/Repositories/scripts/essential-functions
 
 ~/Repositories/scripts/donefiler.sh
 eza -1 ~/Films > ~/Misc/Backups/video/movies.txt

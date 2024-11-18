@@ -1,5 +1,5 @@
 #!/bin/bash
-source ~/Repositories/scripts/essential-functions.sh 
+source ~/Repositories/scripts/essential-functions 
 
 current_file="$usdd/gap-current-projects"
 reserve_file="$usdd/gap-reserve-projects"

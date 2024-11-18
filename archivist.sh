@@ -1,5 +1,5 @@
 #!/bin/bash
-source ~/Repositories/scripts/essential-functions.sh
+source ~/Repositories/scripts/essential-functions
 
 arcv_dir="$HOME/Archives"
 vid_type=(mp4 webm ogv wmv mkv flv gifv avi mpg m4v)

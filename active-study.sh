@@ -1,5 +1,5 @@
 #!/bin/bash
-source ~/Repositories/scripts/essential-functions.sh 
+source ~/Repositories/scripts/essential-functions 
 
 current_file="$usdd/zas-current-study"
 reserve_file="$usdd/zas-reserve-study"

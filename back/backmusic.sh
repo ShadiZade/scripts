@@ -1,5 +1,5 @@
 #!/bin/bash
-source ~/Repositories/scripts/essential-functions.sh
+source ~/Repositories/scripts/essential-functions
 
 music_folders=($(eza -1D ~/Music | sed '/classical/d'))
 echolor yellow ":: Detected ${#music_folders[@]} folders\n"

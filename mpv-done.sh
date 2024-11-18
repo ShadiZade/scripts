@@ -1,5 +1,5 @@
 #!/bin/bash
-source ~/Repositories/scripts/essential-functions.sh
+source ~/Repositories/scripts/essential-functions
 
 [[ -z "$1" ]] && {
     ep="$(eza --no-quotes -1fX --show-symlinks | sed '/^$/d' | sort | grep -Ev 'srt$|vtt$|part$' | fzf)"

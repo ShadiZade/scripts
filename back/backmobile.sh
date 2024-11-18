@@ -1,5 +1,5 @@
 #!/bin/bash
-source ~/Repositories/scripts/essential-functions.sh 
+source ~/Repositories/scripts/essential-functions 
 
 mobiledir="$HOME/.local/mobile/Internal shared storage"
 mobilecache="$HOME/.local/share/user-scripts/"

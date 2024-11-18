@@ -1,5 +1,5 @@
 #!/bin/bash
-source ~/Repositories/scripts/essential-functions.sh
+source ~/Repositories/scripts/essential-functions
 # fuck you, WebP. I can't believe they killed JPEG XL for your sake.
 
 while getopts 'i:o:' OPTION; do

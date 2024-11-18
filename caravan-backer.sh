@@ -1,5 +1,5 @@
 #!/bin/bash
-source $HOME/Repositories/scripts/essential-functions.sh
+source $HOME/Repositories/scripts/essential-functions
 
 echolor purple "::::::::    CARAVAN•••BACKER   :::::::::"
 echolor purple "::::::::" 1

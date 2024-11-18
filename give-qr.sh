@@ -1,5 +1,5 @@
 #!/bin/bash
-source ~/Repositories/scripts/essential-functions.sh
+source ~/Repositories/scripts/essential-functions
 url="$(rofi -dmenu -p 'Enter URL')"
 [[ -z "$url" ]] && exit
 filen="$(random-string).jpg"

@@ -1,5 +1,5 @@
 #!/bin/zsh
-source ~/Repositories/scripts/essential-functions.sh
+source ~/Repositories/scripts/essential-functions
 wifi-connected-p
 [[ "$wc_p" -eq 1 ]] && {
     exit 1

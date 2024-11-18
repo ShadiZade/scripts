@@ -1,5 +1,5 @@
 #!/bin/zsh
-source ~/Repositories/scripts/essential-functions.sh 
+source ~/Repositories/scripts/essential-functions 
 
 IFS=$'\n'
 donemovies=($(fd donefile ~/Films | awk -F '/' '{print $5}' | sed 's/\n/ /g'))
