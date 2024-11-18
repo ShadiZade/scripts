@@ -5,7 +5,7 @@ wifi-connected-p
     exit 1
 }
 
-spiderdir="$HOME/Study/academia/wsc"
+spiderdir="$HOME/Data/world-spider-catalog"
 oldspider="${${${$(fd -S +1b -- spider-catalog "$spiderdir" | sort -Vr | sed 1q)##*-}%.*}:-19700101}"
 newspider="$(date +"%Y%m%d")"
 echolor blue  ":: ❯❯ Updating ““World Spider Catalog”” now. " 1

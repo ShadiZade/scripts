@@ -2,15 +2,17 @@
 source ~/Repositories/scripts/essential-functions.sh
 source ~/Repositories/private/private-aliases.sh
 
+
+spiderdir="$HOME/Data/world-spider-catalog"
 function find-spider {
-    wscfile="$(fd -- spider-catalog "$HOME/Study/academia/wsc" | sort -Vr | sed 1q)"
+    wscfile="$(fd -- spider-catalog "$spiderdir" | sort -Vr | sed 1q)"
     lsid="$(xsv select 2,3,4,5,6,7,8 $wscfile | sed 1d | fzf | ifne xsv select 1)"
     [[ -z "$lsid" ]] && exit 1
     xdg-open "https://wsc.nmbe.ch/lsid/${lsid}?apiKey=$wscapikey" > /dev/null
 }
 
 function see-diff {
-    difffile="$(fd -- spider-diff "$HOME/Study/academia/wsc/diffs/" | sort -Vr | sed 1q)"
+    difffile="$(fd -- spider-diff "$spiderdir/diffs/" | sort -Vr | sed 1q)"
     echo -e "${difffile##*/}\n$(cat "$difffile")" | bat
 }
 
