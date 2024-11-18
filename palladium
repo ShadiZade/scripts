@@ -389,8 +389,8 @@ function see-stack {
 	echo -n "$j" | xsv select -n 2
     done | fzf
 
-    # | fzf --preview "source ~/Repositories/scripts/palladium.sh; whole_line="{}"; this_id=\"$(echo $this_id | awk -F ' // ' '{print $1}')\"; grep \"^$this_id\" \"$stackdir/$sld_stack.csv\" | xsv select 3 "
-    # | fzf --preview "source ~/Repositories/scripts/palladium.sh; this_id="{}"; show-info \"$(switch-param id filename \"$(echo $this_id | awk -F ' // ' '{print $1}')\")\""
+    # | fzf --preview "source ~/Repositories/scripts/palladium; whole_line="{}"; this_id=\"$(echo $this_id | awk -F ' // ' '{print $1}')\"; grep \"^$this_id\" \"$stackdir/$sld_stack.csv\" | xsv select 3 "
+    # | fzf --preview "source ~/Repositories/scripts/palladium; this_id="{}"; show-info \"$(switch-param id filename \"$(echo $this_id | awk -F ' // ' '{print $1}')\")\""
     unset IFS
 
     # make this work somehow
