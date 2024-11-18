@@ -264,7 +264,7 @@ function warning-bloops {
 }
 
 function sfx {
-    ~/Repositories/scripts/sound-effects.sh "$@"
+    ~/Repositories/scripts/sound-effects "$@"
 }
 
 function clear-line {
