@@ -248,8 +248,10 @@ function show-info {
     [[ -n "$1" ]] && sld_fnm="$1"
     [[ -z "$sld_fnm" ]] && return 1
     base_fnm="$(basename -- "$sld_fnm")"
-    echolor blue "$(stat "$sld_fnm"; echo -n " MSize: ")" 1
-    echolor purple "$(du -h "$sld_fnm" | awk '{print $1}')"
+    echolor blue "$(stat "$sld_fnm" | sed '2d;4d'; echo -n " MSize: ")" 1
+    echolor purple "$(du -h "$sld_fnm" | awk '{print $1}')     " 1
+    echolor blue "Pages: " 1
+    echolor purple "$(pdfinfo "$sld_fnm" | grep 'Pages:' | awk '{print $NF}')"
     echolor yellow '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
     echolor white "$(xsv search -s filename "^$base_fnm" "$ix" | xsv flatten)"
 }
