@@ -26,7 +26,7 @@ function ask-for-timestamps {
     echolor red ":: Input error."
     exit
 }
-outname="$(output-kebabized-string "$2")"
+outname="$(kebab "$2")"
 [[ -e "${outname}.mp4" ]] && {
     echolor red ":: Clobber error 01!"
     exit
