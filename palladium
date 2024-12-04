@@ -98,7 +98,7 @@ function choose-book {
 	redupper || return 1
 	sld_fnm="$loc/$(xsv search -s title "^$sld_ttl$" "$ix" | xsv search -s "$chosen_best" "^$dup_out" | xsv select filename | sed -n 2p)"
     else
-	sld_fnm="$loc/$(xsv search -s title "^$sld_ttl$" "$ix" | xsv select filename | sed -n 2p)"
+	sld_fnm="$loc/$(xsv search -s title "^${sld_ttl/\?/\\?}$" "$ix" | xsv select filename | sed -n 2p)"
     fi
     sld_id="$(switch-param filename id "$(echo "$sld_fnm" | awk -F '/' '{print $NF}')")"
 }

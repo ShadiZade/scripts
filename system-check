@@ -23,6 +23,7 @@ function process-check {
     }
 }
 
+
 echolor green-yellow ":: Kernel:\t““$(uname -r)””"
 echolor green-yellow ":: Uptime:\t““$(uptime -p | sed 's/up //g')””"
 echolor green-yellow ":: Battery:\t““$(upower -i /org/freedesktop/UPower/devices/battery_BAT1 | grep perce | awk '{print $2}')””"
