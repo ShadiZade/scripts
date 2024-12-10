@@ -146,6 +146,3 @@ while getopts 'movra:d' OPTION; do
 	esac
 done
 (( $OPTIND == 1 )) && open-study
-
-# TODO add "this book already exists" warning
-# TODO add "done" category
