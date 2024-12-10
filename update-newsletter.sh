@@ -137,8 +137,7 @@ function al-akhbar {
     }
 }
 
-wifi-connected-p
-[[ "$wc_p" -eq 1 ]] && {
+wifi-connected-p || {
     echolor red ":: Unable to update newsletters, no connection"
     exit
 }

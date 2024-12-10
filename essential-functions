@@ -277,8 +277,8 @@ function sane {
 
 function wifi-connected-p {
     case "$(nmcli device status | grep "^wlp" | awk '{print $3}')" in
-	"connected") export wc_p=0 ;;
-	*) export wc_p=1 ;;
+	"connected") return 0 ;;
+		  *) return 1 ;;
     esac	     
 }
 

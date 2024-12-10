@@ -1,10 +1,6 @@
 #!/bin/zsh
 source ~/Repositories/scripts/essential-functions
-wifi-connected-p
-[[ "$wc_p" -eq 1 ]] && {
-    exit 1
-}
-
+wifi-connected-p || exit 1
 spiderdir="$HOME/Data/world-spider-catalog"
 oldspider="${${${$(fd -S +1b -- spider-catalog "$spiderdir" | sort -Vr | sed 1q)##*-}%.*}:-19700101}"
 newspider="$(date +"%Y%m%d")"

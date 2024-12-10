@@ -1,0 +1,37 @@
+#!/bin/bash
+source ~/Repositories/scripts/essential-functions
+archnewsfile="/tmp/arch-news-$(date-string)"
+archlastdate="$usdd/latest-arch-news-date"
+archlasttitle="$usdd/latest-arch-news-title"
+
+function update-news {
+    wifi-connected-p || exit 1
+    echolor orange  ":: ❯❯ Updating ““Arch News”” now. " 1
+    curl -s 'https://archlinux.org/feeds/news/' > "$archnewsfile"
+    [[ "$(date -d "$(hq -f "$archnewsfile" lastBuildDate text)" +"%Y%m%d%H%M%S")" = "$(cat "$archlastdate")" ]] && {
+	clear-line
+	echolor green-white ":: ✓  ““Arch News”” is up to date."
+	exit 1
+    }
+    archtitle="$(hq -f "$archnewsfile" title text | sed -n 2p)"
+    archdate="$(date -d "$(hq -f "$archnewsfile" lastBuildDate text)" +"%Y-%m-%d %H:%M:%S")"
+    clear-line
+    echolor blue ":: New ““Arch News”” item, dated " 1
+    echolor blue "““$archdate””, and titled:"
+    echolor white "  “$archtitle”"
+    echo "$archtitle" > "$archlasttitle"
+    echo "$(date -d "$(hq -f "$archnewsfile" lastBuildDate text)" +"%Y%m%d%H%M%S")" >  "$archlastdate"
+}
+
+function clear-news {
+    echo -n > "$archlasttitle"
+    echolor blue ":: ““Arch News”” marked as read."
+}
+
+while getopts 'c' OPTION; do
+    case "$OPTION" in
+	"c") clear-news ;;
+	*) echolor red ":: Unknown option"; exit 1 ;;
+	esac
+done
+(( $OPTIND == 1 )) && update-news
