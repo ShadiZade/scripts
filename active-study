@@ -18,6 +18,10 @@ function add-study {
 	echolor red ":: Nothing found."
 	exit
     }
+    grep -q "$(realpath -s "$1")" "$usdd/zas"* && {
+	echolor red ":: This book already exists in active study."
+	return 1
+    }
     echo "$(realpath -s "$1")" >> $storage_file
     
     echolor purple ":: ““$(basename "$1")”” added to ““$destination””"
