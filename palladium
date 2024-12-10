@@ -399,6 +399,13 @@ function see-stack {
     # fzf preview loves to destroy itself
 }
 
+function open-current {
+    cd "$HOME/Projects/reading/"
+    local sld_fnm_current="$(fd -d 1 pdf | ifne fzf)"
+    [[ -z "$sld_fnm_current" ]] && return 1
+    zathura "$sld_fnm_current" 2>/dev/null &
+}
+
 backup-index
 dup-check-in-index
 case "$1" in
@@ -417,5 +424,6 @@ case "$1" in
 #    "sees") see-stack ;;
     "") open-book ;;
     "cover") make-cover "$2" ;;
+    "now" ) open-current ;;
     *) echolor red ":: Unknown command." ;;
 esac
