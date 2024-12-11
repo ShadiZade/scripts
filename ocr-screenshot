@@ -1,0 +1,6 @@
+#!/bin/bash
+
+sleep 1s
+flameshot gui -r                 \
+    | tesseract - -              \
+    | xclip -selection clipboard
