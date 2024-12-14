@@ -87,7 +87,7 @@ function best-algo {
 
 function choose-book {
     [[ ! -z "$sld_fnm" ]] && return 0
-    [[ -z "$sld_ttl" ]] && sld_ttl="$(xsv select title "$ix" | tr -d '"' | sed 1d | sort | uniq | fzf | sed 's/?/\\?/g')"
+    [[ -z "$sld_ttl" ]] && sld_ttl="$(xsv select title "$ix" | tr -d '"' | sed 1d | sort | uniq | fzf)"
     [[ -z "$sld_ttl" ]] && return 1
     if $(dup-check title "$sld_ttl" "$ix")
     then
@@ -204,6 +204,14 @@ function add-entry {
 	return 1
     }
     xsv flatten "$nix" | sed 's/,/⸴/g' | csvlens --no-headers
+    for j in $(xsv headers -j "$nix")
+    do
+	[[ "$j" = "title" || "$j" = "subtitle" || "$j" = "volume"  || "$j" = "edition"  || "$j" = "trans_p"  || "$j" = "filename"  || "$j" = "id" ]] && continue
+	nix_term="$(xsv select "$j" "$nix" | sed -n 2p)"
+	[[ "$nix_term" = '""' ]] && continue
+	[[ -n "$(xsv search -s "$j" "$nix_term" "$ix" | sed 1d)" ]] && continue
+	echolor pink-mintgreen ":: New $j: ““$nix_term””"
+    done
     echolor yellow ":: Continue? (Y/n) " 1
     read -r continue_p
     [[ "$continue_p" = "n" ]] && {

@@ -2,6 +2,7 @@
 source ~/Repositories/scripts/essential-functions
 tv="$HOME/TV/"
 
+wifi-connected-p || exit 1
 IFS=$'\n'
 sl=($(fd -t l . "$tv"))
 for j in ${sl[@]}
