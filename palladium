@@ -209,7 +209,7 @@ function add-entry {
 	[[ "$j" = "title" || "$j" = "subtitle" || "$j" = "volume"  || "$j" = "edition"  || "$j" = "trans_p"  || "$j" = "filename"  || "$j" = "id" ]] && continue
 	nix_term="$(xsv select "$j" "$nix" | sed -n 2p)"
 	[[ "$nix_term" = '""' ]] && continue
-	[[ -n "$(xsv search -s "$j" "$nix_term" "$ix" | sed 1d)" ]] && continue
+	[[ -n "$(xsv search -s "$j" "^$nix_term$" "$ix" | sed 1d)" ]] && continue
 	echolor pink-mintgreen ":: New $j: ““$nix_term””"
     done
     echolor yellow ":: Continue? (Y/n) " 1
