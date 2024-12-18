@@ -140,7 +140,7 @@ function empty-trash {
 	    echolor red ":: FATAL ERROR: Script attempted to delete file ““$j””, which doesn't exist inside trash"
 	    echolor red ":: Crashing out, standing by to avoid causing damage. ““$files_deleted”” files already deleted."
 	    echolor red ":: Info:"
-	    echolor red "\t- Real path: ““$(realpath "$j")””"
+	    echolor red "\t- Real path: ““$(realpath -s "$j")””"
 	    echolor red "\t- Base name: ““$(basename "$j")””"
 	    echolor red "\t- Appearance in eza: ““$(eza -1a --no-quotes "$trash_dir" | grep "$j")””"
 	    echolor red "\t- Safety search pattern: ““$trash_dir/$j””"
