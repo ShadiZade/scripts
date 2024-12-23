@@ -9,7 +9,7 @@ all_attr=(type title subtitle author series volume edition first_pub year publis
 
 
 function dup-check {
-    if [[ "$(xsv search -s "$1" "^$2" "$3" | xsv select "$1" | sed 1d | wc -l)" -gt 1 ]]
+    if [[ "$(xsv search -s "$1" "^$2$" "$3" | xsv select "$1" | sed 1d | wc -l)" -gt 1 ]]
     then
 	return 0
     else
