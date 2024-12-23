@@ -252,6 +252,10 @@ function index-sorter {
 
 function symlinker {
     choose-book || return 1
+    [[ -e "./$(basename "$sld_fnm")" ]] && {
+	echolor red ":: Book ““$sld_ttl”” already symlinked here."
+	return 1
+    }
     ln -sf "$sld_fnm" . &&\
 	echolor green ":: Book ““$sld_ttl”” symlinked here!"
 }
