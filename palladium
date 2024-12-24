@@ -307,7 +307,13 @@ function show-stats {
 }
 
 function open-history {
-    sld_fnm="$(tac "$log" | grep $(date-string ymd) | xsv select -n 3 | awk -F '/' '{print $NF}' | sort | uniq | fzf)"
+    function list-24-hour-books {
+	for j in {1..24}
+	do
+	    tac "$log" | grep "^$(dateadd -f '%Y%m%d%H' "$(date-string long)" -${j}h)"
+	done
+    }
+    sld_fnm="$(list-24-hour-books | ifne xsv select -n 3 | awk -F '/' '{print $NF}' | sort | uniq | ifne fzf)"
     [[ -z "$sld_fnm" ]] && return 1
     zathura "$loc/$sld_fnm" 2>/dev/null &
 }
