@@ -3,6 +3,7 @@ source ~/Repositories/scripts/essential-functions
 loc="$HOME/Athenaeum"
 ix="$usdd/athenaeum-index.csv"
 bkp="$HOME/Misc/Backups/athenaeum"
+logdir="$HOME/.local/logs/palladium"
 log="$HOME/.local/logs/palladium/pall-open-book-log.csv"
 all_attr=(type title subtitle author series volume edition first_pub year publisher country language trans_p orig_lang transor filename id)
 
@@ -188,14 +189,31 @@ function add-entry {
     touch "$nix" "$nixf"
     IFS=$'\n'
     sed -n 1p "$ix" >> "$nix"
-    for j in $(xsv headers -j "$ix" | sed '/^filename$/d;/^id$/d')
-    do
-	echo -e "$j ––– \t" >> "$nixf"
-    done
+    [[ -z "$(cat "$logdir/last-add")" ]] && repeat_last_entry_p="n"
+    if [[ "$repeat_last_entry_p" = "y" ]]
+    then
+	cat "$logdir/last-add" | sed '/^filename/d' > "$nixf"
+    else
+	for j in $(xsv headers -j "$ix" | sed '/^filename$/d;/^id$/d')
+	do
+	    echo -e "$j ––– \t" >> "$nixf"
+	done
+    fi
+    repeat_last_entry_p="n"
+    echo -e "filename ––– \t$(basename "$1")" >> "$nixf"
     emacsclient -nw -a emacs "$nixf"
+    new_filename="$(cat "$nixf" | grep '^filename' | awk -F '–––' '{print $NF}' | sed 's/\t//g;s/^ *//g;s/ *$//g')"
     sed -i '/^$/d' "$nixf"
     cat "$nixf" | grep -v '–––' && {
 	echolor red ":: Input error!"
+	return 1
+    }
+    [[ -z "$new_filename" ]] && {
+	echolor red ":: Input error!"
+	return 1
+    }
+    [[ -e "$HOME/Athenaeum/$new_filename" ]] && {
+	echolor red ":: You have modified the filename, but such a file already exists!"
 	return 1
     }
     for j in $(cat "$nixf")
@@ -209,7 +227,7 @@ function add-entry {
 	identifier="$(random-string 8)"
 	xsv select id "$ix" | grep -q "$identifier" || break
     done
-    echo -n "$(basename "$1"),$identifier" >> "$nix"
+    echo -n "$identifier" >> "$nix"
     [[ "$(xsv select title "$nix" | sed 1d)" = '""' ]] && {
 	echolor red ":: Title can't be empty!"
 	return 1
@@ -229,10 +247,14 @@ function add-entry {
 	echolor red ":: Exiting."
 	return
     }
+    cp -f -- "$nixf" "$logdir/last-add"
     xsv cat rows "$ix" "$nix" | xsv sort -s title > "$ix"-new 
     rm -f "$ix"
     mv "$ix"-new "$ix"
-    mv "$1" "$HOME/Athenaeum/"
+    mv "$1" "$HOME/Athenaeum/$new_filename"
+    [[ "$(basename "$1")" != "$new_filename" ]] && {
+	echolor pink-mintgreen ":: Filename changed!\n:: Old ““$(basename "$1")””\n:: New ““$new_filename””"
+    }
     continue_p=""
     echolor yellow ":: Create symlink? (y/N) " 1
     read -r continue_p
@@ -441,6 +463,7 @@ case "$1" in
     "by") search-by ;;
     "link") symlinker ;;
     "add") add-entry "$2" ;;
+    "again") repeat_last_entry_p=y add-entry "$2";;
     "info") choose-book || exit 1
 	    show-info ;;
     "stats") show-stats all ;;
