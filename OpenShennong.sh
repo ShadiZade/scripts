@@ -189,7 +189,12 @@ function update-reading-notes-file {
 	echo "* [[file:papers/$j][${j/.pdf/}]]" >> reading-notes.org
 	echolor green-aquamarine ":: Added ““${j/.pdf/}”” to reading notes file!"
     done
-    
+    for j in $(eza -1X "$(pwd)/papers")
+    do
+	grep -q "\[\[file:papers/$j\]" paper-summaries.org && continue
+	echo "* [[file:papers/$j][${j/.pdf/}]]" >> paper-summaries.org
+	echolor pink-aquamarine ":: Added ““${j/.pdf/}”” to paper summaries file!"
+    done    
 }
 
 function check-dependencies {
