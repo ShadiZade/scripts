@@ -3,8 +3,8 @@ source ~/Repositories/dotfiles/zsh/variables
 
 function echolor {
     clrs="$usdd/echolors.csv"
-    color="$(cat "$clrs" | grep "^$(echo "$1" | awk -F '-' '{print $1}' | tr -d '←→')," | ifne awk -F ',' '{print $2}')"
-    hlght="$(cat "$clrs" | grep "^$(echo "$1" | awk -F '-' '{print $2}' | tr -d '←→')," | ifne awk -F ',' '{print $2}')"
+    color="$(grep "^$(echo "$1" | awk -F '-' '{print $1}' | tr -d '←→')," "$clrs" | ifne awk -F ',' '{print $2}')"
+    hlght="$(grep "^$(echo "$1" | awk -F '-' '{print $2}' | tr -d '←→')," "$clrs" | ifne awk -F ',' '{print $2}')"
     [[ -z "$color" ]] && color=36
     [[ -z "$hlght" ]] && {
 	[[ "$color" = "37" ]] && hlght=33 || hlght=37
