@@ -35,11 +35,18 @@ function random-number {
 }
 
 function scramble-file-names {
+    echolor red ":: THIS FUNCTION IS UNSAFE. FIX BEFORE USING."
+    return 1
+    # TODO add logging
+    # TODO add file existence check
+    # TODO add reversal?
+    # TODO add more checks
+    # TODO fix unsafe eza calls
     [[ -z "$1" ]] \
 	&& echolor yellow ":: Available options: 'files', 'dirs', and 'all'." \
 	&& return
-    conf_str="$(random-string 4)"
-    echo -en "\033[31m:: Are you sure you want to scramble all \033[37m$(pwd)\033[31m file names? Type \033[37m$conf_str\033[31m to confirm.\033[0m "
+    conf_str="$(basename $(realpath .)) $(random-string 4)"
+    echolor red-white ":: Are you sure you want to scramble all ““$(pwd)”” file names? Type ““$conf_str”” to confirm. "
     read -r conf_str_response
     [[ "$conf_str" != "$conf_str_response" ]] \
 	&& echolor yellow ":: Nothing done." \
