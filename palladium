@@ -6,8 +6,7 @@ bkp="$HOME/Misc/Backups/athenaeum"
 logdir="$HOME/.local/logs/palladium"
 log="$HOME/.local/logs/palladium/pall-open-book-log.csv"
 all_attr=(type title subtitle author series volume edition first_pub year publisher country language trans_p orig_lang transor filename id)
-
-
+diagnostic_mode=0 # 0 for off, 1 for on
 
 function dup-check {
     if [[ "$(xsv search -s "$1" "^$2$" "$3" | xsv select "$1" | sed 1d | wc -l)" -gt 1 ]]
@@ -30,6 +29,15 @@ function dupper {
     dup_term="$4"
     view_fields="$5"
     alt_field_order="$6"
+    [[ "$diagnostic_mode" -eq 1 ]] && {
+	echolor purple ":: dupper values:"
+	echolor purple "\t:: dup_file ““$dup_file”” "
+	echolor purple "\t:: dup_field ““$dup_field””"
+	echolor purple "\t:: alt_field ““$alt_field””"
+	echolor purple "\t:: dup_term ““$dup_term””"
+	echolor purple "\t:: view_fields ““$view_fields””"
+	echolor purple "\t:: alt_field_order ““$alt_field_order””"
+    }
     [[ -z "$view_fields" ]] && view_fields="$alt_field"
     [[ -z "$alt_field_order" ]] && alt_field_order=1
     dup_tmp="/tmp/pall-dupper-$(random-string).csv"
@@ -47,6 +55,7 @@ function dup-filter {
 }
 
 function redupper {
+    [[ "$diagnostic_mode" -eq 1 ]] && echolor purple ":: redupper is called." 
     [[ ! -e "$dup_tmp" ]] && return 1
     [[ "$(cat "$dup_tmp" | wc -l)" -eq 2 ]] && return 0
     best-algo "$alt_field" "$dup_out" "$dup_tmp"
@@ -79,6 +88,12 @@ function best-algo {
 		chosen_best=${best[$i]}
 		chosen_best_config=${best[((i+1))]}
 		chosen_order_of_field=${best[((i+2))]}
+		[[ "$diagnostic_mode" -eq 1 ]] && {
+		    echolor purple ":: best-algo values:"
+		    echolor purple "\t:: chosen_best ““$chosen_best””"
+		    echolor purple "\t:: chosen_best_config ““$chosen_best_config””"
+		    echolor purple "\t:: chosen_order_of_field ““$chosen_order_of_field””"
+		}
 		break
 	    fi
 	    continue
@@ -90,8 +105,14 @@ function choose-book {
     [[ ! -z "$sld_fnm" ]] && return 0
     [[ -z "$sld_ttl" ]] && sld_ttl="$(xsv select title "$ix" | tr -d '"' | sed 1d | sort | uniq | fzf)"
     [[ -z "$sld_ttl" ]] && return 1
-    if $(dup-check title "$sld_ttl" "$ix")
+    [[ "$diagnostic_mode" -eq 1 ]] && {
+	echolor purple ":: The following command is occurring inside dup-check:"
+	echolor white "xsv search -s title \"${sld_ttl/\?/\\?}\" \"$ix\" | xsv select title | sed 1d | wc -l\n"
+	dup-check title "${sld_ttl/\?/\\?}" "$ix" && echolor purple ":: dup-check returned ““0”” (dup found)" || echolor purple ":: dup-check returned ““1”” (no dup)" 
+    }
+    if $(dup-check title "${sld_ttl/\?/\\?}" "$ix")
     then
+	[[ "$diagnostic_mode" -eq 1 ]] && echolor purple ":: choose-book passing ““${sld_ttl/\?/\\?}”” into best-algo" 
 	best-algo title "${sld_ttl/\?/\\?}" "$ix"
 	if [[ -z "$chosen_best" ]] \
 	       || [[ -z  "$sld_ttl" ]] \
@@ -285,6 +306,10 @@ function symlinker {
 function open-book {
     choose-book || return 1
     [[ -z "$sld_fnm" ]] && return 1
+    [[ "$diagnostic_mode" -eq 1 ]] && {
+	echolor purple ":: open-book values:"
+	echolor purple "\t:: sld_fnm ““$sld_fnm””"
+    }
     [[ "$sld_fnm" = "$loc/" ]] && {
 	echolor red ":: No PDF filename passed to open-book function."
 	return 1
