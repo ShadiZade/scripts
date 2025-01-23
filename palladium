@@ -420,6 +420,14 @@ function give-id {
     xsv search -s id "$1" "$ix" | xsv select filename | sed 1d
 }
 
+function give-path {
+    choose-book || return 1
+    [[ -z "$sld_fnm" ]] && return 1
+    [[ "$sld_fnm" = "$loc/" ]] && return 1
+    realpath "$sld_fnm"
+}
+
+
 function switch-param {
     if [[ -z "$1" ]] || [[ -z "$2" ]] || [[ -z "$3" ]]
     then
@@ -501,6 +509,7 @@ case "$1" in
     "done") open-from-file done ;;
     "put") put-in ;;
     "id") give-id "$2" ;;
+    "path") give-path ;;
 #    "stack") add-to-stack ;;
 #    "sees") see-stack ;;
     "") open-book ;;
