@@ -280,7 +280,7 @@ function add-entry {
     echolor yellow ":: Create symlink? (y/N) " 1
     read -r continue_p
     [[ "$continue_p" = "y" ]] && {
-	ln -s ~/Athenaeum/"$(basename "$1")" . && \
+	ln -s ~/Athenaeum/"$new_filename" . && \
 	    echolor green ":: Symlink created."
     }
     make-cover "$identifier"

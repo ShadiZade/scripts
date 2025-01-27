@@ -4,7 +4,7 @@ source ~/Repositories/scripts/essential-functions
 current_file="$usdd/zas-current-study"
 reserve_file="$usdd/zas-reserve-study"
 alldone_file="$usdd/zas-alldone-study"
-use_program="zathura"
+use_program="sioyek"
 
 function add-study {
     [[ "$current_or_reserve" -eq 1 ]] && {
@@ -45,7 +45,7 @@ function open-study {
     [ -z "$openthis" ] && echolor red ":: Nothing chosen." && exit
     echolor purple ":: Opened ““$(echo $openthis | awk -F '/' '{print $NF}')”” in ““$use_program””"
     echo -n $openthis | xclip -selection clipboard
-    "$use_program" "$openthis" 2>/dev/null
+    "$use_program" "$openthis" 2>/dev/null >/dev/null
 }
 
 function move-to-alldone {

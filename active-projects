@@ -3,7 +3,7 @@ source ~/Repositories/scripts/essential-functions
 
 current_file="$usdd/gap-current-projects"
 reserve_file="$usdd/gap-reserve-projects"
-use_program="zathura"
+use_program="sioyek"
 export openthis=""
 
 function add-projects {
