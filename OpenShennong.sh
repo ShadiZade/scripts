@@ -143,8 +143,8 @@ function remove-from-local {
     # $1 should be a project_dir
     [[ ! -e "$local_registry" ]] && mkdir "$data_dir"
     touch "$local_registry"
-    [[ ! "$(grep "$1" "$local_registry")" ]] && {
-	echolor yellow ":: Project not recorded at "$data_dir""
+    grep -q "$1" "$local_registry" || {
+	echolor yellow ":: Project not recorded at $data_dir"
 	return 1
     }
     old_project_dir="$1"
@@ -438,9 +438,9 @@ function get-bib-citation {
     curl -s "https://api.citeas.org/product/$1?email=$EMAIL" | jq -r '.exports.[] | select( .export_name == "bibtex" ) | .export' > ../.ref.tmp
     echolor green ":: Citeas.org queried!"
     sed -i 's/journal-article/article/g;s/title={/title={{/g;s/title=/\ntitle=/g;/title=/s/}/}}/g' ../.ref.tmp
-    authorkey="$(grep 'author=' ../.ref.tmp | sed 's/Al-//g;s/al-//g;s/Al //g' | tr -d '-' | awk -F '{' '{print $2}' | awk -F '}' '{print $1}' | awk '{print $1}' | tr '[A-Z]' '[a-z]' | tr -d ',')"
+    authorkey="$(grep 'author=' ../.ref.tmp | sed 's/Al-//g;s/al-//g;s/Al //g' | tr -d '-' | awk -F '{' '{print $2}' | awk -F '}' '{print $1}' | awk '{print $1}' | tr '[:upper:]' '[:lower:]' | tr -d ',')"
     yearkey="$(grep 'year=' ../.ref.tmp | awk -F '{' '{print $2}' | awk -F '}' '{print $1}')"
-    titlekey="$(grep 'title=' ../.ref.tmp | awk -F '{{' '{print $2}' | awk -F '}}' '{print $1}' | sed 's/^A //;s/^An //;s/^The //;s/-/ /g' | awk '{print $1}' | tr '[A-Z]' '[a-z]')"
+    titlekey="$(grep 'title=' ../.ref.tmp | awk -F '{{' '{print $2}' | awk -F '}}' '{print $1}' | sed 's/^A //;s/^An //;s/^The //;s/-/ /g' | awk '{print $1}' | tr '[:upper:]' '[:lower:]')"
     bibkey="$authorkey$yearkey$titlekey"
     sed -i "s/ITEM1/$bibkey/" ../.ref.tmp
     grep -q "{$bibkey," ../refs.bib && {
