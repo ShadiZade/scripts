@@ -437,7 +437,7 @@ function get-bib-citation {
     echolor green-neonblue ":: Going to ““https://api.citeas.org/product/$1?email=$EMAIL””"
     curl -s "https://api.citeas.org/product/$1?email=$EMAIL" | jq -r '.exports.[] | select( .export_name == "bibtex" ) | .export' > ../.ref.tmp
     echolor green ":: Citeas.org queried!"
-    sed -i 's/journal-article/article/g;s/title={/title={{/g;s/title=/\ntitle=/g;/title=/s/}/}}/g' ../.ref.tmp
+    sed -i 's/journal-article/article/g;s/,,/,/g;s/title={/title={{/g;s/title=/\ntitle=/g;/title=/s/}/}}/g' ../.ref.tmp
     authorkey="$(grep 'author=' ../.ref.tmp | sed 's/Al-//g;s/al-//g;s/Al //g' | tr -d '-' | awk -F '{' '{print $2}' | awk -F '}' '{print $1}' | awk '{print $1}' | tr '[:upper:]' '[:lower:]' | tr -d ',')"
     yearkey="$(grep 'year=' ../.ref.tmp | awk -F '{' '{print $2}' | awk -F '}' '{print $1}')"
     titlekey="$(grep 'title=' ../.ref.tmp | awk -F '{{' '{print $2}' | awk -F '}}' '{print $1}' | sed 's/^A //;s/^An //;s/^The //;s/-/ /g' | awk '{print $1}' | tr '[:upper:]' '[:lower:]')"
@@ -449,8 +449,8 @@ function get-bib-citation {
 	bat -Ppl bib ../.ref.tmp
 	cat ../.ref.tmp >> ../refs.bib
 	echo >> ../refs.bib
-	rm ../.ref.tmp
     }
+    rm ../.ref.tmp
 }
 
 function get-bib-and-download-paper {
