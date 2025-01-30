@@ -363,36 +363,78 @@ function count-all {
 }
 
 function download-paper {
-    echo -e "\033[32m:: Starting...\033[0m"
-    [ -z "$1" ] \
-	&& echo -e "\033[33m:: No DOI entered.\033[0m" \
-	&& exit
-    indoi="$(echo "$1" | sed 's|https://doi.org/||')" \
-	&& echo -e "\033[32m:: Going to \033[36mhttps://sci-hub.ru/$indoi\033[0m"
-    shurl="$(curl -s "https://sci-hub.ru/$indoi")" \
-	&& echo -e "\033[32m:: Sci-Hub queried!\033[0m"
+    echolor green ":: Starting PDF retrieval..."
+    [[ -z "$1" ]] && {
+	echolor red ":: No DOI entered."
+	return 1
+    }
+    indoi="$(echo "$1" | sed 's|https://doi.org/||')"
+    echolor green-neonblue ":: Going to ““https://sci-hub.ru/$indoi””"
+    shurl="$(curl -s "https://sci-hub.ru/$indoi")"
+    echolor green ":: Sci-Hub queried!"
+    echo "$shurl" | grep -q "doesn't have the requested document" && {
+	echolor yellow ":: Sci-Hub does not have this file."
+	return 1
+    }
+    echo "$shurl" | grep -q "Checking your browser" && {
+	echolor yellow ":: Caught in evil CAPTCHA hell. Please inform the website that you’re an honest researcher and retry."
+	return 1
+    }
     ddurl="$(echo "$shurl" | grep -i 'application/pdf' | awk -F 'src="' '{print $2}' | awk -F '#' '{print $1}' | tr -d "\n" | sed 's|https://||;s|^//||')"
-    mirror_urls=("downloads" "uptodate" "tree")
-    for j in ${mirror_urls[@]}
+    for j in "downloads" "uptodate" "tree"
     do
-	echo "$ddurl" | grep -q "$j" \
-	    || continue
+	echo "$ddurl" | grep -q "$j" || continue
 	ddurl="$(echo "$ddurl" | sed "s|^/$j|sci-hub.ru/$j|")"
     done
-    [[ -z "$2" ]] \
-	&& bibname="unnamed" \
-	    || bibname="$2"
-    if fd -q "$bibname".pdf; then
-	echo -ne "\033[33m:: Paper \033[36m$bibname\033[33m already exists. Overwrite? (y/N) \033[0m"
+    [[ -z "$2" ]] && bibname="unnamed" || bibname="$2"
+    fd -q "$bibname".pdf && {
+	echolor yellow-neonblue ":: Paper ““$bibname”” already exists. Overwrite? (y/N) " 1
 	read -r overwrite_p
-	[ "$overwrite_p" = y ] \
-	    && echo -e "\033[32m:: $(rm -vf "$bibname".pdf)\033[0m" \
-		|| exit
-    fi
-    [[ -z "$ddurl" ]] \
-	&& echo -e "\033[33m:: No file found in Sci-Hub.\033[0m" \
-	&& exit
+	[[ "$overwrite_p" = y ]] && echolor green ":: $(rm -vf "$bibname".pdf)" || return 1
+    }
+    [[ -z "$ddurl" ]] && {
+	echolor red ":: Unknown fatal error."
+	return 1
+    }
     wget -nc -O ./"$bibname".pdf -t 0 -- https://"$ddurl" && touch -c ./"$bibname".pdf
+}
+
+function get-bib-citation {
+    runcase-dealer only 1
+    [[ -z "$1" ]] && return 1
+    [[ -z "$EMAIL" ]] && {
+	echolor red ":: Email variable not found. Exiting."
+	return 1
+    }
+    echolor green ":: Starting bib retrieval..."
+    echolor green-neonblue ":: Going to ““https://api.citeas.org/product/$1?email=$EMAIL””"
+    curl -s "https://api.citeas.org/product/$1?email=$EMAIL" | jq -r '.exports.[] | select( .export_name == "bibtex" ) | .export' > ../.ref.tmp
+    echolor green ":: Citeas.org queried!"
+    sed -i 's/journal-article/article/g;s/title={/title={{/g;s/title=/\ntitle=/g;/title=/s/}/}}/g' ../.ref.tmp
+    authorkey="$(grep 'author=' ../.ref.tmp | sed 's/Al-//g;s/al-//g;s/Al //g' | tr -d '-' | awk -F '{' '{print $2}' | awk -F '}' '{print $1}' | awk '{print $1}' | tr '[A-Z]' '[a-z]' | tr -d ',')"
+    yearkey="$(grep 'year=' ../.ref.tmp | awk -F '{' '{print $2}' | awk -F '}' '{print $1}')"
+    titlekey="$(grep 'title=' ../.ref.tmp | awk -F '{{' '{print $2}' | awk -F '}}' '{print $1}' | sed 's/^A //;s/^An //;s/^The //;s/-/ /g' | awk '{print $1}' | tr '[A-Z]' '[a-z]')"
+    bibkey="$authorkey$yearkey$titlekey"
+    sed -i "s/ITEM1/$bibkey/" ../.ref.tmp
+    grep -q "{$bibkey," ../refs.bib && {
+	echolor red ":: Article ““$bibkey”” already exists in refs.bib. Not adding."
+    } || {
+	bat -Ppl bib ../.ref.tmp
+	cat ../.ref.tmp >> ../refs.bib
+	echo >> ../refs.bib
+	rm ../.ref.tmp
+    }
+}
+
+function get-bib-and-download-paper {
+    runcase-dealer only 1
+    get-bib-citation "$1" || return 1
+    [[ -z "$bibkey" ]] && {
+	echolor red ":: Bibkey not found."
+	return 1
+    }
+    echolor green-neonblue ":: Downloading paper as ““$bibkey””"
+    download-paper "$1" "$bibkey"
 }
 
 function rename-stuff {
@@ -450,7 +492,9 @@ case "$comd" in
     "help") show-help;;
     "count") count-all ;;
     "info") project-info ;;
-    "dl") download-paper "$2" "$3" ;;
+    "dl") get-bib-and-download-paper "$2" ;;
+    "bib") get-bib-citation "$2" ;;
+    "download") download-paper "$2" "$3" ;;
     "ls") list-project-files "$2" ;;
     "anchor") save-to-local ;;
     "unanchor") remove-from-local-prompt ;;
