@@ -40,17 +40,19 @@ function conf-info-extract {
 
 function goto-project {
     # doesn't work, more fucking subshell bullshit again.
-    [ "$(cat "$local_registry" | wc -l)" = 0 ] \
-	&& echo -e "\033[33m:: No projects in local data file.\033[0m" \
-	&& exit
+    [[ "$(cat "$local_registry" | wc -l)" = 0 ]] && {
+	echolor yellow ":: No projects in local data file."
+	return 1
+    }
     intended_target="$(xsv select 1 "$local_registry" | fzf)"
-    [ -z "$intended_target" ] \
-	&& echo -e "\033[33m:: Nothing selected.\033[0m" \
-	&& exit
+    [[ -z "$intended_target" ]] && {
+	echolor yellow ":: Nothing selected." 
+	return 1
+    }
     cd "$(grep "^$intended_target," "$local_registry" | xsv select 2)" \
-	&& echo -e "\033[32m:: Welcome to \033[36m$intended_target\033[32m at \033[36m$(pwd)\033[32m.\033[0m" \
+	&& echolor green-neonblue ":: Welcome to ““$intended_target”” at ““$(pwd)””." \
 	&& list-project-files \
-		|| echo -e "\033[33m:: Failed to go to \033[36m$intended_target\033[33m.\033[0m"
+		|| echolor yellow-neonblue ":: Failed to go to ““$intended_target””"
 }
 
 function list-project-files {
@@ -66,7 +68,7 @@ function list-project-files {
 	0) runcase-dealer only 0
 	   eza -lX --icons --no-user --time-style=iso --sort=modified --color-scale all --color=always \
 	       --group-directories-first --no-quotes --no-permissions --git -I "*log|*aux|*toc|*conf|*blg|*bbl|set.sh" ;;
-	*) echo -e "\033[33:: list-project-files: Unknown runcase.\033[0m" && exit ;;
+	*) echolor yellow ":: list-project-files: Unknown runcase." && exit ;;
     esac
 }
 
@@ -81,8 +83,8 @@ function runcase-determiner {
     #
     fd -q -d 1 "project.conf" && export runcase="0" || export runcase="F"
     function other-runcases {
-	[ -z "$1" ] && echo -e "\033[33m:: other-runcases: No search term for definition.\033[0m" && exit
-	[ -z "$1" ] && echo -e "\033[33m:: other-runcases: No runcase number for definition.\033[0m" && exit
+	[ -z "$1" ] && echolor yellow ":: other-runcases: No search term for definition." && exit
+	[ -z "$1" ] && echolor yellow ":: other-runcases: No runcase number for definition." && exit
 	if [ "$(pwd | awk -F '/' '{print $NF}')" = "$1" ]; then
 	    fd -q -d 1 "project.conf" .. && export runcase="$2"
 	fi
@@ -93,27 +95,34 @@ function runcase-determiner {
 
 function runcase-dealer {
     runcase-determiner
-    [ -z "$1" ] && echo -e "\033[33m:: runcase-dealer: No valid command.\033[0m" && exit
-    [ -z "$2" ] && echo -e "\033[33m:: runcase-dealer: No valid parameter.\033[0m" && exit
+    [[ -z "$1" ]] && {
+	echolor yellow ":: runcase-dealer: No valid command."
+	return 1
+    }
+    [[ -z "$2" ]] && {
+	echolor yellow ":: runcase-dealer: No valid parameter."
+	return 1
+    }
     case "$1" in
-	"only") 
-	    [ "$runcase" != "$2" ] && echo -e "\033[33m:: Can’t do that in this directory (only $2).\033[0m" && exit ;;
-	
-	"not")
-	    [ "$runcase" = "$2" ] && echo -e "\033[33m:: Can’t do that in this directory.\033[0m" && exit ;;
-	
-	"goto")
-	    # doesn't work. anchor function problem.
-	    [ -z "$ANCHOR_DONE" ] && echo -e "\033[33m:: Please anchor project first.\033[0m" && exit
-	    case "$2" in
-		0) cd "$PROJECT_DIR" ;;
-		1) cd "$PROJECT_DIR"/papers ;;
-		2) cd "$PROJECT_DIR"/images ;;
-		*) echo -e "\033[33m:: runcase-dealer: unknown runcase.\033[0m" && exit ;;
-	    esac
-	    ;;
-	*)
-	    echo -e "\033[33m:: Unknown runcase-dealer command.\033[0m" ;;
+	"only") [[ "$runcase" != "$2" ]] && {
+		    echolor yellow ":: Can’t do that in this directory (only $2)."
+		    return 1
+		} ;;
+	"not")  [[ "$runcase" = "$2" ]] && {
+		    echolor yellow ":: Can’t do that in this directory."
+		    return 1
+		} ;;
+	*)      echolor yellow ":: Unknown runcase-dealer command." ;;
+	# "goto")
+	#     # doesn't work. anchor function problem.
+	#     [ -z "$ANCHOR_DONE" ] && echolor yellow ":: Please anchor project first." && exit
+	#     case "$2" in
+	# 	0) cd "$PROJECT_DIR" ;;
+	# 	1) cd "$PROJECT_DIR"/papers ;;
+	# 	2) cd "$PROJECT_DIR"/images ;;
+	# 	*) echolor yellow ":: runcase-dealer: unknown runcase." && exit ;;
+	#     esac
+	#     ;;
     esac
 }
 
@@ -121,43 +130,46 @@ function save-to-local {
     runcase-dealer only 0
     project_name="$(conf-info-extract project_name)"
     project_dir="$(conf-info-extract project_dir)"
-    [ ! -e "$data_dir" ] && mkdir "$data_dir"
+    [[ ! -e "$data_dir" ]] && mkdir "$data_dir"
     touch "$local_registry"
     grep -q ",$project_dir$" "$local_registry" \
-	&& echo -e "\033[33m:: A project with the path \033[37m$project_dir\033[33m already exists.\033[0m" \
+	&& echolor yellow-neonblue ":: A project with the path ““$project_dir”” already exists." \
 	&& exit
     echo "$project_name,$project_dir" >> "$local_registry" \
-	&&  echo -e "\033[32m:: Project recorded at "$data_dir"\033[0m"
+	&&  echolor green ":: Project recorded at $data_dir"
 }
 
 function remove-from-local {
     # $1 should be a project_dir
-    [ ! -e "$local_registry" ] && mkdir "$data_dir"
+    [[ ! -e "$local_registry" ]] && mkdir "$data_dir"
     touch "$local_registry"
-    [ ! "$(grep "$1" "$local_registry")" ] \
-	&& echo -e "\033[33m:: Project not recorded at "$data_dir"\033[0m" \
-	&& exit
+    [[ ! "$(grep "$1" "$local_registry")" ]] && {
+	echolor yellow ":: Project not recorded at "$data_dir""
+	return 1
+    }
     old_project_dir="$1"
     grep -v "$old_project_dir$" "$local_registry" > "$local_registry".temp
     mv "$local_registry" "$local_registry"-$(date +%Y%m%d%H%M%S)
     mv "$local_registry".temp "$local_registry" \
-	&& echo -e "\033[32m:: Project removed from "$data_dir"\033[0m"
+	&& echolor green ":: Project removed from $data_dir"
 }
 
 function remove-from-local-prompt {
-    [ ! -e "$local_registry" ] && mkdir "$data_dir"
+    [[ ! -e "$local_registry" ]] && mkdir "$data_dir"
     touch "$local_registry"
     selected_project="$(xsv select 1 "$local_registry" | fzf --prompt="Choose project to remove from local registry: ")"
-    [ -z "$selected_project" ] \
-	&& echo -e "\033[33m:: Nothing selected.\033[0m" \
-	&& exit
-    echo -ne "\033[32m:: Do you want to remove \033[37m$selected_project\033[32m from the local registry? (y/N) \033[0m"
+    [[ -z "$selected_project" ]] && {
+	echolor yellow ":: Nothing selected."
+	return 1
+    }
+    echolor green-neonblue ":: Do you want to remove ““$selected_project”” from the local registry? (y/N) " 1
     read -r remove_p
-    [ "$remove_p" != "y" ] \
-	&& echo -e "\033[33m:: Nothing done.\033[0m" \
-	&& exit
+    [[ "$remove_p" != "y" ]] && {
+	echolor yellow ":: Nothing done."
+	return 1
+    }
     sed -i "/^$selected_project,/d" "$local_registry" \
-	&& echo -e "\033[32m:: Project \033[37m$selected_project\033[32m removed from local registry.\033[0m"    
+	&& echolor green-neonblue ":: Project ““$selected_project”” removed from local registry."    
 }
 
 function show-local-registry {
@@ -168,14 +180,16 @@ function update-project-info-file {
     runcase-dealer only 0
     project_name="$(conf-info-extract project_name)"
     project_dir="$(conf-info-extract project_dir)"
-    [ "$(pwd)" != "$project_dir" ] \
-	&& sed -i "/^project_dir /d" project.conf \
-	&& echo "project_dir = $(pwd)" >> project.conf \
-	&& echo -e "\033[32m:: Old directory: \033[37m$project_dir\033[0m" \
-	&& echo -e "\033[32m:: New directory: \033[37m$(pwd)\033[0m" \
-	&& remove-from-local "$project_dir" \
-	&& echo -e "\033[32m:: Please run \033[37manchor\033[32m again.\033[0m" \
-	    || echo -e "\033[32m:: Project info already up-to-date.\033[0m"
+    [[ "$(pwd)" != "$project_dir" ]] && {
+	sed -i "/^project_dir /d" project.conf 
+	echo "project_dir = $(pwd)" >> project.conf 
+	echolor green-neonblue ":: Old directory: ““$project_dir””" 
+	echolor green-neonblue ":: New directory: ““$(pwd)””" 
+	remove-from-local "$project_dir" 
+	echolor green ":: Please run anchor again." 
+    } || {
+	echolor green ":: Project info already up-to-date."
+    }
     # TODO: also add check for project name
     # TODO: add parameter in project.conf to indicate whether project is in local registry
     update-reading-notes-file
@@ -198,88 +212,100 @@ function update-reading-notes-file {
 }
 
 function check-dependencies {
-    dependencies=("texlive-xetex" "texlive-bibtexextra" "texlive-binextra" "eza" "fd" "zathura" "xsv" "bat" "pdfgrep")
+    dependencies=("texlive-xetex" "texlive-bibtexextra" "texlive-binextra" "eza" "fd" "sioyek" "xsv" "bat" "pdfgrep")
     # continue this later    
 }
 
 # interactive functions
 function create {
     runcase-dealer only F
-    [ -z "$1" ] \
-	&& echo -e "\033[33m:: Please enter project name.\033[0m" \
-	&& exit
-    fd -d 1 -q "^$1$" \
-	&& echo -e "\033[33m:: Clobber prevented. Choose a different name.\033[0m" \
-	&& exit
-    xsv select 1 "$local_registry" | grep -q "$1" \
-	&& echo -e "\033[33m:: \033[36m$1\033[33m already exists. Choose a different name.\033[0m" \
-	&& exit
+    [[ -z "$1" ]] && {
+	echolor yellow ":: Please enter project name."
+	return 1
+    }
+    fd -d 1 -q "^$1$" && {
+	echolor yellow ":: Clobber prevented. Choose a different name."
+	return 1
+    }
+    xsv select 1 "$local_registry" | grep -q "$1" && {
+	echolor yellow-neonblue ":: ““$1”” already exists. Choose a different name." 
+	return 1
+    }
     name="$1"
     x=0
     cp -nr ~/Misc/templates/latex/ ./"$name" \
-	&& echo -e "\033[32m:: Template copied.\033[0m" \
-   	    || echo -e "\033[33m:: Template not copied.\033[0m"
+	&& echolor green ":: Template copied." \
+   	    || echolor yellow ":: Template not copied."
     sed -i "s/REPLACEHERE/$name/g" ./"$name"/set.sh && ((x++))
     mv -n ./"$name"/template.tex ./"$name"/"$name".tex && ((x++))
-    [ "$x" = 2 ] \
-	&& echo -e "\033[32m:: All parameters replaced.\033[0m" \
-   	    || echo -e "\033[33m:: Not all parameters replaced.\033[0m"
+    [[ "$x" = 2 ]] && echolor green ":: All parameters replaced." || echolor yellow ":: Not all parameters replaced."
     cd ./"$name" || exit
     echo -e "project_name = $name" >> project.conf
     echo -e "project_dir = $(pwd)" >> project.conf
-    [ "$x" = 2 ] \
-	&& xelatex -interaction=batchmode ./"$name".tex \
-	&& echo -e "\033[32m:: LaTeX files initialized.\033[0m" \
-	&& ((x++))
-    [ "$x" = 3 ] \
-	&& save-to-local \
-	&& echo -e "\033[35m:: Welcome to your project: $name.\033[0m" 
+    [[ "$x" = 2 ]] && {
+	xelatex -interaction=batchmode ./"$name".tex
+	echolor green ":: LaTeX files initialized."
+	((x++))
+    }
+    [[ "$x" = 3 ]] && {
+	save-to-local
+	echolor purple-neonblue ":: Welcome to your project: ““$name.””"
+    }
 }
 
 function see-pdf-file {
     runcase-dealer only 0
     filename="$(conf-info-extract "project_name")"
-    [ -z "$filename" ] && echo -e "\033[33m:: Project name not found in .conf file.\033[0m" && exit
-    [ -e "$(echo $filename.pdf)" ] \
-	&& zathura "$filename".pdf 2>/dev/null \
-	    || echo -e "\033[33m:: PDF file \033[36m$filename.pdf\033[33m not found.\033[0m" 
+    [[ -z "$filename" ]] && {
+	echolor yellow ":: Project name not found in .conf file."
+	return 1
+    }
+    [[ -e "$filename.pdf" ]] && {
+	sioyek "$filename".pdf 2>/dev/null >/dev/null
+    } || {
+	echolor yellow-neonblue ":: PDF file ““$filename.pdf”” not found."
+    }
 }
 
 function pdfgrep-term-freq {
     runcase-dealer only 0
-    [ -z "$1" ] \
-	&& echo -e "\033[33m:: Please enter a search term.\033[0m"
-    echo "$1" | grep -q '/' \
-	&& echo -e "\033[33m:: Lookup term cannot contain /.\033[0m" \
-	&& exit
+    [[ -z "$1" ]] && echolor yellow ":: Please enter a search term."
+    echo "$1" | grep -q '/' && {
+	echolor yellow ":: Lookup term cannot contain /." 
+	return 1
+    }
     lookup_file="./.lookups/lookup.$1.shennong"
-    fd -qu lookup."$1".shennong ./.lookups \
-	&& echo -e "\033[32m:: Previous lookup found! To refresh, use the 'relookup' command.\033[0m" \
-	&& bat -p "$lookup_file" \
-	&& exit
-    echo -e "\033[32m:: Working...\033[0m"
+    fd -qu lookup."$1".shennong ./.lookups && {
+	echolor green ":: Previous lookup found! To refresh, use the 'relookup' command."
+	bat -p "$lookup_file"
+	return 1
+    }
+    echolor green ":: Working..."
     pdfgrep --color=always -ic "$1" papers/* \
 	| sed '/0$/d;s/:/,/g' \
 	| xsv select 2,1 2>/dev/null \
 	| sort -V \
 	| tac \
 	      > "$lookup_file"
-    [ "$(cat "$lookup_file" | wc -l)" -eq 0 ] \
-	&& echo -e "\033[33m:: No results found!\033[0m" > "$lookup_file"
+    [[ "$(cat "$lookup_file" | wc -l)" -eq 0 ]] && {
+	echolor yellow ":: No results found!" > "$lookup_file"
+    }
     bat -p "$lookup_file"
 }
 
 function pdfgrep-term-freq-again {
     runcase-dealer only 0
-    [ -z "$1" ] \
-	&& echo -e "\033[33m:: Please enter a search term.\033[0m"
-    echo "$1" | grep -q '/' \
-	&& echo -e "\033[33m:: Lookup term cannot contain /.\033[0m" \
-	&& exit
+    [[ -z "$1" ]] && echolor yellow ":: Please enter a search term."
+    echo "$1" | grep -q '/' && {
+	echolor yellow ":: Lookup term cannot contain /."
+	return 1
+    }
     lookup_file="./.lookups/lookup.$1.shennong"
-    [ -e "$lookup_file" ] \
-	&& echo -e "\033[32m:: $(mv -nv "$lookup_file" "./.lookups/.archive/lookup.$1.$(date +%Y%m%d%H%M%S).shennong") \033[0m" \
-	    || echo -e "\033[33m:: No such previous lookup.\033[0m"
+    [[ -e "$lookup_file" ]] && {
+	echolor green ":: $(mv -nv "$lookup_file" "./.lookups/.archive/lookup.$1.$(date +%Y%m%d%H%M%S).shennong") "
+    } || {
+	echolor yellow ":: No such previous lookup."
+    }
     pdfgrep-term-freq "$1"
 }
 
@@ -321,13 +347,12 @@ function count-all {
     unused=0
     undownloaded=0
     commented=0
-    echo -e "\033[32m:: These are your unused papers:\033[0m"
-    while [ "$i" -le "${#allpapers[@]}" ]; do
+    echolor green ":: These are your unused papers:"
+    while [[ "$i" -le "${#allpapers[@]}" ]]; do
 	thispaper="${allpapers[$i]}"
 	filename="$(conf-info-extract "project_name")"
 	((i++))
-	grep -q "$thispaper" "$filename".bbl \
-	    && continue
+	grep -q "$thispaper" "$filename".bbl && continue
 	undwarning=""
 	if ! fd -q "^$thispaper".pdf ./papers; then   
 	    undwarning=" \t\033[33m<--- UNDOWNLOADED\033[0m"
@@ -335,31 +360,33 @@ function count-all {
 	    ((unused--))
 	fi
 	if grep -qF "% ~\\ci{$thispaper}" "$filename".tex; then
-	    [ -z "$undwarning" ] \
-		&& undwarning="\033[35m✓\033[0m" \
-		    || undwarning=" \t\033[33m<--- COMMENTED but UNDOWNLOADED\033[0m"
+	    [[ -z "$undwarning" ]] && {
+		undwarning="\033[35m✓\033[0m"
+	    } || {
+		undwarning=" \t\033[33m<--- COMMENTED but UNDOWNLOADED\033[0m"
+	    }
 	    ((commented++))
 	fi
-	[ -z "$undwarning" ] \
-	    && undwarning=" \t\033[34m<--- UNCOMMENTED\033[0m"
+	[[ -z "$undwarning" ]] && undwarning=" \t\033[34m<--- UNCOMMENTED\033[0m"
 	echo -e "$thispaper $undwarning" && ((unused++))
     done
     allpapers=($(eza -1X ./papers | sed 's/\.pdf//g')) # reuse allpapers to list all pdfs
     i=0
     unbibbed=0
-    while [ "$i" -le "${#allpapers[@]}" ]; do
+    while [[ "$i" -le "${#allpapers[@]}" ]]; do
 	thispaper="${allpapers[$i]}"
 	((i++))
-	grep -q "$thispaper," refs.bib \
-	     && continue
+	grep -q "$thispaper," refs.bib && continue
 	echo -e "$thispaper \t\033[31m<--- UNBIBBED\033[0m"
 	((unbibbed++))
     done
-    echo -e "\033[32m:: Bib file stats: \033[36m$bib_count\033[32m entries, of whom \033[36m$blg_used\033[32m are in use,\033[0m \033[36m$unused\033[32m unused (\033[36m$commented\033[32m commented), \033[36m$undownloaded\033[32m undownloaded, and \033[31m$unbibbed\033[32m unbibbed papers.\033[0m"
+    echolor green-neonblue ":: Bib file stats: ““$bib_count”” entries, of whom ““$blg_used”” are in use, ““$unused”” unused (““$commented”” commented), ““$undownloaded”” undownloaded, and " 1
+    echolor green-red "““$unbibbed”” unbibbed papers."
     allcalc=$((blg_used + unused + undownloaded - unbibbed))
-    [ "$allcalc" -ne "$bib_count" ] \
-	&& echo -e "\033[33m:: Something went wrong. The sum \033[36m$allcalc\033[33m is different than the Bib file number \033[36m$bib_count\033[33m.\033[0m"
-    echo -e "\033[32m:: TeX file stats: \033[36m$(texcount -1 -utf8 -ch -q "$filename".tex)\033[0m"
+    [[ "$allcalc" -ne "$bib_count" ]] && {
+	echolor yellow-neonblue ":: Something went wrong. The sum ““$allcalc”” is different than the Bib file number ““$bib_count””."
+    }
+    echolor green-neonblue ":: TeX file stats: ““$(texcount -1 -utf8 -ch -q "$filename".tex)””"
 }
 
 function download-paper {
@@ -417,7 +444,7 @@ function get-bib-citation {
     bibkey="$authorkey$yearkey$titlekey"
     sed -i "s/ITEM1/$bibkey/" ../.ref.tmp
     grep -q "{$bibkey," ../refs.bib && {
-	echolor red ":: Article ““$bibkey”” already exists in refs.bib. Not adding."
+	echolor red-neonblue ":: Article ““$bibkey”” already exists in refs.bib. Not adding."
     } || {
 	bat -Ppl bib ../.ref.tmp
 	cat ../.ref.tmp >> ../refs.bib
@@ -439,12 +466,18 @@ function get-bib-and-download-paper {
 
 function rename-stuff {
     runcase-dealer only 0
-    [ -z "$1" ] && echo -e "\033[33m:: rename-stuff: No valid command.\033[0m" && exit
-    [ -z "$2" ] && echo -e "\033[33m:: rename-stuff: No valid parameter.\033[0m" && exit
+    [[ -z "$1" ]] && {
+	echolor yellow ":: rename-stuff: No valid command."
+	return 1
+    }
+    [[ -z "$2" ]] && {
+	echolor yellow ":: rename-stuff: No valid parameter."
+	return 1
+    }
     function rename-directory {
 	current_name="$(pwd | awk -F '/' '{print $NF}')"
 	cd ..
-	mv -n "$current_name" "$1" || echo -e "\033[33m:: Move failed. Probably clobber.\033[0m"
+	mv -n "$current_name" "$1" || echolor yellow ":: Move failed. Probably clobber."
 	cd "$1" || exit
     }
     case "$1" in
@@ -455,13 +488,13 @@ function rename-stuff {
 	    rename-directory "$2"
 	    sed -i "s|$project_dir|$(pwd)|g" ./project.conf
 	    save-to-local
-	    echo -e "\033[32m:: Directory renamed to $2"
+	    echolor green-neonblue ":: Directory renamed to ““$2””"
 	    ;;
 	"project")
 	    project_name="$(conf-info-extract project_name)"
 	    project_dir="$(conf-info-extract project_dir)"
 	    grep -q "^$2," "$local_registry" \
-		&& echo -e "\033[33m:: A project with that name already exists.\033[0m" \
+		&& echolor yellow ":: A project with that name already exists." \
 		&& exit
 	    remove-from-local "$project_dir"
 	    rename -va "$project_name" "$2" ./*
@@ -471,10 +504,10 @@ function rename-stuff {
 	    sed -i "s|project_dir = $project_dir|project_dir = $(pwd)|g" ./project.conf
 	    sed -i "s|project_name=\"$project_name\"|project_name=\"$2\"|g" ./set.sh
 	    save-to-local
-	    echo -e "\033[32m:: Project renamed to $2"
+	    echolor green-neonblue ":: Project renamed to ““$2””"
 	    ;;
 	*)
-	    echo -e "\033[33m:: Unknown runcase-dealer command.\033[0m" ;;
+	    echolor yellow ":: Unknown runcase-dealer command." ;;
     esac
     
 	
@@ -482,7 +515,7 @@ function rename-stuff {
 
 
 check-dependencies
-[ -z "$1" ] && list-project-files && exit
+[[ -z "$1" ]] && list-project-files && exit
 comd="$1"
 
 case "$comd" in
@@ -503,6 +536,6 @@ case "$comd" in
     "lookup") pdfgrep-term-freq "$2" ;;
     "relookup") pdfgrep-term-freq-again "$2" ;;
     "update") update-project-info-file ;;
-    *) echo -e "\033[33m:: Unrecognized command.\033[0m" ;;
+    *) echolor yellow ":: Unrecognized command." ;;
 esac
 
