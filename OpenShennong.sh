@@ -423,39 +423,48 @@ function download-paper {
 	echolor red ":: Unknown fatal error."
 	return 1
     }
-    wget -nc -O ./"$bibname".pdf -t 0 -- https://"$ddurl" && touch -c ./"$bibname".pdf
+    wget --load-cookies="$browser_cookies" -nc -O ./"$bibname".pdf -t 0 -- https://"$ddurl" && touch -c ./"$bibname".pdf
 }
 
-function get-bib-citation {
-    runcase-dealer only 1
+function fetch-bib-citation {
     [[ -z "$1" ]] && return 1
     [[ -z "$EMAIL" ]] && {
 	echolor red ":: Email variable not found. Exiting."
 	return 1
     }
+    tmp_bib="/tmp/tmp-bib-$(date-string)"
     echolor green ":: Starting bib retrieval..."
     echolor green-neonblue ":: Going to ““https://api.citeas.org/product/$1?email=$EMAIL””"
-    curl -s "https://api.citeas.org/product/$1?email=$EMAIL" | jq -r '.exports.[] | select( .export_name == "bibtex" ) | .export' > ../.ref.tmp
+    curl -s "https://api.citeas.org/product/$1?email=$EMAIL" | jq -r '.exports.[] | select( .export_name == "bibtex" ) | .export' > "$tmp_bib"
     echolor green ":: Citeas.org queried!"
-    sed -i 's/journal-article/article/g;s/,,/,/g;s/title={/title={{/g;s/title=/\ntitle=/g;/title=/s/}/}}/g' ../.ref.tmp
-    authorkey="$(grep 'author=' ../.ref.tmp | sed 's/Al-//g;s/al-//g;s/Al //g' | tr -d '-' | awk -F '{' '{print $2}' | awk -F '}' '{print $1}' | awk '{print $1}' | tr '[:upper:]' '[:lower:]' | tr -d ',')"
-    yearkey="$(grep 'year=' ../.ref.tmp | awk -F '{' '{print $2}' | awk -F '}' '{print $1}')"
-    titlekey="$(grep 'title=' ../.ref.tmp | awk -F '{{' '{print $2}' | awk -F '}}' '{print $1}' | sed 's/^A //;s/^An //;s/^The //;s/-/ /g' | awk '{print $1}' | tr '[:upper:]' '[:lower:]')"
+    sed -i 's/journal-article/article/g;s/,,/,/g;s/title={/title={{/g;s/title=/\ntitle=/g;/title=/s/}/}}/g' "$tmp_bib"
+    authorkey="$(grep 'author=' "$tmp_bib" | sed 's/Al-//g;s/al-//g;s/Al //g' | tr -d '-' | awk -F '{' '{print $2}' | awk -F '}' '{print $1}' | awk '{print $1}' | tr '[:upper:]' '[:lower:]' | tr -d ',')"
+    yearkey="$(grep 'year=' "$tmp_bib" | awk -F '{' '{print $2}' | awk -F '}' '{print $1}')"
+    titlekey="$(grep 'title=' "$tmp_bib" | awk -F '{{' '{print $2}' | awk -F '}}' '{print $1}' | sed 's/^A //;s/^An //;s/^The //;s/-/ /g' | awk '{print $1}' | tr '[:upper:]' '[:lower:]')"
     bibkey="$authorkey$yearkey$titlekey"
-    sed -i "s/ITEM1/$bibkey/" ../.ref.tmp
+    sed -i "s/ITEM1/$bibkey/" "$tmp_bib"
+}
+
+function fetch-bib-no-add {
+    fetch-bib-citation "$1" || return 1
+    bat -Ppl bib "$tmp_bib"
+}
+
+function add-bib-citation-to-refs {
+    runcase-dealer only 1
+    fetch-bib-citation "$1" || return 1
     grep -q "{$bibkey," ../refs.bib && {
 	echolor red-neonblue ":: Article ““$bibkey”” already exists in refs.bib. Not adding."
     } || {
-	bat -Ppl bib ../.ref.tmp
-	cat ../.ref.tmp >> ../refs.bib
+	bat -Ppl bib "$tmp_bib"
+	cat "$tmp_bib" >> ../refs.bib
 	echo >> ../refs.bib
     }
-    rm ../.ref.tmp
 }
-
+    
 function get-bib-and-download-paper {
     runcase-dealer only 1
-    get-bib-citation "$1" || return 1
+    add-bib-citation-to-refs "$1" || return 1
     [[ -z "$bibkey" ]] && {
 	echolor red ":: Bibkey not found."
 	return 1
@@ -525,9 +534,10 @@ case "$comd" in
     "help") show-help;;
     "count") count-all ;;
     "info") project-info ;;
-    "dl") get-bib-and-download-paper "$2" ;;
-    "bib") get-bib-citation "$2" ;;
-    "download") download-paper "$2" "$3" ;;
+    "dl") get-bib-and-download-paper "$2" ;; # inside project
+    "bib") add-bib-citation-to-refs "$2" ;;  # inside project
+    "download") download-paper "$2" "$3" ;;  # outside project
+    "citation") fetch-bib-no-add "$2" ;;     # outside project
     "ls") list-project-files "$2" ;;
     "anchor") save-to-local ;;
     "unanchor") remove-from-local-prompt ;;

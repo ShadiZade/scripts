@@ -34,6 +34,13 @@ function random-number {
     head /dev/urandom | tr -dc 0-9 | head -c "${1:-8}"
 }
 
+function random-word {
+    function one-random-word {
+	grep "^$(echo "$(dice d6)$(dice d6)$(dice d6)$(dice d6)$(dice d6)")" "$HOME/Data/eff/eff-large-wordlist.txt" | awk '{print $2}' 
+    }
+    kebab "$(for j in {1..${1:-1}}; do one-random-word; done)"
+}
+
 function scramble-file-names {
     echolor red ":: THIS FUNCTION IS UNSAFE. FIX BEFORE USING."
     return 1
