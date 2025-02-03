@@ -36,7 +36,7 @@ function random-number {
 
 function random-word {
     function one-random-word {
-	grep "^$(echo "$(dice d6)$(dice d6)$(dice d6)$(dice d6)$(dice d6)")" "$HOME/Data/eff/eff-large-wordlist.txt" | awk '{print $2}' 
+	sed -n "$(dice d7776)"p "$HOME/Data/eff/eff-large-wordlist.txt"
     }
     kebab "$(for j in {1..${1:-1}}; do one-random-word; done)"
 }
@@ -49,6 +49,7 @@ function scramble-file-names {
     # TODO add reversal?
     # TODO add more checks
     # TODO fix unsafe eza calls
+    # TODO use random-word instead
     [[ -z "$1" ]] \
 	&& echolor yellow ":: Available options: 'files', 'dirs', and 'all'." \
 	&& return
