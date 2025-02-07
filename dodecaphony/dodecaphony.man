@@ -1,0 +1,132 @@
+.TH DODECAPHONY 1 2025-02-07 SHADIZADE
+
+.SH NAME
+dodecaphony \- a script to track dodecs in the dodecaphony calendar system
+
+.SH SYNOPSIS
+.B dodec
+
+.SH DESCRIPTION
+This script is meant to track my own 12-day week (dodec) calendar system (dodecaphony), which fits my work schedule better than the historical coincidence that is the 7-day week, an inconvenient prime number. This is not meant to be a general reform, merely a personal system. The dodecaphony is made up of 360 days (30 dodecs), and thus falls short of the Georgian year. Syncronization between the two systems is not important.
+
+.SH SPECIFICATIONS
+\[bu] Conversion specifications:
+.sp 0
+.ti 10
+\[bu] 1 \fIram\fR (r)    = 1  Georgian day
+.sp 0
+.ti 10
+\[bu] 1 \fIdodec\fR (d)  = 12 r
+.sp 0
+.ti 10
+\[bu] 1 \fIrydyng\fR (y) = 10 d  = 120 r
+.sp 0
+.ti 10
+\[bu] 1 \fIzhou\fR (z)   =  3 y  =  30 d  =  360 r  ≈  1 Georgian year
+
+
+\- \fIram\fR stands for Ramanujan, who derived the 1+2+3..=–1/12 equation.
+.sp 0
+\- \fIdodec\fR is short for dodecad, which is any set of twelve.
+.sp 0
+\- \fIrydyng\fR is an old English word meaning one third.
+.sp 0
+\- \fIzhou\fR 周 in Chinese meaning cycle, and is the surname of notorious workaholic icon Zhou Enlai.
+.sp 1
+\- The names of the units are never capitalized.
+.sp 0
+\- The date format is zz/y/dd/rr.
+.sp 0
+\- 01/1/01/01 is 2025/02/09.
+.sp 1
+\- The units of the dodec are each associated with a Chinese character.
+.sp 0
+.ti 10
+\[bu] z1  →  刊 kān     \[bu] y1  →  义 yì     \[bu] d1  →  刃 rèn     \[bu] r1  →  闯 chuǎng  
+.sp 0	            
+.ti 6	            
+                        \[bu] y2  →  而 ér     \[bu] d2  →  技 jì      \[bu] r2  →  岸 àn 
+.sp 0	            
+.ti 6	            
+                        \[bu] y3  →  森 sēn    \[bu] d3  →  凰 huáng   \[bu] r3  →  豹 bào
+.sp 0	            
+.ti 2	            
+                                               \[bu] d4  →  兴 xīng    \[bu] r4  →  斐 fěi
+.sp 0	            
+.ti 2	            
+                                               \[bu] d5  →  琴 qín     \[bu] r5  →  顶 dǐng
+.sp 0	            
+.ti 2	            
+                                               \[bu] d6  →  从 cóng    \[bu] r6  →  卫 wèi 
+.sp 0	            
+.ti 2	            
+                                               \[bu] d7  →  查 chá     \[bu] r7  →  田 tián
+.sp 0	            
+.ti 2	            
+                                               \[bu] d8  →  刷 shuā    \[bu] r8  →  审 shěn
+.sp 0	            
+.ti 2	            
+                                               \[bu] d9  →  汇 huì     \[bu] r9  →  启 qǐ
+.sp 0	            
+.ti 2	            
+                                               \[bu] d10 →  讴 ōu      \[bu] r10 →  剀 kǎi
+.sp 0	            
+.ti 2	            
+                                               \[bu] d11 →  叫 jiào    \[bu] r11 →  矛 máo
+.sp 0	            
+.ti 2	            
+                                               \[bu] d12 →  汝 rǔ      \[bu] r12 →  匝 zā
+.sp 0	            
+.ti 2	            
+                                               \[bu] d13 →  云 yún     
+.sp 0	            
+.ti 2	            
+                                               \[bu] d14 →  罡 gāng
+.sp 0	            
+.ti 2	            
+                                               \[bu] d15 →  功 gōng     
+.sp 0	            
+.ti 2	            
+                                               \[bu] d16 →  更 gèng
+.sp 0	            
+.ti 2	            
+                                               \[bu] d17 →  红 hóng     
+.sp 0	            
+.ti 2	            
+                                               \[bu] d18 →  绕 rào     
+.sp 0	            
+.ti 2	            
+                                               \[bu] d19 →  幺 yāo     
+.sp 0	            
+.ti 2	            
+                                               \[bu] d20 →  套 tào
+.sp 0	            
+.ti 2	            
+                                               \[bu] d21 →  织 zhī     
+.sp 0	            
+.ti 2	            
+                                               \[bu] d22 →  韭 jiǔ     
+.sp 0	            
+.ti 2	            
+                                               \[bu] d23 →  飘 piāo     
+.sp 0	            
+.ti 2	            
+                                               \[bu] d24 →  贝 bèi     
+.sp 0	            
+.ti 2	            
+                                               \[bu] d25 →  庶 shù      
+.sp 0	            
+.ti 2	            
+                                               \[bu] d26 →  忠 zhōng    
+.sp 0	            
+.ti 2	            
+                                               \[bu] d27 →  郭 guō      
+.sp 0	            
+.ti 2	            
+                                               \[bu] d28 →  仍 réng     
+.sp 0	            
+.ti 2	            
+                                               \[bu] d29 →  存 cún     
+.sp 0	            
+.ti 2	            
+                                               \[bu] d30 →  幽 yōu     
