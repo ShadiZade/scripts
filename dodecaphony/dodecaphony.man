@@ -35,9 +35,9 @@ This script is meant to track my own 12-day week (dodec) calendar system (dodeca
 .sp 1
 \- The names of the units are never capitalized.
 .sp 0
-\- The date format is zz/y/dd/rr.
+\- The date format is zz.y.dd.rr wherein y is optional.
 .sp 0
-\- 01/1/01/01 is 2025/02/09.
+\- 01.1.01.01 is 2025/02/10.
 .sp 1
 \- The units of the dodec are each associated with a Chinese character.
 .sp 0
