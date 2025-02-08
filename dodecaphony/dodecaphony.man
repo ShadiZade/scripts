@@ -1,4 +1,4 @@
-.TH DODECAPHONY 1 2025-02-07 SHADIZADE
+.TH DODECAPHONY 1 2025-02-08 SHADIZADE
 
 .SH NAME
 dodecaphony \- a script to track dodecs in the dodecaphony calendar system
@@ -19,36 +19,36 @@ This script is meant to track my own 12-day week (dodec) calendar system (dodeca
 \[bu] 1 \fIdodec\fR (d)  = 12 r
 .sp 0
 .ti 10
-\[bu] 1 \fIrydyng\fR (y) = 10 d  = 120 r
+\[bu] 1 \fItrithing\fR (t) = 10 d  = 120 r
 .sp 0
 .ti 10
-\[bu] 1 \fIzhou\fR (z)   =  3 y  =  30 d  =  360 r  ≈  1 Georgian year
+\[bu] 1 \fIzhou\fR (z)   =  3 t  =  30 d  =  360 r  ≈  1 Georgian year
 
 
 \- \fIram\fR stands for Ramanujan, who derived the 1+2+3..=–1/12 equation.
 .sp 0
 \- \fIdodec\fR is short for dodecad, which is any set of twelve.
 .sp 0
-\- \fIrydyng\fR is an old English word meaning one third.
+\- \fItrithing\fR is an old English word meaning one third.
 .sp 0
 \- \fIzhou\fR 周 in Chinese meaning cycle, and is the surname of notorious workaholic icon Zhou Enlai.
 .sp 1
 \- The names of the units are never capitalized.
 .sp 0
-\- The date format is zz.y.dd.rr wherein y is optional.
+\- The date format is zz.t.dd.rr wherein t is optional.
 .sp 0
 \- 01.1.01.01 is 2025/02/10.
 .sp 1
 \- The units of the dodec are each associated with a Chinese character.
 .sp 0
 .ti 10
-\[bu] z1  →  刊 kān     \[bu] y1  →  义 yì     \[bu] d1  →  刃 rèn     \[bu] r1  →  闯 chuǎng  
+\[bu] z1  →  刊 kān     \[bu] t1  →  义 yì     \[bu] d1  →  刃 rèn     \[bu] r1  →  闯 chuǎng  
 .sp 0	            
 .ti 6	            
-                        \[bu] y2  →  而 ér     \[bu] d2  →  技 jì      \[bu] r2  →  岸 àn 
+                        \[bu] t2  →  而 ér     \[bu] d2  →  技 jì      \[bu] r2  →  岸 àn 
 .sp 0	            
 .ti 6	            
-                        \[bu] y3  →  森 sēn    \[bu] d3  →  凰 huáng   \[bu] r3  →  豹 bào
+                        \[bu] t3  →  森 sēn    \[bu] d3  →  凰 huáng   \[bu] r3  →  豹 bào
 .sp 0	            
 .ti 2	            
                                                \[bu] d4  →  兴 xīng    \[bu] r4  →  斐 fěi

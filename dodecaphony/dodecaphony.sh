@@ -5,11 +5,11 @@ function load-global-variables {
     dx_day0="2025-02-09"
     dx_day1="2025-02-10"
     zhou_chars=(z 刊)
-    rydyng_chars=(y 义 而 森)
+    trithing_chars=(y 义 而 森)
     dodec_chars=(d 刃 技 凰 兴 琴 从 查 刷 汇 讴 叫 汝 云 罡 功 更 红 绕 幺 套 织 韭 飘 贝 庶 忠 郭 仍 存 幽)
     ram_chars=(r 闯 岸 豹 斐 顶 卫 田 审 启 剀 矛 匝)
     zhou_color='38;2;80;118;148'
-    rydyng_color='38;2;69;72;206'
+    trithing_color='38;2;69;72;206'
     dodec_color='38;2;93;205;217'
     ram_color='38;2;254;248;236'
 }   
@@ -48,28 +48,28 @@ function gx-dx-convert {
     # {1..360}
     local zhous_since_day0="$((rams_since_day0 / 360 + 1))" # bash can't do float, basically floor function
     # z1 begins on dx_day1
-    local rydyng_in_zhou="$((ram_in_zhou / 120 + 1))"
+    local trithing_in_zhou="$((ram_in_zhou / 120 + 1))"
     # {1..3}
     local dodec_in_zhou="$(((ram_in_zhou - 1 ) / 12 + 1))"
     # {1..30}
     local ram_in_dodec="$(((ram_in_zhou - 1 ) % 12 + 1 ))"
     # {1..12}
     [[ "$2" = "4" || -z "$2" ]] && {
-	format-dx-string "$zhous_since_day0" "$rydyng_in_zhou" "$dodec_in_zhou" "$ram_in_dodec"
+	format-dx-string "$zhous_since_day0" "$trithing_in_zhou" "$dodec_in_zhou" "$ram_in_dodec"
 	return 0
     }
     [[ "$2" = "3" ]] && {
 	format-dx-string "$zhous_since_day0" "$dodec_in_zhou" "$ram_in_dodec"
 	return 0
     }
-    printf "$(sed "s/z/$zhous_since_day0/g;s/y/$rydyng_in_zhou/g;s/d/$dodec_in_zhou/g;s/r/$ram_in_dodec/g" <<< "$2")"
+    printf "$(sed "s/z/$zhous_since_day0/g;s/t/$trithing_in_zhou/g;s/d/$dodec_in_zhou/g;s/r/$ram_in_dodec/g" <<< "$2")"
 }
 
 function color-number {
     [[ -z "$1" || -z "$2" ]] && return 1
     case "$1" in
 	z) printf "\033[${zhou_color}m%.2d" "${2##0}";;
-	y) printf "\033[${rydyng_color}m%.1d" "${2##0}";;
+	t) printf "\033[${trithing_color}m%.1d" "${2##0}";;
 	d) printf "\033[${dodec_color}m%.2d" "${2##0}";;
 	r) printf "\033[${ram_color}m%.2d" "${2##0}";;
 	*) return 1 ;;
@@ -103,7 +103,7 @@ function extract-from-dx-string {
     then
 	case "$1" in
 	    z) cut -d '.' -f 1 <<< "$2";;
-	    y) cut -d '.' -f 2 <<< "$2";;
+	    t) cut -d '.' -f 2 <<< "$2";;
 	    d) cut -d '.' -f 3 <<< "$2";;
 	    r) cut -d '.' -f 4 <<< "$2";;
 	    *) return 1 ;;
@@ -118,7 +118,7 @@ function extract-from-dx-string {
     fi
 }
 
-function truncate-y-from-dx-string {
+function truncate-t-from-dx-string {
     local ex_z="$(extract-from-dx-string z "$@")"
     local ex_d="$(extract-from-dx-string d "$@")"
     local ex_r="$(extract-from-dx-string r "$@")"
@@ -143,7 +143,7 @@ function give-char {
 	case "$j" in
 	    "keys") : ;;
 	    "color") local zhou_color_sequence="\033[${zhou_color}m"
-		     local rydyng_color_sequence="\033[${rydyng_color}m"
+		     local trithing_color_sequence="\033[${trithing_color}m"
 		     local dodec_color_sequence="\033[${dodec_color}m"
 		     local ram_color_sequence="\033[${ram_color}m";;
 	    *) : ;;
@@ -151,7 +151,7 @@ function give-char {
     done
     case "$1" in
 	z) printf "$zhou_color_sequence${zhou_chars[$char_index]:-甚}";;
-	y) printf "$rydyng_color_sequence${rydyng_chars[$char_index]:-甚}";;
+	t) printf "$trithing_color_sequence${trithing_chars[$char_index]:-甚}";;
 	d) printf "$dodec_color_sequence${dodec_chars[$char_index]:-甚}";;
 	r) printf "$ram_color_sequence${ram_chars[$char_index]:-甚}";;
 	*) return 1 ;;
@@ -172,11 +172,11 @@ function give-chars-for-dx-string {
     done
     local ch_z="$(give-char z $(extract-from-dx-string z "$1" "$passkey"))"
     [[ "$(no-of-fields-in-dx-string "$2")" -eq 3 ]] || {
-	local ch_y="$(give-char y $(extract-from-dx-string y "$1" "$passkey"))"
+	local ch_t="$(give-char t $(extract-from-dx-string t "$1" "$passkey"))"
     }
     local ch_d="$(give-char d $(extract-from-dx-string d "$1" "$passkey"))"
     local ch_r="$(give-char r $(extract-from-dx-string r "$1" "$passkey"))"
-    printf "$ch_z$ch_y$ch_d$ch_r"
+    printf "$ch_z$ch_t$ch_d$ch_r"
 }
 
 function command-option {
@@ -194,10 +194,10 @@ function command-option {
 	    ;;
 	"pretty")
 	    test-date-validity "$(field "$@" 2)" || return 1
-	    printf "\033[${zhou_color}m∎\033[${rydyng_color}m∎\033[${dodec_color}m∎\033[${ram_color}m∎\033[0m "
+	    printf "\033[${zhou_color}m∎\033[${trithing_color}m∎\033[${dodec_color}m∎\033[${ram_color}m∎\033[0m "
 	    color-number z "$(gx-dx-convert "$(field "$@" 2)" z)"
 	    printf .
-	    color-number y "$(gx-dx-convert "$(field "$@" 2)" y)"
+	    color-number t "$(gx-dx-convert "$(field "$@" 2)" t)"
 	    printf .
 	    color-number d "$(gx-dx-convert "$(field "$@" 2)" d)"
 	    printf .
@@ -217,12 +217,12 @@ function command-option {
 	    ;;
 	"to-dx-no-y")
 	    local dx_date="$(gx-dx-convert "$(field "$@" 2)")"
-	    truncate-y-from-dx-string "$dx_date" || exit 1
+	    truncate-t-from-dx-string "$dx_date" || exit 1
 	    echo
 	    ;;
-	"to-dx-no-y-char")
+	"to-dx-no-t-char")
 	    local dx_date="$(gx-dx-convert "$(field "$@" 2)")"
-	    local dx_date="$(truncate-y-from-dx-string "$dx_date")"
+	    local dx_date="$(truncate-t-from-dx-string "$dx_date")"
 	    give-chars-for-dx-string "$dx_date" || exit 1
 	    echo
 	    ;;
