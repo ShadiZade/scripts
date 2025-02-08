@@ -5,7 +5,7 @@ function load-global-variables {
     dx_day0="2025-02-09"
     dx_day1="2025-02-10"
     zhou_chars=(z 刊)
-    trithing_chars=(y 义 而 森)
+    trithing_chars=(t 义 而 森)
     dodec_chars=(d 刃 技 凰 兴 琴 从 查 刷 汇 讴 叫 汝 云 罡 功 更 红 绕 幺 套 织 韭 飘 贝 庶 忠 郭 仍 存 幽)
     ram_chars=(r 闯 岸 豹 斐 顶 卫 田 审 启 剀 矛 匝)
     zhou_color='38;2;80;118;148'

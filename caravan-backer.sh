@@ -11,7 +11,7 @@ echolor aquamarine "    BEFORE " 1
 echolor bloody-pink "THE ““HORSE””   " 1
 echolor purple "::::::::"
 echolor purple "::::::::" 1
-echolor lightorange-default "    EVERYDAY““!!!!!!!!””   " 1
+echolor liteorange-default "    EVERYDAY““!!!!!!!!””   " 1
 echolor purple "::::::::"
 [[ ! -e "/dev/mapper/caravan" ]] && {
     echolor red ":: No hard drive found."
