@@ -40,7 +40,6 @@ function format-dx-string {
 
 function gx-dx-convert {
     # converts the date from Georgian to Dodecaphony
-#    sane "$1"
     test-date-validity "$1" || return 1
     local rams_since_day0="$(datediff "$dx_day0" "$1")"
     # basically epoch for dx
@@ -62,7 +61,7 @@ function gx-dx-convert {
 	format-dx-string "$zhous_since_day0" "$dodec_in_zhou" "$ram_in_dodec"
 	return 0
     }
-    printf "$(sed "s/z/$zhous_since_day0/g;s/t/$trithing_in_zhou/g;s/d/$dodec_in_zhou/g;s/r/$ram_in_dodec/g" <<< "$2")"
+    printf "$(sed "s/%z/$zhous_since_day0/g;s/%t/$trithing_in_zhou/g;s/%d/$dodec_in_zhou/g;s/%r/$ram_in_dodec/g" <<< "$2")"
 }
 
 function color-number {
@@ -166,7 +165,8 @@ function give-chars-for-dx-string {
     do
 	case "$j" in
 	    "keys") : ;;
-	    "color") local passkey+=":color";;		     
+	    "color") local passkey+=":color";;
+	    "no_t") local passkey+=":no_t";;
 	    *) : ;;
 	esac
     done
@@ -207,7 +207,7 @@ function command-option {
 	    printf '\n'
 	    ;;
 	"to-dx")
-	    gx-dx-convert "$(field "$@" 2)" || exit 1
+	    gx-dx-convert "$(field "$@" 2)" "$(field "$@" 3)" || exit 1
 	    echo
 	    ;;
 	"to-dx-char")

@@ -4,10 +4,42 @@
 dodecaphony \- a script to track dodecs in the dodecaphony calendar system
 
 .SH SYNOPSIS
-.B dodec
+.B dodec -c \fI<command>\fR
 
 .SH DESCRIPTION
 This script is meant to track my own 12-day week (dodec) calendar system (dodecaphony), which fits my work schedule better than the historical coincidence that is the 7-day week, an inconvenient prime number. This is not meant to be a general reform, merely a personal system. The dodecaphony is made up of 360 days (30 dodecs), and thus falls short of the Georgian year. Syncronization between the two systems is not important.
+
+.SH COMMANDS
+.BR to-dx " " \fI<date>\fR " " \fI[formatting]\fR
+.ti 10
+Converts a Georgian date to Dodecaphony.
+.ti 10
+\[bu] Formatting options:
+.ti 15
+\[bu] \fI4\fR (default): Prints in zz.t.dd.rr format.
+.ti 15
+\[bu] \fI3\fR:           Prints in zz.dd.rr format.
+.ti 15
+\[bu] \fI[arbitrary]\fR: replaces %{z,t,d,r} with the corresponding values. Cannot deal with normal spaces (use nbsp).
+.ti 12
+\fB==> dodec -c 'to-dx 2025-02-10 "Today’s ram is %r."'\fR
+.TP
+.BR to-dx-char " " \fI<date>\fR " " \fI[:KEYS]\fR
+.ti 10
+Converts a Georgian date to its corresponding set of characters in Dodecaphony.
+.ti 10
+\[bu] Keys:
+.ti 15
+\[bu] \fIcolor\fR: Prints the characters in color.
+.ti 12
+\fB==> dodec -c 'to-dx-char 2025-02-10 color'\fR
+.sp 0
+.TP
+.BR pretty " " \fI<date>\fR
+.ti 10
+Converts and prettyprints a Georgian date in Dodecaphony.
+.ti 12
+\fB==> dodec -c 'pretty 2025-02-10'\fR
 
 .SH SPECIFICATIONS
 \[bu] Conversion specifications:
