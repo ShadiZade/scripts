@@ -195,13 +195,13 @@ function command-option {
 	"pretty")
 	    test-date-validity "$(field "$@" 2)" || return 1
 	    printf "\033[${zhou_color}m∎\033[${trithing_color}m∎\033[${dodec_color}m∎\033[${ram_color}m∎\033[0m "
-	    color-number z "$(gx-dx-convert "$(field "$@" 2)" z)"
+	    color-number z "$(gx-dx-convert "$(field "$@" 2)" %z)"
 	    printf .
-	    color-number t "$(gx-dx-convert "$(field "$@" 2)" t)"
+	    color-number t "$(gx-dx-convert "$(field "$@" 2)" %t)"
 	    printf .
-	    color-number d "$(gx-dx-convert "$(field "$@" 2)" d)"
+	    color-number d "$(gx-dx-convert "$(field "$@" 2)" %d)"
 	    printf .
-	    color-number r "$(gx-dx-convert "$(field "$@" 2)" r)"
+	    color-number r "$(gx-dx-convert "$(field "$@" 2)" %r)"
 	    printf ' '
 	    give-chars-for-dx-string "$(gx-dx-convert "$(field "$@" 2)" 4)" color
 	    printf '\n'
