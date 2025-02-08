@@ -45,9 +45,9 @@ function gx-dx-convert {
     # basically epoch for dx
     local ram_in_zhou="$(((rams_since_day0 - 1 ) % 360 + 1))"
     # {1..360}
-    local zhous_since_day0="$((rams_since_day0 / 360 + 1))" # bash can't do float, basically floor function
+    local zhous_since_day0="$((( rams_since_day0 - 1 ) / 360 + 1))" # bash can't do float, basically floor function
     # z1 begins on dx_day1
-    local trithing_in_zhou="$((ram_in_zhou / 120 + 1))"
+    local trithing_in_zhou="$(((ram_in_zhou - 1 ) / 120 + 1))"
     # {1..3}
     local dodec_in_zhou="$(((ram_in_zhou - 1 ) / 12 + 1))"
     # {1..30}
