@@ -45,16 +45,16 @@ Converts and prettyprints a Georgian date in Dodecaphony.
 \[bu] Conversion specifications:
 .sp 0
 .ti 10
-\[bu] 1 \fIram\fR (r)    = 1  Georgian day
+\[bu] 1 \fIram\fR (r)      = 1  Georgian day
 .sp 0
 .ti 10
-\[bu] 1 \fIdodec\fR (d)  = 12 r
+\[bu] 1 \fIdodec\fR (d)    = 12 r
 .sp 0
 .ti 10
 \[bu] 1 \fItrithing\fR (t) = 10 d  = 120 r
 .sp 0
 .ti 10
-\[bu] 1 \fIzhou\fR (z)   =  3 t  =  30 d  =  360 r  ≈  1 Georgian year
+\[bu] 1 \fIzhou\fR (z)     =  3 t  =  30 d  =  360 r  ≈  1 Georgian year
 
 
 \- \fIram\fR stands for Ramanujan, who derived the 1+2+3..=–1/12 equation.
@@ -66,6 +66,17 @@ Converts and prettyprints a Georgian date in Dodecaphony.
 \- \fIzhou\fR 周 in Chinese meaning cycle, and is the surname of notorious workaholic icon Zhou Enlai.
 .sp 1
 \- The names of the units are never capitalized.
+.sp 0
+\- Trithings are optional, and they do not reset the dodecs.
+.sp 0
+.ti 12
+\- 01.2.01.01 ⨯ incorrect
+.sp 0
+.ti 12
+\- 01.2.11.01 ✓ correct
+.sp 0
+.ti 12
+\- 01.11.01   ✓ correct
 .sp 0
 \- The date format is zz.t.dd.rr wherein t is optional.
 .sp 0
