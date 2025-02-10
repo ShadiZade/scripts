@@ -314,7 +314,7 @@ function open-book {
 	echolor red ":: No PDF filename passed to open-book function."
 	return 1
     }
-    sioyek "$sld_fnm" >/dev/null 2>/dev/null &
+    ( sioyek "$sld_fnm" >/dev/null 2>/dev/null ) &
     echo "$(date-string ymdhm),\"$sld_ttl\",$sld_fnm" >> "$HOME/.local/logs/palladium/pall-open-book-log.csv"
 }
 
@@ -366,7 +366,7 @@ function open-history {
     }
     sld_fnm="$(list-24-hour-books | ifne xsv select -n 3 | awk -F '/' '{print $NF}' | sort | uniq | ifne fzf)"
     [[ -z "$sld_fnm" ]] && return 1
-    sioyek "$loc/$sld_fnm" >/dev/null 2>/dev/null &
+    ( sioyek "$loc/$sld_fnm" >/dev/null 2>/dev/null ) &
 }
 
 function from-id {
@@ -376,7 +376,7 @@ function from-id {
 function open-from-file {
     sld_fnm="$(tac "$usdd/pall-$1" | ifne awk -F '/' '{print $NF}' | sort | uniq | ifne fzf)"
     [[ -z "$sld_fnm" ]] && return 1
-    sioyek "$loc/$sld_fnm" >/dev/null 2>/dev/null &
+    ( sioyek "$loc/$sld_fnm" >/dev/null 2>/dev/null ) &
 }
 
 function put-in {
@@ -491,7 +491,7 @@ function open-current {
     cd "$HOME/Projects/reading/"
     local sld_fnm_current="$(fd -d 1 pdf | ifne fzf)"
     [[ -z "$sld_fnm_current" ]] && return 1
-    sioyek "$sld_fnm_current" >/dev/null 2>/dev/null &
+    ( sioyek "$sld_fnm_current" >/dev/null 2>/dev/null ) &
 }
 
 backup-index
