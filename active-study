@@ -45,7 +45,7 @@ function open-study {
     [ -z "$openthis" ] && echolor red ":: Nothing chosen." && exit
     echolor purple ":: Opened ““$(echo $openthis | awk -F '/' '{print $NF}')”” in ““$use_program””"
     echo -n $openthis | xclip -selection clipboard
-    "$use_program" "$openthis" 2>/dev/null >/dev/null
+    ( eval "$use_program" "$openthis" 2>/dev/null >/dev/null ) &
 }
 
 function move-to-alldone {
