@@ -413,7 +413,7 @@ function download-paper {
 	echo "$ddurl" | grep -q "$j" || continue
 	ddurl="$(echo "$ddurl" | sed "s|^/$j|sci-hub.ru/$j|")"
     done
-    [[ -z "$2" ]] && bibname="unnamed" || bibname="$2"
+    [[ -z "$2" ]] && bibname="unnamed" || bibname="$(kebab "$2")"
     fd -q "$bibname".pdf && {
 	echolor yellow-neonblue ":: Paper ““$bibname”” already exists. Overwrite? (y/N) " 1
 	read -r overwrite_p
@@ -423,7 +423,7 @@ function download-paper {
 	echolor red ":: Unknown fatal error."
 	return 1
     }
-    wget --load-cookies="$browser_cookies" -nc -O ./"$bibname".pdf -t 0 -- https://"$ddurl" && touch -c ./"$(kebab "$bibname")".pdf
+    wget --load-cookies="$browser_cookies" -nc -O ./"$bibname".pdf -t 0 -- https://"$ddurl" && touch -c ./"$bibname".pdf
 }
 
 function fetch-bib-citation {
