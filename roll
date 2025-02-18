@@ -76,6 +76,7 @@ function prepare {
 	[[ ! -z "$trans_alt" ]] && v_stump="$trans_alt "
     }
     v_stump="$(kebab "$v_stump")"
+    v_ext="$(sed 's/jpeg/jpg/' <<< "$v_ext")" 
     final="$v_stump$v_url$v_ext"
     cmp -s <(echo "$original") <(echo "$final") && {
 	echolor ashy ":: No difference, skipping"
