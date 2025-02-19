@@ -435,7 +435,9 @@ function fetch-bib-citation {
     tmp_bib="/tmp/tmp-bib-$(date-string)"
     echolor green ":: Starting bib retrieval..."
     echolor green-neonblue ":: Going to ““https://api.citeas.org/product/$1?email=$EMAIL””"
-    curl -s "https://api.citeas.org/product/$1?email=$EMAIL" | jq -r '.exports.[] | select( .export_name == "bibtex" ) | .export' > "$tmp_bib"
+    curl -s "https://api.citeas.org/product/$1?email=$EMAIL" > "$tmp_bib-full"
+    # add functionality to extract doi from json and use it in paper download
+    jq -r '.exports.[] | select( .export_name == "bibtex" ) | .export' "$tmp_bib-full" > "$tmp_bib"
     echolor green ":: Citeas.org queried!"
     sed -i 's/journal-article/article/g;s/,,/,/g;s/title={/title={{/g;s/title=/\ntitle=/g;/title=/s/}/}}/g' "$tmp_bib"
     authorkey="$(grep 'author=' "$tmp_bib" | sed 's/Al-//g;s/al-//g;s/Al //g' | tr -d '-' | awk -F '{' '{print $2}' | awk -F '}' '{print $1}' | awk '{print $1}' | tr '[:upper:]' '[:lower:]' | tr -d ',')"

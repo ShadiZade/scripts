@@ -89,14 +89,15 @@ function scramble-file-names {
 }
 
 function kebab {
-    echo -e "$@" \
-	| iconv -c -f utf8 -t ascii//TRANSLIT \
-	| perl -pe 's|&.*?;||g' \
-	| tr -d '"’“”!?*=$:;#@^~()[]{}<>\t\\' \
-	| sed 's|/| |g;s/\&/-and-/g;s/\%/-percent-/g' \
-	| tr -d "'" \
-	| tr '_ .|/+,\n–—' '-' \
-	| tr '[A-Z]' '[a-z]' \
+    local kebab_input="${@:-$(cat /dev/stdin)}"
+    echo -e "$kebab_input"                             \
+	| iconv -c -f utf8 -t ascii//TRANSLIT          \
+	| perl -pe 's|&.*?;||g'                        \
+	| tr -d '"’“”!?*=$:;#@^~()[]{}<>\t\\'          \
+	| sed 's|/| |g;s/\&/-and-/g;s/\%/-percent-/g'  \
+	| tr -d "'"                                    \
+	| tr '_ .|/+,\n–—' '-'                         \
+	| tr '[A-Z]' '[a-z]'                           \
 	| sed 's/--*/-/g;s/-$//g;s/^-//g'
 }
 
