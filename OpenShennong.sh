@@ -199,14 +199,14 @@ function update-reading-notes-file {
     runcase-dealer only 0
     for j in $(eza -1X "$(pwd)/papers")
     do
-	grep -q "\[\[file:papers/$j\]" reading-notes.org && continue
-	echo "* [[file:papers/$j][${j/.pdf/}]]" >> reading-notes.org
+	grep -q "\[\[file:papers/$j\]" notes/reading-notes.org && continue
+	echo "* [[file:papers/$j][${j/.pdf/}]]" >> notes/reading-notes.org
 	echolor green-aquamarine ":: Added ““${j/.pdf/}”” to reading notes file!"
     done
     for j in $(eza -1X "$(pwd)/papers")
     do
-	grep -q "\[\[file:papers/$j\]" paper-summaries.org && continue
-	echo "* [[file:papers/$j][${j/.pdf/}]]" >> paper-summaries.org
+	grep -q "\[\[file:papers/$j\]" notes/paper-summaries.org && continue
+	echo "* [[file:papers/$j][${j/.pdf/}]]" >> notes/paper-summaries.org
 	echolor pink-aquamarine ":: Added ““${j/.pdf/}”” to paper summaries file!"
     done    
 }
@@ -261,7 +261,7 @@ function see-pdf-file {
 	return 1
     }
     [[ -e "$filename.pdf" ]] && {
-	sioyek "$filename".pdf 2>/dev/null >/dev/null
+	( sioyek "$filename".pdf 2>/dev/null >/dev/null )
     } || {
 	echolor yellow-neonblue ":: PDF file ““$filename.pdf”” not found."
     }
