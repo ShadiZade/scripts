@@ -30,8 +30,8 @@ echolor yellow "$(basic-commit ~/Misc/Backups/user-script-data/)" \
 
 echolor ←yellow ":: Backing local bin and man..."
 rsync -qaruL ~/.local/bin/* ~/Misc/Backups/local/
-eza --no-quotes --sort=ext --group-directories-first --tree --color never ~/.local/bin/ > bin-tree.txt
-eza --no-quotes --sort=ext --group-directories-first --tree --color never ~/.local/share/man/ > man-tree.txt
+eza --no-quotes --sort=ext --group-directories-first --tree --color never ~/.local/bin/ > ~/Misc/Backups/local/bin-tree.txt
+eza --no-quotes --sort=ext --group-directories-first --tree --color never ~/.local/share/man/ > ~/Misc/Backups/local/man-tree.txt
 echolor yellow "$(mandb -u)"
 echolor yellow "$(basic-commit ~/Misc/Backups/local/)" \
     && echolor blue "\t\t → Done!"
