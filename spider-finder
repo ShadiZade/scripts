@@ -1,6 +1,6 @@
 #!/bin/bash
 source ~/Repositories/scripts/essential-functions
-source ~/Repositories/private/private-aliases.sh
+source ~/Repositories/private/api-keys
 
 
 spiderdir="$HOME/Data/world-spider-catalog"
@@ -8,7 +8,7 @@ function find-spider {
     wscfile="$(fd -- spider-catalog "$spiderdir" | sort -Vr | sed 1q)"
     lsid="$(xsv select 2,3,4,5,6,7,8 $wscfile | sed 1d | fzf | ifne xsv select 1)"
     [[ -z "$lsid" ]] && exit 1
-    xdg-open "https://wsc.nmbe.ch/lsid/${lsid}?apiKey=$wscapikey" > /dev/null
+    xdg-open "https://wsc.nmbe.ch/lsid/${lsid}?apiKey=$APIKEY_wsc" > /dev/null
 }
 
 function see-diff {

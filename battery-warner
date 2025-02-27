@@ -8,13 +8,35 @@ do
     newadap="$(acpi -a | awk '{print $NF}')"
     [[ ! "$adap" = "$newadap" ]] && {
 	case "$adap$newadap" in
-	    "on-lineoff-line") sfx adapter-removed ;;
-	    "off-lineon-line") sfx adapter-connect ;;
+	    "on-lineoff-line")
+		sfx adapter-removed
+		notify-send -t 4000 "BATTERY INFO" "Adapter removed"
+		;;
+	    "off-lineon-line")
+		sfx adapter-connect
+		notify-send -t 4000 "BATTERY INFO" "Adapter connected"
+		;;
 	esac
     }
     adap="$newadap"
     [[ "$adap" = "on-line" ]] && continue
+
     battery-low-detect
+    
+    if [[ "$batterypercent" -gt 50 ]]
+    then
+	newbatterymorethan50=y
+	batterymorethan50="$newbatterymorethan50"
+	continue
+    else
+	newbatterymorethan50=n
+	[[ "$batterymorethan50$newbatterymorethan50" = "yn" ]] && {
+		sfx two-bloops
+		notify-send -t 4000 "BATTERY INFO" "Charge has dropped below 50%"
+	}
+	batterymorethan50="$newbatterymorethan50"
+    fi
+    
     [[ "$batterylow" -eq 1 ]] && {
 	source ~/Repositories/dotfiles/zsh/variables
 	[[ "$battery_warning_on" -eq 0 ]] && continue
@@ -38,5 +60,7 @@ do
 	    sfx pull-up
 	    continue
 	}
+	
+
     }
 done
