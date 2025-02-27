@@ -30,7 +30,7 @@ function add-study {
 function delete-study {
     [[ "$current_or_reserve" -eq 1 ]] \
 	&& storage_file="$reserve_file" \
-		       || storage_file="$current_file"
+	    || storage_file="$current_file"
     removethis="$(cat $storage_file | fzf --prompt="Select file to REMOVE: ")"
     [ -z "$removethis" ] && echolor red ":: Nothing chosen." && exit
     sed -i "s|^$removethis$||g;/^$/d" $storage_file
@@ -40,7 +40,7 @@ function delete-study {
 function open-study {
     [[ "$current_or_reserve" -eq 1 ]] \
 	&& storage_file="$reserve_file" \
-		       || storage_file="$current_file"
+	    || storage_file="$current_file"
     openthis="$(cat $storage_file | fzf --prompt="Select file to OPEN: ")"
     [ -z "$openthis" ] && echolor red ":: Nothing chosen." && exit
     echolor purple ":: Opened ““$(echo $openthis | awk -F '/' '{print $NF}')”” in ““$use_program””"
@@ -99,10 +99,10 @@ function view-study {
 }
 
 function print-name {
-	full_name="$(realpath "$1" | sed "s|$HOME|~|g")"
-	path_string="$(dirname "$1" | sed "s|$HOME|~|g")"
-	max_length=$(($(tput cols) - 8))
-	replace_which=3
+    full_name="$(realpath -qm "$1" | sed "s|$HOME|~|g")"
+    path_string="$(dirname "$1" | sed "s|$HOME|~|g")"
+    max_length=$(($(tput cols) - 8))
+    replace_which=3
     function replacer {
 	replace_this="$(echo -n "$path_string" | xsv select -d '/' $replace_which)"
 	path_string="$(echo -n "$path_string" | sed "s|$replace_this|...|")"
@@ -118,7 +118,7 @@ function print-name {
 	green) color=32 ;;
     esac	
     path_string=$(echo -n "$path_string" | sed "s|\.\.\./\.\.\./\.\.\./|.../|g;s|\.\.\.|\\\\033[30m...\\\\033[${color}m|g")
-    if [[ -e "$(realpath "$1")" ]]
+    if [[ -e "$(realpath -qm "$1")" ]]
     then
 	echolor "$2" "““$i””\t"$path_string"/““$(basename "$1")””"
     else
@@ -143,6 +143,6 @@ while getopts 'movra:d' OPTION; do
 	     esac
 	     ;;
 	*) echo incorrect input; exit ;;
-	esac
+    esac
 done
 (( $OPTIND == 1 )) && open-study
