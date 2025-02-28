@@ -9,12 +9,12 @@ do
     [[ ! "$adap" = "$newadap" ]] && {
 	case "$adap$newadap" in
 	    "on-lineoff-line")
-		sfx adapter-removed
 		notify-send -t 4000 "BATTERY INFO" "Adapter removed"
+		sfx adapter-removed
 		;;
 	    "off-lineon-line")
-		sfx adapter-connect
 		notify-send -t 4000 "BATTERY INFO" "Adapter connected"
+		sfx adapter-connect
 		;;
 	esac
     }
@@ -31,8 +31,8 @@ do
     else
 	newbatterymorethan50=n
 	[[ "$batterymorethan50$newbatterymorethan50" = "yn" ]] && {
-		sfx two-bloops
 		notify-send -t 4000 "BATTERY INFO" "Charge has dropped below 50%"
+		sfx two-bloops
 	}
 	batterymorethan50="$newbatterymorethan50"
     fi
