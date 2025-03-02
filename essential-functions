@@ -271,8 +271,10 @@ function exchange-names {
 }
 
 function battery-low-detect {
-    batterypercent="$(acpi -b | grep 'Battery 1' | awk -F ',' '{print $2}' | tr -d '% ')"
-    [[ "$batterypercent" -gt 25 ]] && batterylow="0" ||	batterylow="1"
+    battery1percent="$(acpi -b | grep 'Battery 1' | awk -F ',' '{print $2}' | tr -d '% ')"
+    battery0percent="$(acpi -b | grep 'Battery 0' | awk -F ',' '{print $2}' | tr -d '% ')"
+    [[ "$battery1percent" -gt 25 ]] && batterylow="0" || batterylow="1"
+    [[ "$battery0percent" -gt 25 ]] && batterylow="0"
 }
 
 function warning-bloops {

@@ -23,7 +23,7 @@ do
 
     battery-low-detect
     
-    if [[ "$batterypercent" -gt 50 ]]
+    if [[ "$battery1percent" -gt 50 ]]
     then
 	newbatterymorethan50=y
 	batterymorethan50="$newbatterymorethan50"
@@ -41,22 +41,22 @@ do
 	source ~/Repositories/dotfiles/zsh/variables
 	[[ "$battery_warning_on" -eq 0 ]] && continue
 	killall dunst
-	remaining="$(acpi -b | sed -n 2p | awk -F ', ' '{print $NF}')"
-	notify-send -u critical -t 4000 "BATTERY WARNING" "${batterypercent}%\n$remaining"
+	remaining="$(acpi -b | grep 'remaining' | awk -F ', ' '{print $NF}')"
+	notify-send -u critical -t 4000 "BATTERY WARNING" "${battery1percent}%\n$remaining"
 	quodlibet --pause
-	[[ "$batterypercent" -eq 25 ]] && {
+	[[ "$battery1percent" -eq 25 ]] && {
 	    sfx dont-sink
 	    continue
 	}
-	[[ "$batterypercent" -gt 19 ]] && {
+	[[ "$battery1percent" -gt 19 ]] && {
 	    sfx terrain
 	    continue
 	}
-	[[ "$batterypercent" -gt 9 ]] && {
+	[[ "$battery1percent" -gt 9 ]] && {
 	    sfx too-low
 	    continue
 	}
-	[[ "$batterypercent" -ge 0 ]] && {
+	[[ "$battery1percent" -ge 0 ]] && {
 	    sfx pull-up
 	    continue
 	}
