@@ -67,5 +67,5 @@ do
 	    ;;
     esac
 done
-
+unset IFS
 # [[ "$1" = "dry" ]] && bat "$dryfile"
