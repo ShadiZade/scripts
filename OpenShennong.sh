@@ -440,10 +440,14 @@ function fetch-bib-citation {
     jq -r '.exports.[] | select( .export_name == "bibtex" ) | .export' "$tmp_bib-full" > "$tmp_bib"
     echolor green ":: Citeas.org queried!"
     sed -i 's/journal-article/article/g;s/,,/,/g;s/title={/title={{/g;s/title=/\ntitle=/g;/title=/s/}/}}/g' "$tmp_bib"
-    authorkey="$(grep 'author=' "$tmp_bib" | sed 's/Al-//g;s/al-//g;s/Al //g' | tr -d '-' | awk -F '{' '{print $2}' | awk -F '}' '{print $1}' | awk '{print $1}' | tr '[:upper:]' '[:lower:]' | tr -d ',')"
+    authorkey="$(grep 'author=' "$tmp_bib" | sed 's/al-//gi;s/al //gi;s/de /de/gi;s/Van /van/gi;s/von /von/gi' | tr -d '-' | awk -F '{' '{print $2}' | awk -F '}' '{print $1}' | awk '{print $1}' | tr '[:upper:]' '[:lower:]' | tr -d ',')"
     yearkey="$(grep 'year=' "$tmp_bib" | awk -F '{' '{print $2}' | awk -F '}' '{print $1}')"
     titlekey="$(grep 'title=' "$tmp_bib" | awk -F '{{' '{print $2}' | awk -F '}}' '{print $1}' | sed 's/^A //;s/^An //;s/^The //;s/[-‐—–]//g' | awk '{print $1}' | tr '[:upper:]' '[:lower:]')"
     bibkey="$(kebab $authorkey$yearkey$titlekey)"
+    [[ "$bibkey" = "error" ]] && {
+	echolor red ":: Citation returned error. Exiting."
+	return 1
+    }
     sed -i "s/ITEM1/$bibkey/" "$tmp_bib"
 }
 
