@@ -414,10 +414,14 @@ function download-paper {
 	ddurl="$(echo "$ddurl" | sed "s|^/$j|sci-hub.ru/$j|")"
     done
     [[ -z "$2" ]] && bibname="unnamed" || bibname="$(kebab "$2")"
-    fd -q "$bibname".pdf && {
+    [[ -s "$bibname".pdf ]] && {
 	echolor yellow-neonblue ":: Paper ““$bibname”” already exists. Overwrite? (y/N) " 1
 	read -r overwrite_p
 	[[ "$overwrite_p" = y ]] && echolor green ":: $(rm -vf "$bibname".pdf)" || return 1
+    }
+    [[ -e "$bibname".pdf && ! -s "$bibname".pdf ]] && {
+	echolor yellow-neonblue ":: Paper ““$bibname”” already exists with size zero. Overwriting automatically..."
+	echolor green ":: $(rm -vf "$bibname".pdf)" || return 1
     }
     [[ -z "$ddurl" ]] && {
 	echolor red ":: Unknown fatal error."
@@ -432,23 +436,38 @@ function fetch-bib-citation {
 	echolor red ":: Email variable not found. Exiting."
 	return 1
     }
+    product_url="${1#/}"
+    product_url="${product_url%/}"
     tmp_bib="/tmp/tmp-bib-$(date-string)"
     echolor green ":: Starting bib retrieval..."
-    echolor green-neonblue ":: Going to ““https://api.citeas.org/product/$1?email=$EMAIL””"
-    curl -s "https://api.citeas.org/product/$1?email=$EMAIL" > "$tmp_bib-full"
-    # add functionality to extract doi from json and use it in paper download
+    echolor green-neonblue ":: Going to ““https://api.citeas.org/product/$product_url?email=$EMAIL””"
+    curl -s "https://api.citeas.org/product/$product_url?email=$EMAIL" > "$tmp_bib-full"
+    [[ "$(sed 1q "$tmp_bib-full")" = "<!DOCTYPE html>" ]] && {
+	echolor red ":: Citation returned an HTML file. Exiting."
+	return 1
+    }
     jq -r '.exports.[] | select( .export_name == "bibtex" ) | .export' "$tmp_bib-full" > "$tmp_bib"
     echolor green ":: Citeas.org queried!"
-    sed -i 's/journal-article/article/g;s/,,/,/g;s/title={/title={{/g;s/title=/\ntitle=/g;/title=/s/}/}}/g' "$tmp_bib"
+    sed -i 's/journal-article/article/g;s/book-chapter/incollection/g;s/,,/,/g;s/title={/title={{/g;s/title=/\ntitle=/g;/title=/s/}/}}/g' "$tmp_bib"
+    doikey="$(jq -r '.metadata.DOI' "$tmp_bib-full")"
+    [[ "$doikey" = "null" ]] && doikey=''
     authorkey="$(grep 'author=' "$tmp_bib" | sed 's/al-//gi;s/al //gi;s/de /de/gi;s/Van /van/gi;s/von /von/gi' | tr -d '-' | awk -F '{' '{print $2}' | awk -F '}' '{print $1}' | awk '{print $1}' | tr '[:upper:]' '[:lower:]' | tr -d ',')"
     yearkey="$(grep 'year=' "$tmp_bib" | awk -F '{' '{print $2}' | awk -F '}' '{print $1}')"
-    titlekey="$(grep 'title=' "$tmp_bib" | awk -F '{{' '{print $2}' | awk -F '}}' '{print $1}' | sed 's/^A //;s/^An //;s/^The //;s/[-‐—–]//g' | awk '{print $1}' | tr '[:upper:]' '[:lower:]')"
+    titlekey="$(grep 'title=' "$tmp_bib" | awk -F '{{' '{print $2}' | awk -F '}}' '{print $1}' | sed 's/[-‐—–]//g' | kebab | sed 's/^a-//i;s/^an-//i;s/^the-//i' | awk -F '-' '{print $1}')"
+    [[ -z "$authorkey" || -z "$yearkey" || -z "$titlekey" ]] && {
+	echolor red ":: No results returned. Exiting."
+	return 1
+    }
     bibkey="$(kebab $authorkey$yearkey$titlekey)"
     [[ "$bibkey" = "error" ]] && {
 	echolor red ":: Citation returned error. Exiting."
 	return 1
     }
     sed -i "s/ITEM1/$bibkey/" "$tmp_bib"
+    [[ ! -z "$doikey" ]] && {
+	sed -i 's/}}$/},/g' "$tmp_bib"
+	echo "doi={$doikey}}" >> "$tmp_bib"
+    }
 }
 
 function fetch-bib-no-add {
@@ -476,7 +495,8 @@ function get-bib-and-download-paper {
 	return 1
     }
     echolor green-neonblue ":: Downloading paper as ““$bibkey””"
-    download-paper "$1" "$bibkey"
+    echolor green-neonblue ":: Detected DOI as ““$doikey””"
+    download-paper "${doikey:-$1}" "$bibkey"
 }
 
 function rename-stuff {
