@@ -342,7 +342,7 @@ function count-all {
     filename="$(conf-info-extract "project_name")"
     blg_used="$(grep -i "You've used" "$filename".blg | awk -F ' ' '{print $3}')"
     bib_count="$(grep "@" refs.bib | wc -l)"
-    allpapers=($(grep '@' refs.bib | awk -F '{' '{print $NF}' | sed 's/,$//g'))
+    allpapers=($(grep '@' refs.bib | awk -F '{' '{print $NF}' | sed 's/, *$//g'))
     i=0
     unused=0
     undownloaded=0
@@ -451,16 +451,39 @@ function fetch-bib-citation {
     sed -i 's/journal-article/article/g;s/book-chapter/incollection/g;s/,,/,/g;s/title={/title={{/g;s/title=/\ntitle=/g;/title=/s/}/}}/g' "$tmp_bib"
     doikey="$(jq -r '.metadata.DOI' "$tmp_bib-full")"
     [[ "$doikey" = "null" ]] && doikey=''
-    authorkey="$(grep 'author=' "$tmp_bib" | sed 's/al-//gi;s/al //gi;s/de /de/gi;s/Van /van/gi;s/von /von/gi' | tr -d '-' | awk -F '{' '{print $2}' | awk -F '}' '{print $1}' | awk '{print $1}' | tr '[:upper:]' '[:lower:]' | tr -d ',')"
+    function authorkey-filter {
+	sed 's/al-//gi;s/al //gi;s/de /de/gi;s/den /den/gi;s/van /van/gi;s/von /von/gi'       \
+	    | tr -d '-'                                                                       \
+	    | awk -F '{' '{print $2}'                                                         \
+	    | awk -F '}' '{print $1}'                                                         \
+	    | awk '{print $1}'                                                                \
+	    | tr '[:upper:]' '[:lower:]'                                                      \
+	    | tr -d ','
+    }
+    function titlekey-filter {
+	awk -F '{{' '{print $2}'                                                                                                           \
+	    | awk -F '}}' '{print $1}'                                                                                                     \
+	    | sed 's/[-‐—–]//g'                                                                                                            \
+	    | tr -d '[1234567890]'                                                                                                         \
+	    | kebab                                                                                                                        \
+	    | sed 's/-and-/-/;s/-or-/-/;s/^and-//;s/^or-//'                                                                                \
+	    | sed 's/^on-//;s/^who//;s/^why-//;s/^what-//;s/^when-//;s/^which-//;s/^how-//;s/^would-//;s/^some-//;s/^several-//'           \
+	    | sed 's/^can-//;s/^do-//;s/^did-//;s/^does-//;s/^dont-//;s/^didnt-//;s/^doesnt-//;s/^is-//;s/^are-//;s/^will-//;s/^might-//'  \
+	    | sed 's/^a-//;s/^an-//;s/^the-//;s/^i-//;s/^we-//;s/^they-//;s/^you-//'                                                       \
+	    | awk -F '-' '{print $1}'
+    }
+    authorkey="$(grep 'author=' "$tmp_bib" | authorkey-filter)"
+    titlekey="$( grep  'title=' "$tmp_bib" | titlekey-filter )"
     yearkey="$(grep 'year=' "$tmp_bib" | awk -F '{' '{print $2}' | awk -F '}' '{print $1}')"
-    titlekey="$(grep 'title=' "$tmp_bib" | awk -F '{{' '{print $2}' | awk -F '}}' '{print $1}' | sed 's/[-‐—–]//g' | kebab | sed 's/^a-//i;s/^an-//i;s/^the-//i' | awk -F '-' '{print $1}')"
     [[ -z "$authorkey" || -z "$yearkey" || -z "$titlekey" ]] && {
-	echolor red ":: No results returned. Exiting."
+	echolor red ":: Missing results. Exiting.\n:: Author ““$authorkey””\n:: Year ““$yearkey””\n:: Title ““$titlekey””"
+	echolor red ":: Full result\n““$(cat "$tmp_bib")””"
 	return 1
     }
     bibkey="$(kebab $authorkey$yearkey$titlekey)"
     [[ "$bibkey" = "error" ]] && {
 	echolor red ":: Citation returned error. Exiting."
+	# this check is probably completely redundant
 	return 1
     }
     sed -i "s/ITEM1/$bibkey/" "$tmp_bib"
