@@ -452,12 +452,12 @@ function fetch-bib-citation {
     doikey="$(jq -r '.metadata.DOI' "$tmp_bib-full")"
     [[ "$doikey" = "null" ]] && doikey=''
     function authorkey-filter {
-	sed 's/al-//gi;s/al //gi;s/de /de/gi;s/den /den/gi;s/van /van/gi;s/von /von/gi'       \
-	    | tr -d '-'                                                                       \
-	    | awk -F '{' '{print $2}'                                                         \
-	    | awk -F '}' '{print $1}'                                                         \
-	    | awk '{print $1}'                                                                \
-	    | tr '[:upper:]' '[:lower:]'                                                      \
+	sed 's/al-//gi;s/al //gi;s/de /de/gi;s/den /den/gi;s/don /don/gi;s/van /van/gi;s/von /von/gi'                                      \
+	    | tr -d '-'                                                                                                                    \
+	    | awk -F '{' '{print $2}'                                                                                                      \
+	    | awk -F '}' '{print $1}'                                                                                                      \
+	    | awk '{print $1}'                                                                                                             \
+	    | tr '[:upper:]' '[:lower:]'                                                                                                   \
 	    | tr -d ','
     }
     function titlekey-filter {
