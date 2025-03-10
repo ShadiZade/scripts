@@ -1,0 +1,8 @@
+#!/bin/bash
+source ~/Repositories/scripts/essential-functions 
+while true
+do
+    echo -n "$(date-string) " >> ~/.local/logs/chart-disk/chart-disk.log
+    df -h --sync | grep " /$" | awk '{print $3" "$2" "$5}' >> ~/.local/logs/chart-disk/chart-disk.log
+    sleep 1h
+done
