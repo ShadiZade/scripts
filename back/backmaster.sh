@@ -3,7 +3,7 @@ temp_back_what=$(grep '^### ' ~/Repositories/scripts/back/backmaster.sh | tr -d 
 
 ### books
 ### packages
-### wallpapers
+## wallpapers
 ### music
 ### films
 ### classical
@@ -12,7 +12,7 @@ temp_back_what=$(grep '^### ' ~/Repositories/scripts/back/backmaster.sh | tr -d 
 case $temp_back_what in 
     books) ~/Repositories/scripts/back/backbooks.sh ;;
     packages) ~/Repositories/scripts/back/backpacks.sh ;;
-    wallpapers) sudo rsync -ruv /usr/share/wallpapers/* ~/Pictures/wallpapers ;;
+#   wallpapers) sudo rsync -ruv /usr/share/wallpapers/* ~/Pictures/wallpapers ;;
     music)  ~/Repositories/scripts/back/backmusic.sh ;;
     classical) ~/Repositories/scripts/back/backclassical.sh ;;
     films) ~/Repositories/scripts/back/backfilms.sh ;;
