@@ -97,20 +97,20 @@ function runcase-dealer {
     runcase-determiner
     [[ -z "$1" ]] && {
 	echolor yellow ":: runcase-dealer: No valid command."
-	return 1
+	exit 1
     }
     [[ -z "$2" ]] && {
 	echolor yellow ":: runcase-dealer: No valid parameter."
-	return 1
+	exit 1
     }
     case "$1" in
 	"only") [[ "$runcase" != "$2" ]] && {
 		    echolor yellow ":: Can’t do that in this directory (only $2)."
-		    return 1
+		    exit 1
 		} ;;
 	"not")  [[ "$runcase" = "$2" ]] && {
 		    echolor yellow ":: Can’t do that in this directory."
-		    return 1
+		    exit 1
 		} ;;
 	*)      echolor yellow ":: Unknown runcase-dealer command." ;;
 	# "goto")
@@ -347,6 +347,7 @@ function count-all {
     unused=0
     undownloaded=0
     commented=0
+    rejected=0
     echolor green ":: These are your unused papers:"
     while [[ "$i" -le "${#allpapers[@]}" ]]; do
 	thispaper="${allpapers[$i]}"
@@ -354,10 +355,16 @@ function count-all {
 	((i++))
 	grep -q "$thispaper" "$filename".bbl && continue
 	undwarning=""
-	if ! fd -q "^$thispaper".pdf ./papers; then   
-	    undwarning=" \t\033[33m<--- UNDOWNLOADED\033[0m"
-	    ((undownloaded++))
-	    ((unused--))
+	if fd -q "^$thispaper".pdf ./papers/.rejected; then   
+	    undwarning="\t\033[35m<-- REJECTED\033[0m"
+	    ((rejected++))
+	fi
+	if ! fd -d 1 -q "^$thispaper".pdf ./papers; then   
+	    [[ -z "$undwarning" ]] && {
+		undwarning=" \t\033[33m<--- UNDOWNLOADED\033[0m"
+		((undownloaded++))
+		((unused--))
+	    } 
 	fi
 	if grep -qF "% ~\\ci{$thispaper}" "$filename".tex; then
 	    [[ -z "$undwarning" ]] && {
@@ -380,7 +387,7 @@ function count-all {
 	echo -e "$thispaper \t\033[31m<--- UNBIBBED\033[0m"
 	((unbibbed++))
     done
-    echolor green-neonblue ":: Bib file stats: ““$bib_count”” entries, of whom ““$blg_used”” are in use, ““$unused”” unused (““$commented”” commented), ““$undownloaded”” undownloaded, and " 1
+    echolor green-neonblue ":: Bib file stats: ““$bib_count”” entries: ““$blg_used”” in use, ““$unused”” unused (““$commented”” commented), ““$undownloaded”” undownloaded, ““$rejected”” rejected, and " 1
     echolor green-red "““$unbibbed”” unbibbed papers."
     allcalc=$((blg_used + unused + undownloaded - unbibbed))
     [[ "$allcalc" -ne "$bib_count" ]] && {
@@ -436,6 +443,14 @@ function fetch-bib-citation {
 	echolor red ":: Email variable not found. Exiting."
 	return 1
     }
+    hostile_websites=("sciencedirect.com" "jstor.org" "cabidigitallibrary.org" "ebscohost.com" "plos.org")
+    for j in ${hostile_websites[@]}
+    do
+	grep -q "$j" <<< "$1" && {
+	    echolor red ":: Cannot fetch bib citation because ““$j”” is a hostile website."
+	    return 1
+	}
+    done
     product_url="${1#/}"
     product_url="${product_url%/}"
     tmp_bib="/tmp/tmp-bib-$(date-string)"

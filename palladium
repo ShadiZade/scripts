@@ -295,12 +295,18 @@ function index-sorter {
 
 function symlinker {
     choose-book || return 1
-    [[ -e "./$(basename "$sld_fnm")" ]] && {
+    local link_as_name=''
+    [[ -z "$1" ]] && {
+	local link_as_name="$(basename "$sld_fnm")"
+    } || {
+	local link_as_name="$(kebab "${1%.pdf}").pdf"
+    }
+    [[ -e "./$link_as_name" ]] && {
 	echolor red ":: Book ““$sld_ttl”” already symlinked here."
 	return 1
     }
-    ln -sf "$sld_fnm" . &&\
-	echolor green ":: Book ““$sld_ttl”” symlinked here!"
+    ln -sf "$sld_fnm" "$link_as_name" &&\
+	echolor green ":: Book ““$sld_ttl”” symlinked here as ““$link_as_name””"
 }
 
 function open-book {
@@ -498,7 +504,7 @@ backup-index
 dup-check-in-index
 case "$1" in
     "by") search-by ;;
-    "link") symlinker ;;
+    "link") symlinker "$2" ;;
     "add") add-entry "$2" ;;
     "again") repeat_last_entry_p=y add-entry "$2";;
     "info") choose-book || exit 1
