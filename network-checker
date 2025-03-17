@@ -1,0 +1,5 @@
+#!/bin/bash
+
+ping archlinux.com
+# if takes >5s declare invalid
+# run in bg every 20s
