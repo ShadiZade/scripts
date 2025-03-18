@@ -476,15 +476,22 @@ function fetch-bib-citation {
 	    | tr -d ','
     }
     function titlekey-filter {
-	awk -F '{{' '{print $2}'                                                                                                           \
-	    | awk -F '}}' '{print $1}'                                                                                                     \
-	    | sed 's/[-‐—–]//g'                                                                                                            \
-	    | tr -d '[1234567890]'                                                                                                         \
-	    | kebab                                                                                                                        \
-	    | sed 's/-and-/-/;s/-or-/-/;s/^and-//;s/^or-//'                                                                                \
-	    | sed 's/^on-//;s/^who//;s/^why-//;s/^what-//;s/^when-//;s/^which-//;s/^how-//;s/^would-//;s/^some-//;s/^several-//'           \
-	    | sed 's/^can-//;s/^do-//;s/^did-//;s/^does-//;s/^dont-//;s/^didnt-//;s/^doesnt-//;s/^is-//;s/^are-//;s/^will-//;s/^might-//'  \
-	    | sed 's/^a-//;s/^an-//;s/^the-//;s/^i-//;s/^we-//;s/^they-//;s/^you-//'                                                       \
+	awk -F '{{' '{print $2}'                                                                                                                       \
+	    | awk -F '}}' '{print $1}'                                                                                                                 \
+	    | sed 's/[-‐—–]//g'                                                                                                                        \
+	    | tr -d '[1234567890]'                                                                                                                     \
+	    | kebab                                                                                                                                    \
+	    | sed 's/-and-/-/;s/-or-/-/;s/^and-//;s/^or-//'                                                                                            \
+	    | sed 's/-on-/-/;s/-who/-/;s/-why-/-/;s/-what-/-/;s/-when-/-/;s/-which-/-/;s/-how-/-/;s/-would-/-/;s/-some-/-/;s/-several-/-/'             \
+	    | sed 's/-can-/-/;s/-do-/-/;s/-did-/-/;s/-does-/-/;s/-dont-/-/;s/-didnt-/-/;s/-doesnt-/-/;s/-is-/-/;s/-are-/-/;s/-will-/-/;s/-might-/-/'   \
+	    | sed 's/-it-/-/;s/-he-/-/;s/-she-/-/;s/-his-/-/;s/-her-/-/;s/-they-/-/;s/-them-/-/;s/-their-/-/;s/-hers-/-/;s/-theirs-/-/'                \
+	    | sed 's/-a-/-/;s/-an-/-/;s/-the-/-/;s/-i-/-/;s/-we-/-/;s/-they-/-/;s/-you-/-/'                                                            \
+	    | sed 's/-is-/-/;s/-was-/-/;s/-be-/-/;s/-being-/-/;s/-were-/-/;s/-werent-/-/;s/-wasnt-/-/;s/-isnt-/-/;s/-not-/-/'                          \
+	    | sed 's/^on-//;s/^who//;s/^why-//;s/^what-//;s/^when-//;s/^which-//;s/^how-//;s/^would-//;s/^some-//;s/^several-//'                       \
+	    | sed 's/^can-//;s/^do-//;s/^did-//;s/^does-//;s/^dont-//;s/^didnt-//;s/^doesnt-//;s/^is-//;s/^are-//;s/^will-//;s/^might-//'              \
+	    | sed 's/^it-//;s/^he-//;s/^she-//;s/^his-//;s/^her-//;s/^they-//;s/^them-//;s/^their-//;s/^hers-//;s/^theirs-//'                          \
+	    | sed 's/^a-//;s/^an-//;s/^the-//;s/^i-//;s/^we-//;s/^they-//;s/^you-//'                                                                   \
+	    | sed 's/^is-//;s/^was-//;s/^be-//;s/^being-//;s/^were-//;s/^werent-//;s/^wasnt-//;s/^isnt-//;s/^not-//'                                   \
 	    | awk -F '-' '{print $1}'
     }
     authorkey="$(grep 'author=' "$tmp_bib" | authorkey-filter)"
