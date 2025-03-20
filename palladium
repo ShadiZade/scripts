@@ -500,6 +500,64 @@ function open-current {
     ( sioyek "$sld_fnm_current" >/dev/null 2>/dev/null ) &
 }
 
+function get-blurb {
+    echolor yellow ":: About to fetch blurb. (press <return> to continue) " 1
+    read
+    [[ -z "$sld_fnm" ]] && return 1
+    base_fnm="$(basename -- "$sld_fnm")"
+    fileinfo="$(xsv search -s filename "^$base_fnm" "$ix")"
+    title="$(echo "$fileinfo" | xsv select title | sed 1d | sed 's/:/ /g')"
+    title="title:$title"
+    author="$(echo "$fileinfo" | xsv select author | sed 1d | sed 's/:/ /g')"
+    author="author:$author"
+    my_id="$(echo "$fileinfo" | xsv select id | sed 1d | sed 's/:/ /g')"
+    blurb_file="$(fd "^$my_id" "$loc/blurbs/")"
+    [[ ! -z "$blurb_file" ]] && {
+	echolor yellow ":: Found ““$blurb_file””! Checking..."
+	[[ -e "$blurb_file" && ! -s "$blurb_file" ]] && {
+	    echolor yellow-neonblue ":: Blurbfile already exists with size zero. Overwriting automatically..."
+	}
+	[[ -e "$blurb_file" && -s "$blurb_file" ]] && {
+	    echolor red ":: Blurb for this book already exists. Showing..."
+	    echolor white "$(cat "$blurb_file")"
+	    echolor yellow ":: Fetch from another source? (press <return> to continue) " 1
+	    read
+	    restricted_ol="$(echo "$blurb_file" | awk -F '/' '{print $NF}' | awk -F '-' '{print $NF}' | sed 's/.blurb//g')"
+	    sane "$restricted_ol"
+	    # develop restricted_ol further
+    	}
+    }	
+    function percentescape {
+	perl -MURI::Escape -e 'print uri_escape($ARGV[0])' "$@"
+    }
+    json_query_string="https://openlibrary.org/search.json?q=$(percentescape "$title $author")"
+    tmpjson="/tmp/$(kebab "$title $author $(date-string)").json"
+    tmphtml="/tmp/$(kebab "$title $author $(date-string)").html"
+    tmpblrb="/tmp/$(kebab "$title $author $(date-string)").blurb"
+    curl -s "$json_query_string" > "$tmpjson"
+    json_num_results="$(jq '.numFound' "$tmpjson")"
+    [[ "$json_num_results" -lt 1 ]] && {
+	echolor red ":: No results found in OpenLibrary."
+	echo "$json_query_string"
+	return 1
+    }
+    let "json_num_results -= 1"
+    for j in $(seq -s ' ' 0 $json_num_results)
+    do
+	ol_key="$(jq -r ".docs.[$j].key" "$tmpjson" | awk -F '/' '{print $NF}')"
+	[[ -z "$ol_key" ]] && return 1
+	ol_title="$(jq -r ".docs.[$j].title" "$tmpjson")"
+	ol_author="$(jq -r ".docs.[$j].author_name.[0]" "$tmpjson")"
+	echolor yellow ":: ““($j / $json_num_results)”” Trying ““$ol_title”” by ““$ol_author””\n\thttps://openlibrary.org/works/$ol_key"
+	wget -q -O "$tmphtml" https://openlibrary.org/works/"$ol_key"
+	htmlq -f "$tmphtml" '.book-description' | htmlq '.read-more__content' -r 'ul' -r hr -r strong -t | sed '/^$/d' | fold -s > "$tmpblrb"
+	[[ ! -z "$(cat "$tmpblrb")" ]] && break
+    done
+    blurb_file="$loc/blurbs/$my_id-$ol_key.blurb"
+    cat "$tmpblrb" > "$blurb_file"
+    echolor yellow "$(cat "$blurb_file")"
+}
+
 backup-index
 dup-check-in-index
 case "$1" in
@@ -508,7 +566,8 @@ case "$1" in
     "add") add-entry "$2" ;;
     "again") repeat_last_entry_p=y add-entry "$2";;
     "info") choose-book || exit 1
-	    show-info ;;
+	    show-info
+	    get-blurb ;;
     "stats") show-stats all ;;
     "hist") open-history ;;
     "curr") open-from-file current ;;

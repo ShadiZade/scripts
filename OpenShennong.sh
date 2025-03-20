@@ -389,7 +389,7 @@ function count-all {
     done
     echolor green-neonblue ":: Bib file stats: ““$bib_count”” entries: ““$blg_used”” in use, ““$unused”” unused (““$commented”” commented), ““$undownloaded”” undownloaded, ““$rejected”” rejected, and " 1
     echolor green-red "““$unbibbed”” unbibbed papers."
-    allcalc=$((blg_used + unused + undownloaded - unbibbed))
+    allcalc=$((blg_used + unused + undownloaded + rejected - unbibbed))
     [[ "$allcalc" -ne "$bib_count" ]] && {
 	echolor yellow-neonblue ":: Something went wrong. The sum ““$allcalc”” is different than the Bib file number ““$bib_count””."
     }
@@ -443,7 +443,7 @@ function fetch-bib-citation {
 	echolor red ":: Email variable not found. Exiting."
 	return 1
     }
-    hostile_websites=("sciencedirect.com" "jstor.org" "cabidigitallibrary.org" "ebscohost.com" "plos.org" "oup.com")
+    hostile_websites=("sciencedirect.com" "jstor.org" "cabidigitallibrary.org" "ebscohost.com" "plos.org" "oup.com" "elibrary.ru")
     for j in ${hostile_websites[@]}
     do
 	grep -q "$j" <<< "$1" && {
