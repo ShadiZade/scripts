@@ -358,6 +358,7 @@ function count-all {
 	if fd -q "^$thispaper".pdf ./papers/.rejected; then   
 	    undwarning="\t\033[35m<-- REJECTED\033[0m"
 	    ((rejected++))
+	    continue
 	fi
 	if ! fd -d 1 -q "^$thispaper".pdf ./papers; then   
 	    [[ -z "$undwarning" ]] && {
