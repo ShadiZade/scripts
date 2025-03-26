@@ -87,15 +87,16 @@ function kassioun {
 
 function al-akhbar {
     nlname="Al-Akhbar"
-    nl='https://al-akhbar.com/Editions'
+    nl='https://al-akhbar.com/todays-newsletter'
     loc="$HOME/Documents/newsletters/al-akhbar"
+    akhbar_tmp="/tmp/akhbar-data-$(date-string)"
     dlded=''
     dlded="$(eza -1f "$loc" | grep 'pdf$' | tail -n 1 | awk -F '-' '{print $3}')"
     echolor orange ":: ❯❯ Updating ““$nlname”” now. Current edition: ““$dlded””" 1
-    jindata="$(wget -qO- "$nl" | grep -B 5 -m 2 '<div class="row month-wrap">' | sed -n 8p)"
+    wget -qO- "$nl" | tr '\\' '\n' > "$akhbar_tmp"
     urled=''
-    urled="$(echo "$jindata" | awk -F 'data-id="' '{print $NF}' | awk -F '" data-name' '{print $1}')"
-    urldt="$(echo "$jindata" | awk -F 'data-name="' '{print $NF}' | awk -F '" data-old' '{print $1}')"
+    urled="$(cat "$akhbar_tmp" | grep -i -A 2 -m 1 'publicurl' | sed -n 3p | awk -F '/' '{print $NF}')"
+    urldt="$(cat "$akhbar_tmp" | grep -i -A 2 -m 1 'publishdate' | sed -n 3p | awk -F '"' '{print $NF}' | awk -F ' ' '{print $1}')"
     [[ -z "$urled" ]] && {
 	clear-line
 	echolor red ":: ⨯  Error extracting ““$nlname”” data, update failed."
@@ -117,17 +118,12 @@ function al-akhbar {
 	echolor green "$urled" 1
 	cd ~/Desktop/
 	filename="$(echo al-akhbar-"$urled"-$(date --iso-8601 -d "$urldt"))"
-	wget -q --spider -- "https://al-akhbar.com/PDF_Files/$urled/alakhbar$urldt.pdf" && {
-	    wget \
-		--no-use-server-timestamps \
-		-O "$filename" -nc -q -t 0 \
-		-- "https://al-akhbar.com/PDF_Files/$urled/alakhbar$urldt.pdf"
-	} || {
-	    wget \
-		--no-use-server-timestamps \
-		-O "$filename" -nc -q -t 0 \
-		-- "https://al-akhbar.com/PDF_Files/$urled/alakhbar_$urldt.pdf"
-	}
+	wget -qO- "https://www.al-akhbar.com/newspaper/$urled" | tr '\\' '\n' > "$akhbar_tmp-1"
+	pdfurl="$(cat "$akhbar_tmp-1" | grep -m 1 '\.pdf' | sed 's/"/https:/')"
+	wget \
+	    --no-use-server-timestamps \
+	    -O "$filename" -nc -q -t 0 \
+	    -- "$pdfurl"
 	mv "$filename" "$loc"/"$filename".pdf
 	clear-line
 	echolor blue ":: ✓  Updated newsletter ““$nlname””: " 1

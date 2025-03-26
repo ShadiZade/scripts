@@ -4,6 +4,7 @@ loc="$HOME/Athenaeum"
 ix="$usdd/athenaeum-index.csv"
 bkp="$HOME/Misc/Backups/athenaeum"
 logdir="$HOME/.local/logs/palladium"
+curdir="$HOME/Projects/reading/"
 log="$HOME/.local/logs/palladium/pall-open-book-log.csv"
 all_attr=(type title subtitle author series volume edition first_pub year publisher country language trans_p orig_lang transor filename id)
 diagnostic_mode=0 # 0 for off, 1 for on
@@ -494,7 +495,7 @@ function see-stack {
 }
 
 function open-current {
-    cd "$HOME/Projects/reading/"
+    cd "$curdir"
     local sld_fnm_current="$(fd -d 1 pdf | ifne fzf)"
     [[ -z "$sld_fnm_current" ]] && return 1
     ( sioyek "$sld_fnm_current" >/dev/null 2>/dev/null ) &
