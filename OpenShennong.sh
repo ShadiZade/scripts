@@ -469,7 +469,7 @@ function fetch-bib-citation {
     [[ "$doikey" = "null" ]] && doikey=''
     function authorkey-filter {
 	sed 's/al-//gi;s/al //gi;s/de /de/gi;s/den /den/gi;s/don /don/gi;s/van /van/gi;s/von /von/gi;s/le /le/gi;s/la /la/gi;s/les /les/gi'            \
-	    | tr -d '-'                                                                                                                                \
+	    | tr -d -- '-‐'                                                                                                                               \
 	    | awk -F '{' '{print $2}'                                                                                                                  \
 	    | awk -F '}' '{print $1}'                                                                                                                  \
 	    | awk '{print $1}'                                                                                                                         \
