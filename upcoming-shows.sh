@@ -24,6 +24,7 @@ function get-series {
 	[[ "$(date -d "$upcoming" '+%Y%m%d')" = "$(date -d '3 days' '+%Y%m%d')" ]] && echolor green '\r •••' 1
 	[[ "$(date -d "$upcoming" '+%Y%m%d')" = "$(date -d '2 days' '+%Y%m%d')" ]] && echolor green '\r ••' 1
 	[[ "$(date -d "$upcoming" '+%Y%m%d')" = "$(date -d tomorrow '+%Y%m%d')" ]] && echolor green '\r •' 1
+	[[ "$(date -d "$upcoming" '+%Y%m%d')" = "$(date '+%Y%m%d')" ]]             && echolor green '\r >>>' 1
     fi
     echo
 	

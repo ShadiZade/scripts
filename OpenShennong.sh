@@ -465,6 +465,7 @@ function fetch-bib-citation {
     jq -r '.exports.[] | select( .export_name == "bibtex" ) | .export' "$tmp_bib-full" > "$tmp_bib"
     echolor green ":: Citeas.org queried!"
     sed -i 's/journal-article/article/g;s/book-chapter/incollection/g;s/,,/,/g;s/title={/title={{/g;s/title=/\ntitle=/g;/title=/s/}/}}/g' "$tmp_bib"
+    sed -i 's/<i>//g;s|</i>||g' "$tmp_bib"
     doikey="$(jq -r '.metadata.DOI' "$tmp_bib-full")"
     [[ "$doikey" = "null" ]] && doikey=''
     function authorkey-filter {
@@ -479,6 +480,7 @@ function fetch-bib-citation {
     function titlekey-filter {
 	awk -F '{{' '{print $2}'                                                                                                                       \
 	    | awk -F '}}' '{print $1}'                                                                                                                 \
+	    | sed 's/<i>//g;s|</i>||g'                                                                                                                 \
 	    | sed 's/[-‐—–]//g'                                                                                                                        \
 	    | tr -d '[1234567890]'                                                                                                                     \
 	    | kebab                                                                                                                                    \
