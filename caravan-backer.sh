@@ -55,12 +55,26 @@ do
 	"dry")
 	    dryfile="$HOME/.local/logs/caravan/caravan-backer-dry-$(date-string).log"
 	    touch "$dryfile"
-	    sudo rsync -PparulXvhn --out-format='%o ——— %n%L' --delete --log-file="$dryfile" "$orig"/ "$dest"/
+	    sudo rsync                                                             \
+		 -PparulXvhn                                                       \
+		 --delete                                                          \
+		 --out-format='%o ——— %n%L'                                        \
+		 --log-file="$dryfile"                                             \
+		 --exclude-from='$HOME/.local/share/user-scripts/caravan-ignore'   \
+		 "$orig"/                                                          \
+		 "$dest"/
 	    ;;
 	"")
 	    logfile="$HOME/.local/logs/caravan/caravan-backer-$(date-string).log"
 	    touch "$logfile"
-	    sudo rsync -PparulXvh --out-format='%o ——— %n%L' --delete --log-file="$logfile" "$orig"/ "$dest"/
+	    sudo rsync                                                             \
+		 -PparulXvh                                                        \
+		 --delete                                                          \
+		 --out-format='%o ——— %n%L'                                        \
+		 --log-file="$logfile"                                             \
+		 --exclude-from='$HOME/.local/share/user-scripts/caravan-ignore'   \
+		 "$orig"/                                                          \
+		 "$dest"/
 	    ;;
 	*)
 	    echolor red ":: Unrecognized command"
@@ -68,4 +82,3 @@ do
     esac
 done
 unset IFS
-# [[ "$1" = "dry" ]] && bat "$dryfile"
