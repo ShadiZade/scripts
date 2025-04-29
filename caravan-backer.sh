@@ -60,7 +60,7 @@ do
 		 --delete                                                          \
 		 --out-format='%o ——— %n%L'                                        \
 		 --log-file="$dryfile"                                             \
-		 --exclude-from='$HOME/.local/share/user-scripts/caravan-ignore'   \
+		 --exclude-from="$HOME/.local/share/user-scripts/caravan-exclude"  \
 		 "$orig"/                                                          \
 		 "$dest"/
 	    ;;
@@ -72,7 +72,7 @@ do
 		 --delete                                                          \
 		 --out-format='%o ——— %n%L'                                        \
 		 --log-file="$logfile"                                             \
-		 --exclude-from='$HOME/.local/share/user-scripts/caravan-ignore'   \
+		 --exclude-from="$HOME/.local/share/user-scripts/caravan-exclude"  \
 		 "$orig"/                                                          \
 		 "$dest"/
 	    ;;
