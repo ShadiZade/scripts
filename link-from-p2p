@@ -3,6 +3,10 @@ source ~/Repositories/scripts/essential-functions
 p2p_dir="$HOME/P2P"
 
 
+function remove-spaces {
+    sed 's/ - /./g;s/ /./g'
+}
+
 function link-from-finished {
     IFS=$'\n'
     for j in $(fd -at f . "$p2p_dir" | ifne fzf --multi)
@@ -11,7 +15,8 @@ function link-from-finished {
 	    echolor red ":: File ““$(basename "$j")”” does not exist."
 	    return 1
 	}
-	ln -s "$j" . && echolor green ":: Linked ““$(basename "$j")”” here."
+	local new_name="$(basename "$j" | remove-spaces)"
+	ln -s "$j" ./"$new_name" && echolor green ":: Linked ““$(basename "$j")”” here."
     done
 }
 
@@ -23,7 +28,8 @@ function link-from-unfinished {
 	    echolor red ":: File ““$(basename "$j")”” does not exist."
 	    return 1
 	}
-	ln -s "${j/.unfinished\//}" . && echolor green ":: Linked ““$(basename "$j")”” here."
+	local new_name="$(basename "$j" | remove-spaces)"
+	ln -s "${j/.unfinished\//}" ./"$new_name" && echolor green ":: Linked ““$(basename "$j")”” here."
     done
 }
 
