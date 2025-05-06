@@ -9,7 +9,7 @@ function remove-spaces {
 
 function link-from-finished {
     IFS=$'\n'
-    for j in $(fd -at f . "$p2p_dir" | ifne fzf --multi)
+    for j in $(fd -at f . "$p2p_dir" | ifne fzf --wrap --multi)
     do
 	[[ ! -e "$j" ]] && {
 	    echolor red ":: File ““$(basename "$j")”” does not exist."
@@ -22,7 +22,7 @@ function link-from-finished {
 
 function link-from-unfinished {
     IFS=$'\n'
-    for j in $(fd -at f . "$p2p_dir"/.unfinished | ifne fzf --multi)
+    for j in $(fd -at f . "$p2p_dir"/.unfinished | ifne fzf --wrap --multi)
     do
 	[[ ! -e "$j" ]] && {
 	    echolor red ":: File ““$(basename "$j")”” does not exist."
