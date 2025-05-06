@@ -1,0 +1,40 @@
+#!/bin/bash
+source ~/Repositories/scripts/essential-functions
+p2p_dir="$HOME/P2P"
+
+
+function link-from-finished {
+    IFS=$'\n'
+    for j in $(fd -at f . "$p2p_dir" | ifne fzf --multi)
+    do
+	[[ ! -e "$j" ]] && {
+	    echolor red ":: File ““$(basename "$j")”” does not exist."
+	    return 1
+	}
+	ln -s "$j" . && echolor green ":: Linked ““$(basename "$j")”” here."
+    done
+}
+
+function link-from-unfinished {
+    IFS=$'\n'
+    for j in $(fd -at f . "$p2p_dir"/.unfinished | ifne fzf --multi)
+    do
+	[[ ! -e "$j" ]] && {
+	    echolor red ":: File ““$(basename "$j")”” does not exist."
+	    return 1
+	}
+	ln -s "${j/.unfinished\//}" . && echolor green ":: Linked ““$(basename "$j")”” here."
+    done
+}
+
+
+while getopts 'u' OPTION; do
+    case "$OPTION" in
+	"u") link-from-unfinished ;;
+	*) echo incorrect input; exit ;;
+    esac
+done
+(( $OPTIND == 1 )) && link-from-finished
+
+
+    

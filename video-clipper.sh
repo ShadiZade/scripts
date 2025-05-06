@@ -2,6 +2,7 @@
 source ~/Repositories/scripts/essential-functions
 
 clipdir="$HOME/Videos/clips"
+outname="$2"
 [[ -z "$2" ]] && {
     echolor aquamarine ":: Eventual clip name: " 1
     read -r outname

@@ -140,7 +140,7 @@ function list-cutter {
 
 function move-to-trash {
     trashdir="$HOME/.local/share/Trash"
-    fd -Fq "^$1$" "$trashdir"/files && {
+    fd -q "^$1$" "$trashdir"/files && {
 	postdelname="$1-$(date +"%Y_%m_%d_%H_%M_%S")"
 	command mv -n -- "$1" "$trashdir"/files/"$postdelname" \
 	    || {
@@ -150,15 +150,14 @@ function move-to-trash {
 	}
     } || {
 	postdelname="$1"
-	command mv -n -- "$1" "$trashdir"/files/ \
-	    || {
+	command mv -n -- "$1" "$trashdir"/files/  || {
 	    echolor red ":: Error moving ““$1”” to trash"
 	    return
 	}
     }
     echo "$(date +"%Y-%m-%d %H:%M:%S")   ¼⅓   $(basename -- "$1")   ¼⅓   $(basename -- "$postdelname")" \
 	 >> "$trashdir"/deletetimes
-    [ "$1" = "$postdelname" ] && {
+    [[ "$1" = "$postdelname" ]] && {
 	echolor blue ":: File ““$1”” moved to trash."
     } || {
 	echolor purple ":: File ““$1”” moved to trash as ““$postdelname””"
