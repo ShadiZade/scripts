@@ -39,7 +39,6 @@ export lin_wallpaper="$(eval echo $(extract '.wallpaper.path'))"
 EOF
 
     echolor green ":: current-theme file generated!"
-    
     rofi_file="$(eval echo $(extract '.files.rofi'))"
     polybar_file="$(eval echo $(extract '.files.polybar'))"
     dunst_file="$(eval echo $(extract '.files.dunst'))"
@@ -53,7 +52,7 @@ EOF
     ln -sf "$polybar_file" "$HOME/.config/polybar/current-theme.ini"
     ln -sf "$dunst_file" "$HOME/.config/dunst/dunstrc"
     bspc wm -r
-    killall dunst
+    killall dunst 2>/dev/null
 }
 
 
