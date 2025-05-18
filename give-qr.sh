@@ -1,7 +1,11 @@
 #!/bin/bash
 source ~/Repositories/scripts/essential-functions
-url="$(rofi -dmenu -p 'Enter URL')"
+[[ -z "$@" ]] && {
+    url="$(rofi -dmenu -p 'Enter URL')"
+} || {
+    url="$@"
+}
 [[ -z "$url" ]] && exit
-filen="$(random-string).jpg"
-qrtool encode -o /tmp/"$filen" "$url"
+filen="$(random-string).png"
+zint --scale 5 --barcode qrcode --data "$url" --output /tmp/"$filen" 2>/dev/null
 sxiv /tmp/"$filen"
