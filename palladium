@@ -567,7 +567,7 @@ function get-blurb {
 }
 
 function list-topics {
-    fd --format {/} '\.pall_topic$' "$topicdir" | sed 's/.pall_topic//g'
+    fd --format {/} '\.pall_topic$' "$topicdir" | sed 's/.pall_topic//g' | sort | uniq
 }
 
 function list-titles-in-topic {
@@ -598,6 +598,39 @@ function list-titles-in-topic {
     open-book || return 1
 }
 
+function sort-book-into-topic {
+    choose-book || return 1
+    [[ -z "$sld_id" ]] && {
+	echolor red ":: ID not selected"
+	return 1
+    }
+    for j in $(list-topics | fzf --multi)
+    do
+	echolor purple ":: Title is ““$sld_ttl””\n:: ID is ““$sld_id””"
+	grep -q "$sld_id" "$topicdir"/"$j".pall_topic && {
+	    echolor red ":: Already in topic ““$j””"
+	    continue
+	}
+	echo "$sld_id" >> "$topicdir"/"$j".pall_topic
+	echolor green ":: Added to topic ““$j””"
+    done
+}
+
+function make-new-topic {
+    ntp="/tmp/ath-new-topics-$(date-string).csv"
+    list-topics > "$ntp"
+    emacsclient -nw -a emacs "$ntp"
+    IFS=$'\n'
+    for j in $(cat "$ntp")
+    do
+	j="$(kebab "$j")"
+	[[ -e "$topicdir"/"$j".pall_topic ]] && continue
+	touch "$topicdir"/"$j".pall_topic
+	echolor green ":: Created topic ““$j””"
+    done
+    unset IFS
+}
+
 backup-index
 dup-check-in-index
 case "$1" in
@@ -621,5 +654,7 @@ case "$1" in
     "cover") make-cover "$2" ;;
     "now" ) open-current ;;
     "topic") list-titles-in-topic ;;
+    "sort") sort-book-into-topic ;;
+    "cat") make-new-topic ;;
     *) echolor red ":: Unknown command." ;;
 esac
