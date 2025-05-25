@@ -5,6 +5,7 @@ ix="$usdd/athenaeum-index.csv"
 bkp="$HOME/Misc/Backups/athenaeum"
 logdir="$HOME/.local/logs/palladium"
 curdir="$HOME/Projects/reading/"
+topicdir="$loc/topics"
 log="$HOME/.local/logs/palladium/pall-open-book-log.csv"
 all_attr=(type title subtitle author series volume edition first_pub year publisher country language trans_p orig_lang transor filename id)
 diagnostic_mode=0 # 0 for off, 1 for on
@@ -284,6 +285,12 @@ function add-entry {
 	ln -s ~/Athenaeum/"$new_filename" . && \
 	    echolor green ":: Symlink created."
     }
+    echolor yellow ":: Adding to topics..."
+    for j in $(list-topics | fzf --multi)
+    do
+	echo "$identifier" >> "$topicdir"/"$j".pall_topic
+	echolor green "\t:: Added to topic ““$j””"
+    done
     make-cover "$identifier"
     backup-index
     unset IFS
@@ -424,7 +431,7 @@ function give-id {
 	    | sed 1d
 	return 0
     }
-    xsv search -s id "$1" "$ix" | xsv select filename | sed 1d
+    xsv search -s id "$1" "$ix" | xsv select "${2:-filename}" | sed 1d
 }
 
 function give-path {
@@ -559,6 +566,38 @@ function get-blurb {
     echolor yellow "$(cat "$blurb_file")"
 }
 
+function list-topics {
+    fd --format {/} '\.pall_topic$' "$topicdir" | sed 's/.pall_topic//g'
+}
+
+function list-titles-in-topic {
+    thistopic="$(list-topics | fzf)"
+    [[ "$diagnostic_mode" -eq 1 ]] && {
+	echolor purple ":: Topic ““$thistopic”” was selected"
+    }
+    [[ -e "$topicdir"/"$thistopic".pall_topic ]] || {
+	echolor red ":: Topic ““$thistopic”” does not exist"
+	return 1
+    }	
+    [[ -z "$(cat "$topicdir"/"$thistopic".pall_topic)" ]] && {
+	echolor red ":: Topic ““$thistopic”” is empty"
+	return 1
+    }
+    function select-title-from-topic {
+	IFS=$'\n'
+	for j in $(cat "$topicdir"/"$thistopic".pall_topic)
+	do
+	    give-id "$j" title
+	done | ifne sort | uniq | fzf
+    }
+    sld_ttl="$(select-title-from-topic)"
+    [[ "$diagnostic_mode" -eq 1 ]] && {
+	echolor purple ":: Title ““$sld_ttl”” was chosen from that topic"
+    }
+    [[ -z "$sld_ttl" ]] && return 1
+    open-book || return 1
+}
+
 backup-index
 dup-check-in-index
 case "$1" in
@@ -574,12 +613,13 @@ case "$1" in
     "curr") open-from-file current ;;
     "done") open-from-file done ;;
     "put") put-in ;;
-    "id") give-id "$2" ;;
+    "id") give-id "$2" "$3" ;;
     "path") give-path ;;
 #    "stack") add-to-stack ;;
 #    "sees") see-stack ;;
     "") open-book ;;
     "cover") make-cover "$2" ;;
     "now" ) open-current ;;
+    "topic") list-titles-in-topic ;;
     *) echolor red ":: Unknown command." ;;
 esac
