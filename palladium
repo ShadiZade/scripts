@@ -332,18 +332,6 @@ function open-book {
     echo "$(date-string ymdhm),\"$sld_ttl\",$sld_fnm" >> "$HOME/.local/logs/palladium/pall-open-book-log.csv"
 }
 
-function show-info {
-    [[ -n "$1" ]] && sld_fnm="$1"
-    [[ -z "$sld_fnm" ]] && return 1
-    base_fnm="$(basename -- "$sld_fnm")"
-    echolor blue "$(stat "$sld_fnm" | sed '2d;4d'; echo -n " MSize: ")" 1
-    echolor purple "$(du -h "$sld_fnm" | awk '{print $1}')     " 1
-    echolor blue "Pages: " 1
-    echolor purple "$(pdfinfo "$sld_fnm" | grep 'Pages:' | awk '{print $NF}')"
-    echolor yellow '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
-    echolor white "$(xsv search -s filename "^$base_fnm" "$ix" | xsv flatten)"
-}
-
 [[ -z "$ix" ]] && {
     echolor red ":: Index variable not set!"
     exit
@@ -386,41 +374,6 @@ function open-history {
 
 function from-id {
     xsv -s id "$1" "$3" | ifne xsv select "$2" | sed 1d
-}
-
-function open-from-file {
-    sld_fnm="$(tac "$usdd/pall-$1" | ifne awk -F '/' '{print $NF}' | sort | uniq | ifne fzf)"
-    [[ -z "$sld_fnm" ]] && return 1
-    ( sioyek "$loc/$sld_fnm" >/dev/null 2>/dev/null ) &
-}
-
-function put-in {
-    pc="$usdd/pall-current"
-    pd="$usdd/pall-done"
-    case "$(echo -e "To current\nTo done" | fzf)" in
-	"To current")   choose-book || return 1
-			[[ -z "$sld_fnm" ]] && return 1
-			cat "$pc" | grep -q "^$sld_fnm$" && {
-			    echolor red ":: Book ““$sld_ttl”” is already in ““current””"
-			    return 1
-			}
-			echo "$sld_fnm" >> "$pc"
-		       	echolor green ":: Book ““$sld_ttl”” added to ““current””"
-			;;
-	"To done")    choose-book || return 1
-		      [[ -z "$sld_fnm" ]] && return 1
-		      cat "$pc" | grep -q "^$sld_fnm$" \
-			  && echolor yellow-violet ":: Book ““$sld_ttl”” found in ““current””, removing..."
-		      sed -i "s|^$sld_fnm$||g;/^$/d" "$pc" || return 1
-		      cat "$pd" | grep -q "^$sld_fnm$" && {
-			  echolor red ":: Book ““$sld_ttl”” is already in ““done””"
-			  return 1
-		      }
-		      echo "$sld_fnm" >> "$pd"
-		      echolor green ":: Book ““$sld_ttl”” added to ““done””"
-		      ;;
-	*) return 1 ;;
-    esac
 }
 
 function give-id {
@@ -598,28 +551,63 @@ function make-new-topic {
     unset IFS
 }
 
+function get-topics-for-book {
+    [[ -z "$sld_id" ]] && {
+	choose-book || return 1
+    }
+    i=1
+    for j in $(grep -l "$sld_id" "$topicdir"/*.pall_topic | awk -F '/' '{print $NF}' | awk -F '.' '{print $1}' | tr '\n' ' ' )
+    do
+	[[ $(( i % 2 )) -eq 1 ]] && {
+	    echolor blue "$j " 1
+	} || {
+	    echolor purple "$j " 1
+	}
+	((i++))
+    done
+    echo
+}
+
+function file-info {
+    [[ -n "$1" ]] && sld_fnm="$1"
+    [[ -z "$sld_fnm" ]] && return 1
+    base_fnm="$(basename -- "$sld_fnm")"
+    echolor blue "$(stat "$sld_fnm" | sed '2d;3d;4d;5d;6d'; echo -n " MSize: ")" 1
+    echolor purple "$(du -h "$sld_fnm" | awk '{print $1}')     " 1
+    echolor blue "Pages: " 1
+    echolor purple "$(pdfinfo "$sld_fnm" | grep 'Pages:' | awk '{print $NF}')"
+    echolor yellow '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+    echolor white "$(xsv search -s filename "^$base_fnm" "$ix" | xsv flatten)"
+}
+
+function show-all-info {
+    choose-book || return 1
+    file-info
+    echolor yellow '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+    get-topics-for-book
+    echolor yellow '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+    get-blurb
+}
+    
+
 backup-index
 dup-check-in-index
 case "$1" in
+    "") open-book ;;
     "by") search-by ;;
     "link") symlinker "$2" ;;
     "add") add-entry "$2" ;;
     "again") repeat_last_entry_p=y add-entry "$2";;
-    "info") choose-book || exit 1
-	    show-info
-	    get-blurb ;;
     "stats") show-stats all ;;
     "hist") open-history ;;
-    "curr") open-from-file current ;;
-    "done") open-from-file done ;;
-    "put") put-in ;;
     "id") give-id "$2" "$3" ;;
     "path") give-path ;;
-    "") open-book ;;
     "cover") make-cover "$2" ;;
     "now" ) open-current ;;
     "topic") list-titles-in-topic ;;
     "sort") sort-book-into-topic ;;
     "cat") make-new-topic ;;
+    "info") show-all-info ;;
+    "try") get-topics-for-book ;;
     *) echolor red ":: Unknown command." ;;
 esac
