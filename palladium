@@ -350,8 +350,9 @@ function show-info {
 }
 
 function show-stats {
-    total="$(xsv count "$ix")"
-    echolor violet-orange ":: Found ““$total”” records."
+    totalrecords="$(xsv count "$ix")"
+    totaltopics="$(list-topics | wc -l)"
+    echolor violet-orange ":: Found ““$totalrecords”” records in ““$totaltopics”” topics"
     [[ "$1" = "all" ]] || return
     function get-totals {
 	xsv select "$1" "$ix" | sed 1d | sed '/^""$/d' | sort | uniq | wc -l
@@ -465,40 +466,6 @@ function make-cover {
 	continue
     }
     magick /tmp/cover.pdf "$loc/covers/$1.jxl"
-}
-
-function add-to-stack {
-    stackdir="$HOME/.local/share/user-scripts/palladium/stacks"
-    choose-book || return 1
-    sld_id="$(switch-param filename id "$(echo "$sld_fnm" | awk -F '/' '{print $NF}')")"
-    sld_stack="$(fd 'csv$' "$stackdir" | awk -F '/' '{print $NF}' | sed 's/\.csv$//g' | fzf )"
-    grep -q "^$sld_id," "$stackdir/$sld_stack.csv" && {
-	echolor yellow-aquamarine ":: A book with ID ““$sld_id”” is already in stack ““$sld_stack””"
-	return 1
-    }
-    stacknote="/tmp/stacknote-$sld_stack-$sld_id-$(date-string).csv"
-    emacsclient -nw -a emacs "$stacknote"
-    [[ -z "$(cat "$stacknote")" ]] && echo "NO NOTE" >> "$stacknote"
-    echo "$sld_id,\"$sld_ttl\",\"$(cat "$stacknote" | perl -pe 's/\n/—–/g' | sed 's/—–*$//g')\"" >> "$stackdir/$sld_stack.csv"
-}
-
-function see-stack {
-    stackdir="$HOME/.local/share/user-scripts/palladium/stacks"
-    sld_stack="$(fd 'csv$' "$stackdir" | awk -F '/' '{print $NF}' | sed 's/\.csv$//g' | fzf )"
-    IFS=$'\n'
-    for j in $(cat "$stackdir/$sld_stack.csv")
-    do
-	echo -n "$j" | xsv select -n 1 | tr -d '\n'
-	echo -n ' // '
-	echo -n "$j" | xsv select -n 2
-    done | fzf
-
-    # | fzf --preview "source ~/Repositories/scripts/palladium; whole_line="{}"; this_id=\"$(echo $this_id | awk -F ' // ' '{print $1}')\"; grep \"^$this_id\" \"$stackdir/$sld_stack.csv\" | xsv select 3 "
-    # | fzf --preview "source ~/Repositories/scripts/palladium; this_id="{}"; show-info \"$(switch-param id filename \"$(echo $this_id | awk -F ' // ' '{print $1}')\")\""
-    unset IFS
-
-    # make this work somehow
-    # fzf preview loves to destroy itself
 }
 
 function open-current {
@@ -648,8 +615,6 @@ case "$1" in
     "put") put-in ;;
     "id") give-id "$2" "$3" ;;
     "path") give-path ;;
-#    "stack") add-to-stack ;;
-#    "sees") see-stack ;;
     "") open-book ;;
     "cover") make-cover "$2" ;;
     "now" ) open-current ;;
