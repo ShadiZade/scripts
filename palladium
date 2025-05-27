@@ -10,6 +10,8 @@ log="$HOME/.local/logs/palladium/pall-open-book-log.csv"
 all_attr=(type title subtitle author series volume edition first_pub year publisher country language trans_p orig_lang transor filename id)
 diagnostic_mode=0 # 0 for off, 1 for on
 
+# TODO: fix bug (pall by; series; hainish cycle; the left hand of darkness; english)
+
 function dup-check {
     if [[ "$(xsv search -s "$1" "^$2$" "$3" | xsv select "$1" | sed 1d | wc -l)" -gt 1 ]]
     then
@@ -167,7 +169,34 @@ function search-by {
 	export sld_fnm
 	open-book
     }
-    case "$(echo -e "Author\nCountry\nLanguage\nPublisher\nSeries\nType\nYear" | fzf)" in
+    function search-by-topic {
+	thistopic="$(list-topics | fzf)"
+	[[ "$diagnostic_mode" -eq 1 ]] && {
+	    echolor purple ":: Topic ““$thistopic”” was selected"
+	}
+	[[ -e "$topicdir"/"$thistopic".pall_topic ]] || {
+	    echolor red ":: Topic does not exist"
+	    return 1
+	}	
+	[[ -z "$(cat "$topicdir"/"$thistopic".pall_topic)" ]] && {
+	    echolor red ":: Topic ““$thistopic”” is empty"
+	    return 1
+	}
+	function select-title-from-topic {
+	    IFS=$'\n'
+	    for j in $(cat "$topicdir"/"$thistopic".pall_topic)
+	    do
+		give-id "$j" title
+	    done | ifne sort | uniq | fzf
+	}
+	sld_ttl="$(select-title-from-topic)"
+	[[ "$diagnostic_mode" -eq 1 ]] && {
+	    echolor purple ":: Title ““$sld_ttl”” was chosen from that topic"
+	}
+	[[ -z "$sld_ttl" ]] && return 1
+	open-book || return 1
+    }
+    case "$(echo -e "Author\nCountry\nLanguage\nPublisher\nSeries\nTopic\nType\nYear" | fzf)" in
 	"Author") search-by-default author ;;
 	"Country") search-by-default country ;;
 	"Language") search-by-default language ;;
@@ -175,6 +204,7 @@ function search-by {
 	"Type") search-by-default type ;;
 	"Year") search-by-default first_pub ;;
 	"Series") search-by-series ;;
+	"Topic") search-by-topic ;;
 	*) echolor red ":: No search parameter chosen."
 	   return
 	   ;;
@@ -490,34 +520,6 @@ function list-topics {
     fd --format {/} '\.pall_topic$' "$topicdir" | sed 's/.pall_topic//g' | sort | uniq
 }
 
-function list-titles-in-topic {
-    thistopic="$(list-topics | fzf)"
-    [[ "$diagnostic_mode" -eq 1 ]] && {
-	echolor purple ":: Topic ““$thistopic”” was selected"
-    }
-    [[ -e "$topicdir"/"$thistopic".pall_topic ]] || {
-	echolor red ":: Topic ““$thistopic”” does not exist"
-	return 1
-    }	
-    [[ -z "$(cat "$topicdir"/"$thistopic".pall_topic)" ]] && {
-	echolor red ":: Topic ““$thistopic”” is empty"
-	return 1
-    }
-    function select-title-from-topic {
-	IFS=$'\n'
-	for j in $(cat "$topicdir"/"$thistopic".pall_topic)
-	do
-	    give-id "$j" title
-	done | ifne sort | uniq | fzf
-    }
-    sld_ttl="$(select-title-from-topic)"
-    [[ "$diagnostic_mode" -eq 1 ]] && {
-	echolor purple ":: Title ““$sld_ttl”” was chosen from that topic"
-    }
-    [[ -z "$sld_ttl" ]] && return 1
-    open-book || return 1
-}
-
 function sort-book-into-topic {
     choose-book || return 1
     [[ -z "$sld_id" ]] && {
@@ -604,10 +606,8 @@ case "$1" in
     "path") give-path ;;
     "cover") make-cover "$2" ;;
     "now" ) open-current ;;
-    "topic") list-titles-in-topic ;;
+    "topic") make-new-topic ;;
     "sort") sort-book-into-topic ;;
-    "cat") make-new-topic ;;
     "info") show-all-info ;;
-    "try") get-topics-for-book ;;
     *) echolor red ":: Unknown command." ;;
 esac
