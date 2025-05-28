@@ -540,8 +540,8 @@ function sort-book-into-topic {
 
 function make-new-topic {
     ntp="/tmp/ath-new-topics-$(date-string).csv"
-    list-topics > "$ntp"
     emacsclient -nw -a emacs "$ntp"
+    [[ -e "$ntp" ]] || return 1
     IFS=$'\n'
     for j in $(cat "$ntp")
     do
@@ -577,7 +577,7 @@ function file-info {
     echolor blue "$(stat "$sld_fnm" | sed '2d;3d;4d;5d;6d'; echo -n " MSize: ")" 1
     echolor purple "$(du -h "$sld_fnm" | awk '{print $1}')     " 1
     echolor blue "Pages: " 1
-    echolor purple "$(pdfinfo "$sld_fnm" | grep 'Pages:' | awk '{print $NF}')"
+    echolor purple "$(pdfinfo "$sld_fnm" 2>/dev/null | grep 'Pages:' | awk '{print $NF}')"
     echolor yellow '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
     echolor white "$(xsv search -s filename "^$base_fnm" "$ix" | xsv flatten)"
 }
