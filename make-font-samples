@@ -1,0 +1,36 @@
+#!/bin/bash
+source ~/Repositories/scripts/essential-functions
+IFS=$'\n'
+testphrase="$(echo -e "Sphinx of Black Quartz, Judge My Vow\nسَطِّرْ عَلى هامِ الزَّمانِ بِأَنَّنا أَهْلُ الكَرامَةِ والأَعَزُّ قَبيلًا\n岂曰无衣 豈曰無衣")"
+cd "$HOME/Data/font-samples"
+totalfonts="$(grep '^  Font' magick-fonts | awk -F ': ' '{print $NF}' | wc -l )"
+i=0
+ext=jxl
+for j in $(grep '^  Font' magick-fonts | awk -F ': ' '{print $NF}')
+do
+    ((i++))
+    [[ -e "fontsample-"$j".png" ]] && continue
+    [[ -e "fontsample-"$j".jxl" ]] && continue
+    magick                                                   \
+	-gravity center                                      \
+	-pointsize 50                                        \
+	-font "$j"                                           \
+	-size 1920x540                                       \
+	caption:"$testphrase"                                \
+	white.png                                            \
+	+swap -gravity south -composite                      \
+	fontsample-"$j"."$ext" || {
+	echolor red ":: ““(””$i““/$totalfonts)”” Could not make font ““$j””"
+	continue
+    }
+    magick                                                   \
+	-gravity center                                      \
+	-pointsize 20                                        \
+	-size 1920x540                                       \
+	-font "Liberation-Mono"                              \
+	caption:"$(grep "^  Font: $j$" magick-fonts -A 7)"   \
+	fontsample-"$j"."$ext"                                  \
+	+swap -gravity north -composite                      \
+	fontsample-"$j"."$ext"
+    echolor green-yellow ":: ““(””$i““/$totalfonts)”” Sampled font ““$j””"
+done

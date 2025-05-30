@@ -546,7 +546,10 @@ function make-new-topic {
     for j in $(cat "$ntp")
     do
 	j="$(kebab "$j")"
-	[[ -e "$topicdir"/"$j".pall_topic ]] && continue
+	[[ -e "$topicdir"/"$j".pall_topic ]] && {
+	    echolor red ":: Topic ““$j”” already exists"
+	    continue
+	}
 	touch "$topicdir"/"$j".pall_topic
 	echolor green ":: Created topic ““$j””"
     done
