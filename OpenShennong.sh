@@ -435,7 +435,8 @@ function download-paper {
 	echolor red ":: Unknown fatal error."
 	return 1
     }
-    wget --load-cookies="$browser_cookies" -nc -O ./"$bibname".pdf -t 0 -- https://"$ddurl" && touch -c ./"$bibname".pdf
+    extract-cookies
+    wget --load-cookies "$COOKIE_FILE" -nc -O ./"$bibname".pdf -t 0 -- https://"$ddurl" && touch -c ./"$bibname".pdf
 }
 
 function fetch-bib-citation {

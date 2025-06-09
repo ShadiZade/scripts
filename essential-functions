@@ -1,5 +1,5 @@
 #!/bin/bash 
-source ~/Repositories/dotfiles/zsh/variables 
+source ~/Repositories/dotfiles/zsh/variables
 
 function echolor {
     clrs="$usdd/echolors.csv"
@@ -306,6 +306,13 @@ function esa {
 function choose-font {
     ~/Repositories/scripts/font-chooser.sh "$@"
 }
+
+function extract-cookies {
+    echolor green ":: Updating cookies from browser..." 1
+    yt-dlp --abort-on-error --cookies-from-browser vivaldi --cookies "$COOKIE_FILE" '' >/dev/null 2>/dev/null
+    echo
+}
+
 
 # function ¿ {
 #     : function ¿ interrogates functions and aliases in bash, enabling them to be self-documenting.
