@@ -27,18 +27,15 @@ function echolor {
 }
 
 function random-string {
-    head /dev/urandom | tr -dc a-z0-9 | head -c "${1:-13}"
+    echo -n "abcdefghijklmnopqrstuvwxyz0123456789" | fold -w1 | shuf --random-source=/dev/urandom -r -n "${1:-13}" | tr -d '\n'
 }
 
 function random-number {
-    head /dev/urandom | tr -dc 0-9 | head -c "${1:-8}"
+    shuf --random-source=/dev/urandom -r -zn "${1:-8}" -i 0-9
 }
 
 function random-word {
-    function one-random-word {
-	sed -n "$(dice d7776)"p "$HOME/Data/eff/eff-large-wordlist.txt"
-    }
-    kebab "$(for j in {1..${1:-1}}; do one-random-word; done)"
+    shuf --random-source=/dev/urandom -r -n "${1:-1}" "$HOME/Data/eff/eff-large-wordlist.txt" | kebab
 }
 
 function scramble-file-names {
