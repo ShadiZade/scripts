@@ -288,7 +288,7 @@ function add-entry {
     xsv flatten "$nix" | sed 's/,/⸴/g' | csvlens --no-headers
     for j in $(xsv headers -j "$nix")
     do
-	[[ "$j" = "title" || "$j" = "subtitle" || "$j" = "volume"  || "$j" = "edition"  || "$j" = "trans_p"  || "$j" = "filename"  || "$j" = "id" ]] && continue
+	[[ "$j" = "title" || "$j" = "subtitle" || "$j" = "volume" || "$j" = "trans_p"  || "$j" = "filename"  || "$j" = "id" ]] && continue
 	nix_term="$(xsv select "$j" "$nix" | sed -n 2p)"
 	[[ "$nix_term" = '""' ]] && continue
 	[[ -n "$(xsv search -s "$j" "^$nix_term$" "$ix" | sed 1d)" ]] && continue
