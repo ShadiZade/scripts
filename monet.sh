@@ -14,12 +14,13 @@ matter="images"
 children=' itself.'
 count_only=0
 log_results=0
+randomness=0
 time_after="1970-01-01"
 time_before="$(date -d tomorrow +'%Y-%m-%d')"
 function date-formatter {
     date -d "$1" +'%Y-%m-%d %H:%M:%S' 2>/dev/null || return 1
 }
-while getopts 'had:s:vclA:B:' OPTION; do
+while getopts 'had:s:vclA:B:r:' OPTION; do
     case "$OPTION" in
 	"a") depth=999
 	     children=' or its children.' ;;
@@ -29,6 +30,8 @@ while getopts 'had:s:vclA:B:' OPTION; do
 	"v") exts="$vid_exts"
 	     vids=1
 	     matter="videos" ;;
+	"r") randomness=1
+	     num_rand_files="$OPTARG" ;;
 	"c") count_only=1 ;;
 	"l") log_results=1 ;;
 	"A") date-formatter "$OPTARG" >/dev/null || exit 1
@@ -85,6 +88,25 @@ then
 	echolor green-yellow ":: A total of ““${#images[@]}”” $matter were found to match the search term."
     }
 fi
+
+[[ "$randomness" -eq 1 ]] && {
+   [[ "$count_only" -eq 0 ]] && {
+       [[ "$num_rand_files" -gt 1 ]] && echolor green-purple ":: Giving ““$num_rand_files”” random results..."
+       [[ "$num_rand_files" -eq 1 ]] && echolor green-purple ":: Giving a random result..."
+    }
+    images_rand=()
+    for j in $(shuf --random-source=/dev/urandom -n "$num_rand_files" -i "1-${#images[@]}")
+    do
+	images_rand+=("${images[$((j - 1))]}")
+    done
+    images=(${images_rand[@]})
+    [[ "$count_only" -eq 0 ]] && {
+	[[ "$num_rand_files" -ne "${#images[@]}" ]] && {
+	    echolor green-purple ":: Could not supply ““$num_rand_files”” random results, only ““${#images[@]}””..."
+	}
+    }
+}
+
 [[ "$log_results" -eq 1 ]] && {
     logfile="$HOME/.local/logs/monet/monet-$(date-string)-$searchterm.log"
     [[ "$count_only" -eq 0 ]] && {
