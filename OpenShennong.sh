@@ -405,7 +405,8 @@ function download-paper {
     }
     indoi="$(echo "$1" | sed 's|https://doi.org/||')"
     echolor green-neonblue ":: Going to ““https://sci-hub.ru/$indoi””"
-    shurl="$(curl -s "https://sci-hub.ru/$indoi")"
+    extract-cookies
+    shurl="$(curl --cookie "$COOKIE_FILE" -s "https://sci-hub.ru/$indoi")"
     echolor green ":: Sci-Hub queried!"
     echo "$shurl" | grep -q "doesn't have the requested document" && {
 	echolor yellow ":: Sci-Hub does not have this file."
@@ -435,7 +436,6 @@ function download-paper {
 	echolor red ":: Unknown fatal error."
 	return 1
     }
-    extract-cookies
     wget --load-cookies "$COOKIE_FILE" -nc -O ./"$bibname".pdf -t 0 -- https://"$ddurl" && touch -c ./"$bibname".pdf
 }
 
@@ -458,7 +458,8 @@ function fetch-bib-citation {
     tmp_bib="/tmp/tmp-bib-$(date-string)"
     echolor green ":: Starting bib retrieval..."
     echolor green-neonblue ":: Going to ““https://api.citeas.org/product/$product_url?email=$EMAIL””"
-    curl -s "https://api.citeas.org/product/$product_url?email=$EMAIL" > "$tmp_bib-full"
+    extract-cookies
+    curl --cookie "$COOKIE_FILE" -s "https://api.citeas.org/product/$product_url?email=$EMAIL" > "$tmp_bib-full"
     [[ "$(sed 1q "$tmp_bib-full")" = "<!DOCTYPE html>" ]] && {
 	echolor red ":: Citation returned an HTML file. Exiting."
 	return 1
