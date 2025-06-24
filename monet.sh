@@ -53,9 +53,9 @@ done
 IFS=$'\n'
 if [[ "$hidden" -eq 1 ]]
 then
-    images=($(fd -H --newer "$time_after" --older "$time_before" -d "$depth" "$exts" "$img_dir" | sort -V))
+    images=($(fd -IH --newer "$time_after" --older "$time_before" -d "$depth" "$exts" "$img_dir" | sort -V))
 else
-    images=($(fd --newer "$time_after" --older "$time_before" -d "$depth" "$exts" "$img_dir" | sort -V))
+    images=($(fd -I --newer "$time_after" --older "$time_before" -d "$depth" "$exts" "$img_dir" | sort -V))
 fi
 [[ -z "$images" ]] && {
     [[ "$count_only" -eq 0 ]] && {
