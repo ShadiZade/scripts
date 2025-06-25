@@ -205,7 +205,11 @@ function search-by {
 	[[ -z "$sld_ttl" ]] && return 1
 	open-book || return 1
     }
-    case "$(echo -e "Author\nCountry\nLanguage\nPublisher\nSeries\nTopic\nType\nYear" | fzf)" in
+    function search-by-time-added {
+	open-book add_time reverse || return 1
+    }
+    
+    case "$(echo -e "Author\nCountry\nLanguage\nPublisher\nSeries\nTime added\nTopic\nType\nYear" | fzf)" in
 	"Author") search-by-default author ;;
 	"Country") search-by-default country ;;
 	"Language") search-by-default language ;;
@@ -214,9 +218,8 @@ function search-by {
 	"Year") search-by-default first_pub ;;
 	"Series") search-by-series ;;
 	"Topic") search-by-topic ;;
-	*) echolor red ":: No search parameter chosen."
-	   return
-	   ;;
+	"Time added") search-by-time-added ;;
+	*) return 1 ;;
     esac
 }
 
@@ -259,7 +262,7 @@ function add-entry {
     then
 	cat "$logdir/last-add" | sed '/^filename/d' > "$nixf"
     else
-	for j in $(xsv headers -j "$ix" | sed '/^filename$/d;/^id$/d')
+	for j in $(xsv headers -j "$ix" | sed '/^filename$/d;/^id$/d;/^add_time$/d')
 	do
 	    echo -e "$j ––– \t" >> "$nixf"
 	done
@@ -608,20 +611,20 @@ function show-all-info {
     get-blurb
 }
 
-function order-and-show {
-    ordering_field="$(echo -e "Earliest print\nFirst added\nFirst published\nLatest print\nLast added\nLast published" | fzf)"
-    case "$ordering_field" in
-	'') return 1 ;;
-	"Earliest print") open-book year || return 1 ;;
-	"First added") open-book add_time || return 1 ;;
-	"First published") open-book first_pub || return 1 ;;
-	"Latest print") open-book year reverse || return 1 ;;
-	"Last added") open-book add_time reverse || return 1 ;;
-	"Last published") open-book first_pub reverse || return 1 ;;	
-	*) return 1 ;;
-    esac
-    # some of these dont work on account of empty fields and BC dates. Fix later.
-}
+# function order-and-show {
+#     ordering_field="$(echo -e "Earliest print\nFirst added\nFirst published\nLatest print\nLast added\nLast published" | fzf)"
+#     case "$ordering_field" in
+# 	'') return 1 ;;
+# 	"Earliest print") open-book year || return 1 ;;
+# 	"First added") open-book add_time || return 1 ;;
+# 	"First published") open-book first_pub || return 1 ;;
+# 	"Latest print") open-book year reverse || return 1 ;;
+# 	"Last added") open-book add_time reverse || return 1 ;;
+# 	"Last published") open-book first_pub reverse || return 1 ;;	
+# 	*) return 1 ;;
+#     esac
+#     # some of these dont work on account of empty fields and BC dates. Fix later.
+# }
 
 backup-index
 dup-check-in-index
@@ -636,11 +639,10 @@ case "$1" in
     "id") give-id "$2" "$3" ;;
     "path") give-path ;;
     "cover") make-cover "$2" ;;
-    "now" ) open-current ;;
+    "now") open-current ;;
     "topic") make-new-topic ;;
     "sort") sort-book-into-topic ;;
     "info") show-all-info ;;
-    "order") order-and-show ;;
     *) echolor red ":: Unknown command." ;;
 esac
 
