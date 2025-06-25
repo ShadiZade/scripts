@@ -7,7 +7,7 @@ logdir="$HOME/.local/logs/palladium"
 curdir="$HOME/Projects/reading/"
 topicdir="$loc/topics"
 log="$HOME/.local/logs/palladium/pall-open-book-log.csv"
-all_attr=(type title subtitle author series volume edition first_pub year publisher country language trans_p orig_lang transor filename id)
+all_attr=(type title subtitle author series volume edition first_pub year publisher country language trans_p orig_lang transor filename id add_time)
 diagnostic_mode=0 # 0 for off, 1 for on
 
 # TODO: fix bug (pall by; series; hainish cycle; the left hand of darkness; english)
@@ -107,7 +107,16 @@ function best-algo {
 
 function choose-book {
     [[ ! -z "$sld_fnm" ]] && return 0
-    [[ -z "$sld_ttl" ]] && sld_ttl="$(xsv select title "$ix" | tr -d '"' | sed 1d | sort | uniq | fzf)"
+    [[ -z "$sld_ttl" ]] && {
+	case "$2" in
+	    '')
+		sld_ttl="$(xan sort -s "${1:-title}" "$ix" | xsv select title | tr -d '"' | sed 1d | uniq | fzf)"
+		;;
+	    "reverse")
+		sld_ttl="$(xan sort -Rs "${1:-title}" "$ix" | xsv select title | tr -d '"' | sed 1d | uniq | fzf)"
+		;;
+	esac
+    }
     [[ -z "$sld_ttl" ]] && return 1
     [[ "$diagnostic_mode" -eq 1 ]] && {
 	echolor purple ":: The following command is occurring inside dup-check:"
@@ -237,7 +246,10 @@ function add-entry {
 	echolor red ":: This file already exists in index."
 	return 1
     }
-    nix="/tmp/ath-new-entry-$(date-string).csv"
+    add_date_string="$(date-string)"
+    nix="/tmp/ath-new-entry-$add_date_string.csv"
+    add_date_string="$(echo ${add_date_string:0:8}' '${add_date_string:8:2}:${add_date_string:10:2}:${add_date_string:12:2}+08:00)"
+    iso_date_string="$(date -uIseconds -d "$add_date_string")"
     nixf="$nix.form"
     touch "$nix" "$nixf"
     IFS=$'\n'
@@ -280,7 +292,8 @@ function add-entry {
 	identifier="$(random-string 8)"
 	xsv select id "$ix" | grep -q "$identifier" || break
     done
-    echo -n "$identifier" >> "$nix"
+    echo -n "$identifier," >> "$nix"
+    echo -n "$iso_date_string" >> "$nix"
     [[ "$(xsv select title "$nix" | sed 1d)" = '""' ]] && {
 	echolor red ":: Title can't be empty!"
 	return 1
@@ -288,7 +301,8 @@ function add-entry {
     xsv flatten "$nix" | sed 's/,/⸴/g' | csvlens --no-headers
     for j in $(xsv headers -j "$nix")
     do
-	[[ "$j" = "title" || "$j" = "subtitle" || "$j" = "volume" || "$j" = "trans_p"  || "$j" = "filename"  || "$j" = "id" ]] && continue
+	[[ "$j" = "title" || "$j" = "subtitle" || "$j" = "volume" || "$j" = "trans_p" || "$j" = "add_time"  || "$j" = "filename"  || "$j" = "id" ]] \
+	    && continue
 	nix_term="$(xsv select "$j" "$nix" | sed -n 2p)"
 	[[ "$nix_term" = '""' ]] && continue
 	[[ -n "$(xsv search -s "$j" "^$nix_term$" "$ix" | sed 1d)" ]] && continue
@@ -348,7 +362,7 @@ function symlinker {
 }
 
 function open-book {
-    choose-book || return 1
+    choose-book "${1:-title}" "$2" || return 1
     [[ -z "$sld_fnm" ]] && return 1
     [[ "$diagnostic_mode" -eq 1 ]] && {
 	echolor purple ":: open-book values:"
@@ -593,7 +607,21 @@ function show-all-info {
     echolor yellow '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
     get-blurb
 }
-    
+
+function order-and-show {
+    ordering_field="$(echo -e "Earliest print\nFirst added\nFirst published\nLatest print\nLast added\nLast published" | fzf)"
+    case "$ordering_field" in
+	'') return 1 ;;
+	"Earliest print") open-book year || return 1 ;;
+	"First added") open-book add_time || return 1 ;;
+	"First published") open-book first_pub || return 1 ;;
+	"Latest print") open-book year reverse || return 1 ;;
+	"Last added") open-book add_time reverse || return 1 ;;
+	"Last published") open-book first_pub reverse || return 1 ;;	
+	*) return 1 ;;
+    esac
+    # some of these dont work on account of empty fields and BC dates. Fix later.
+}
 
 backup-index
 dup-check-in-index
@@ -612,5 +640,8 @@ case "$1" in
     "topic") make-new-topic ;;
     "sort") sort-book-into-topic ;;
     "info") show-all-info ;;
+    "order") order-and-show ;;
     *) echolor red ":: Unknown command." ;;
 esac
+
+# TODO migrate to xan instead of xsv
