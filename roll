@@ -65,29 +65,31 @@ function prepare {
     x-url "$original"
     x-ext "$original"
     x-stump "$original"
-    detect-lang "$v_stump" && {
-	[[ "$online_translate" = "y" ]] && {
-	    echolor blue-aquamarine ":: Translating ““$v_stump””"
-	    v_stump="$(trans -identify -b -e google "$v_stump") "
-	    echolor blue-orange ":: To ““$v_stump””\n:: Alternative? > " 1
-	    echo -ne "\033[38;5;208m"
-	    trans_alt=''
-	    read -r trans_alt
-	    echo -ne "\033[0m"
-	    [[ ! -z "$trans_alt" ]] && v_stump="$trans_alt "
-	}
-	[[ "$online_translate" = "n" ]] && {
-	    echolor blue-aquamarine ":: Not translating. Please translate manually."
-	    echolor blue-orange ":: From ““$v_stump””\n:: Manual > " 1
-	    echo -ne "\033[38;5;208m"
-	    trans_alt=''
-	    read -r trans_alt
-	    echo -ne "\033[0m"
-	    [[ -z "$trans_alt" ]] && {
-		echolor ashy ":: nothing entered, skipping"
-		return 1
+    [[ "$no_translate" = "n" ]] && {
+	detect-lang "$v_stump" && {
+	    [[ "$online_translate" = "y" ]] && {
+		echolor blue-aquamarine ":: Translating ““$v_stump””"
+		v_stump="$(trans -identify -b -e google "$v_stump") "
+		echolor blue-orange ":: To ““$v_stump””\n:: Alternative? > " 1
+		echo -ne "\033[38;5;208m"
+		trans_alt=''
+		read -r trans_alt
+		echo -ne "\033[0m"
+		[[ ! -z "$trans_alt" ]] && v_stump="$trans_alt "
 	    }
-	    [[ ! -z "$trans_alt" ]] && v_stump="$trans_alt "
+	    [[ "$online_translate" = "n" ]] && {
+		echolor blue-aquamarine ":: Not translating. Please translate manually."
+		echolor blue-orange ":: From ““$v_stump””\n:: Manual > " 1
+		echo -ne "\033[38;5;208m"
+		trans_alt=''
+		read -r trans_alt
+		echo -ne "\033[0m"
+		[[ -z "$trans_alt" ]] && {
+		    echolor ashy ":: nothing entered, skipping"
+		    return 1
+		}
+		[[ ! -z "$trans_alt" ]] && v_stump="$trans_alt "
+	    }
 	}
     }
     v_stump="$(kebab "$v_stump")"
@@ -123,14 +125,23 @@ function prepare {
 }
 
 args=("${@}")
-while getopts 'n' OPTION; do
+while getopts 'on' OPTION; do
     case "$OPTION" in
-	n) online_translate=n
+	o) online_translate=n
+	   args=("${args[@]:1}") ;;
+	n) no_translate=y
 	   args=("${args[@]:1}") ;;
 	*) echo incorrect input; exit 1;;
     esac
 done
-(( $OPTIND == 1 )) && online_translate=y
+(( $OPTIND == 1 )) && {
+    online_translate=y
+    no_translate=n
+}
+[[ "$online_translate" = "n" && "$no_translate" = "y" ]] && {
+    echolor red ":: Cannot have -o and -n together."
+    exit 1
+}
 wifi-connected-p || online_translate=n
 echolor blue-orange ":: Rolling ““${#args[@]}”” files"
 i=1
