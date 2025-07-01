@@ -387,7 +387,7 @@ function open-book {
 function show-stats {
     totalrecords="$(xsv count "$ix")"
     totaltopics="$(list-topics | wc -l)"
-    echolor violet-orange ":: Found ““$totalrecords”” records in ““$totaltopics”” topics"
+    echolor violet-orange ":: Found ““$totalrecords”” records (““$(du -Shd0 "$loc" | awk '{print $1}')””) in ““$totaltopics”” topics"
     [[ "$1" = "all" ]] || return
     function get-totals {
 	xsv select "$1" "$ix" | sed 1d | sed '/^""$/d' | sort | uniq | wc -l
