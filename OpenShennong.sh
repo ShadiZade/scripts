@@ -404,9 +404,9 @@ function download-paper {
 	return 1
     }
     indoi="$(echo "$1" | sed 's|https://doi.org/||')"
-    echolor green-neonblue ":: Going to ““https://sci-hub.ru/$indoi””"
+    echolor green-neonblue ":: Going to ““https://sci-hub.se/$indoi””"
     extract-cookies
-    shurl="$(curl --cookie "$COOKIE_FILE" -s "https://sci-hub.ru/$indoi")"
+    shurl="$(curl --cookie "$COOKIE_FILE" -s "https://sci-hub.se/$indoi")"
     echolor green ":: Sci-Hub queried!"
     echo "$shurl" | grep -q "doesn't have the requested document" && {
 	echolor yellow ":: Sci-Hub does not have this file."
@@ -420,7 +420,7 @@ function download-paper {
     for j in "downloads" "uptodate" "tree"
     do
 	echo "$ddurl" | grep -q "$j" || continue
-	ddurl="$(echo "$ddurl" | sed "s|^/$j|sci-hub.ru/$j|")"
+	ddurl="$(echo "$ddurl" | sed "s|^/$j|sci-hub.se/$j|")"
     done
     [[ -z "$2" ]] && bibname="unnamed" || bibname="$(kebab "$2")"
     [[ -s "$bibname".pdf ]] && {
