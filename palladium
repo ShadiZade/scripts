@@ -632,7 +632,9 @@ case "$1" in
     "") open-book ;;
     "by") search-by ;;
     "link") symlinker "$2" ;;
-    "add") add-entry "$2" ;;
+    "add") echolor red ":: MORATORIUM ON ADDING BOOKS!"
+	   exit 1
+	   add-entry "$2" ;;
     "again") repeat_last_entry_p=y add-entry "$2";;
     "stats") show-stats all ;;
     "hist") open-history ;;
@@ -641,7 +643,9 @@ case "$1" in
     "cover") make-cover "$2" ;;
     "now") open-current ;;
     "topic") make-new-topic ;;
-    "sort") sort-book-into-topic ;;
+    "sort") echolor red ":: MORATORIUM ON ADDING BOOKS!"
+	    exit 1
+	    sort-book-into-topic ;;
     "info") show-all-info ;;
     *) echolor red ":: Unknown command." ;;
 esac

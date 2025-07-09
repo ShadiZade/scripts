@@ -31,7 +31,7 @@ while getopts 'had:s:vclA:B:r:' OPTION; do
 	     vids=1
 	     matter="videos" ;;
 	"r") randomness=1
-	     num_rand_files="$OPTARG" ;;
+	     num_rand_files="${OPTARG:-1}" ;;
 	"c") count_only=1 ;;
 	"l") log_results=1 ;;
 	"A") date-formatter "$OPTARG" >/dev/null || exit 1
