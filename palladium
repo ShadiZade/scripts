@@ -643,9 +643,7 @@ case "$1" in
     "cover") make-cover "$2" ;;
     "now") open-current ;;
     "topic") make-new-topic ;;
-    "sort") echolor red ":: MORATORIUM ON ADDING BOOKS!"
-	    exit 1
-	    sort-book-into-topic ;;
+    "sort") sort-book-into-topic ;;
     "info") show-all-info ;;
     *) echolor red ":: Unknown command." ;;
 esac
