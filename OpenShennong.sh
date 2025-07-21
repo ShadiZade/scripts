@@ -403,10 +403,11 @@ function download-paper {
 	echolor red ":: No DOI entered."
 	return 1
     }
+    scimirror="ru"
     indoi="$(echo "$1" | sed 's|https://doi.org/||')"
-    echolor green-neonblue ":: Going to ““https://sci-hub.se/$indoi””"
+    echolor green-neonblue ":: Going to ““https://sci-hub.$scimirror/$indoi””"
     extract-cookies
-    shurl="$(curl --cookie "$COOKIE_FILE" -s "https://sci-hub.se/$indoi")"
+    shurl="$(curl --cookie "$COOKIE_FILE" -s "https://sci-hub.$scimirror/$indoi")"
     echolor green ":: Sci-Hub queried!"
     echo "$shurl" | grep -q "doesn't have the requested document" && {
 	echolor yellow ":: Sci-Hub does not have this file."
@@ -416,11 +417,15 @@ function download-paper {
 	echolor yellow ":: Caught in evil CAPTCHA hell. Please inform the website that you’re an honest researcher and retry."
 	return 1
     }
+        echo "$shurl" | grep -q "Error 5" && {
+	echolor yellow ":: Server error on mirror ““.$scimirror””"
+	return 1
+    }
     ddurl="$(echo "$shurl" | grep -i 'application/pdf' | awk -F 'src="' '{print $2}' | awk -F '#' '{print $1}' | tr -d "\n" | sed 's|https://||;s|^//||')"
     for j in "downloads" "uptodate" "tree"
     do
 	echo "$ddurl" | grep -q "$j" || continue
-	ddurl="$(echo "$ddurl" | sed "s|^/$j|sci-hub.se/$j|")"
+	ddurl="$(echo "$ddurl" | sed "s|^/$j|sci-hub.$scimirror/$j|")"
     done
     [[ -z "$2" ]] && bibname="unnamed" || bibname="$(kebab "$2")"
     [[ -s "$bibname".pdf ]] && {

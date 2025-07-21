@@ -93,7 +93,11 @@ fi
    [[ "$count_only" -eq 0 ]] && {
        [[ "$num_rand_files" -gt 1 ]] && echolor green-purple ":: Giving ““$num_rand_files”” random results..."
        [[ "$num_rand_files" -eq 1 ]] && echolor green-purple ":: Giving a random result..."
-    }
+       [[ "$num_rand_files" -eq 0 ]] && {
+	   num_rand_files="${#images[@]}"
+	   echolor green-purple ":: Scrambling all ““$num_rand_files”” results..."
+       }
+   }
     images_rand=()
     for j in $(shuf --random-source=/dev/urandom -n "$num_rand_files" -i "1-${#images[@]}")
     do
