@@ -25,11 +25,12 @@ bntmp="/tmp/brown-noise-pid"
 	--volume=200       \
 	"$bnfile" &
     bnpid="$(pgrep -f "${bnfile##*/}")"
-    [[ -z "$bnpid" ]] && {
+    if ! ps -p "$bnpid" > /dev/null || [[ -z "$bnpid" ]]
+    then
 	notify-send -t 10000 -u critical "ERROR" "Failed to extract PID"
-	touch "$bntmp"
+	pkill -f "mpv.*brown-noise.mp3"
 	exit 1
-    }
+    fi
     echo -n "$bnpid" > "$bntmp"
     killall dunst
     notify-send -t 4000 "Brown noise on"
