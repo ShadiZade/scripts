@@ -1,0 +1,36 @@
+#!/bin/bash
+
+bntmp="/tmp/brown-noise-pid"
+[[ -e "$bntmp" ]] && {
+    kill "$(cat "$bntmp")"
+    rm -f "$bntmp"
+    killall dunst
+    notify-send -t 4000 "Brown noise off"
+} || {
+    bnfile="$HOME/Misc/brown-noise.mp3"
+    [[ ! -e "$bnfile" ]] && {
+	notify-send -t 4000 -u critical "ERROR" "Brown noise file does not exist."
+	exit 1
+    }
+    quodlibet --pause
+    pamixer --set-volume 60
+    mpv \
+	--really-quiet     \
+	--loop=inf         \
+	--profile=fast     \
+	--no-audio-display \
+	--no-video         \
+	--osd-fractions    \
+	--volume-max=200   \
+	--volume=200       \
+	"$bnfile" &
+    bnpid="$(pgrep -f "${bnfile##*/}")"
+    [[ -z "$bnpid" ]] && {
+	notify-send -t 10000 -u critical "ERROR" "Failed to extract PID"
+	touch "$bntmp"
+	exit 1
+    }
+    echo -n "$bnpid" > "$bntmp"
+    killall dunst
+    notify-send -t 4000 "Brown noise on"
+}
