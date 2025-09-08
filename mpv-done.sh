@@ -10,7 +10,7 @@ source ~/Repositories/scripts/essential-functions
     echolor red ":: No file selected."
     exit
 }
-mpv --osd-fractions --alang=eng --slang=eng "$ep" || exit
+mpv --osd-fractions --volume=100 --volume-max=200 --alang=eng --slang=eng "$ep" || exit
 fd -q donefile && exit
 fd -q "^done$" && done_exists="y" || done_exists="n"
 [[ "$done_exists" = "n" ]] && \
