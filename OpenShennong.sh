@@ -404,7 +404,7 @@ function download-paper {
 	return 1
     }
     scimirror="ru"
-    indoi="$(echo "$1" | sed 's|https://doi.org/||')"
+    indoi="$(echo -n "$1" | sed 's|https://doi.org/||;s/\[/\\[/g;s/\]/\\]/g')"
     echolor green-neonblue ":: Going to ““https://sci-hub.$scimirror/$indoi””"
     extract-cookies
     shurl="$(curl --cookie "$COOKIE_FILE" -s "https://sci-hub.$scimirror/$indoi")"
@@ -460,6 +460,7 @@ function fetch-bib-citation {
     done
     product_url="${1#/}"
     product_url="${product_url%/}"
+    product_url="$(sed 's/\[/\\[/g;s/\]/\\]/g' <<< "$product_url")"
     tmp_bib="/tmp/tmp-bib-$(date-string)"
     echolor green ":: Starting bib retrieval..."
     echolor green-neonblue ":: Going to ““https://api.citeas.org/product/$product_url?email=$EMAIL””"
@@ -469,6 +470,12 @@ function fetch-bib-citation {
 	echolor red ":: Citation returned an HTML file. Exiting."
 	return 1
     }
+    sed -i 's/update-to/updateto/g' "$tmp_bib-full"
+    jq -r '.metadata.updateto.[].type' "$tmp_bib-full" 2>/dev/null && {
+	echolor red ":: Found ““$(jq -r '.metadata.updateto.[].type' "$tmp_bib-full")”” for this article!"
+	echolor red ":: Continue? <return> " 1
+	read -r
+    }
     jq -r '.exports.[] | select( .export_name == "bibtex" ) | .export' "$tmp_bib-full" > "$tmp_bib"
     echolor green ":: Citeas.org queried!"
     sed -i 's/journal-article/article/g;s/book-chapter/incollection/g;s/,,/,/g;s/title={/title={{/g;s/title=/\ntitle=/g;/title=/s/}/}}/g' "$tmp_bib"
@@ -477,7 +484,7 @@ function fetch-bib-citation {
     [[ "$doikey" = "null" ]] && doikey=''
     function authorkey-filter {
 	sed 's/al-//gi;s/al //gi;s/de /de/gi;s/den /den/gi;s/don /don/gi;s/van /van/gi;s/von /von/gi;s/le /le/gi;s/la /la/gi;s/les /les/gi'            \
-	    | tr -d -- '-‐'                                                                                                                               \
+	    | tr -d -- '-‐'                                                                                                                            \
 	    | awk -F '{' '{print $2}'                                                                                                                  \
 	    | awk -F '}' '{print $1}'                                                                                                                  \
 	    | awk '{print $1}'                                                                                                                         \
@@ -495,7 +502,7 @@ function fetch-bib-citation {
 	    | sed 's/-on-/-/;s/-who/-/;s/-why-/-/;s/-what-/-/;s/-when-/-/;s/-which-/-/;s/-how-/-/;s/-would-/-/;s/-some-/-/;s/-several-/-/'             \
 	    | sed 's/-can-/-/;s/-do-/-/;s/-did-/-/;s/-does-/-/;s/-dont-/-/;s/-didnt-/-/;s/-doesnt-/-/;s/-is-/-/;s/-are-/-/;s/-will-/-/;s/-might-/-/'   \
 	    | sed 's/-it-/-/;s/-he-/-/;s/-she-/-/;s/-his-/-/;s/-her-/-/;s/-they-/-/;s/-them-/-/;s/-their-/-/;s/-hers-/-/;s/-theirs-/-/'                \
-	    | sed 's/-a-/-/;s/-an-/-/;s/-the-/-/;s/-i-/-/;s/-we-/-/;s/-they-/-/;s/-you-/-/'                                                            \
+	    | sed 's/-a-/-/;s/-an-/-/;s/-the-/-/;s/-i-/-/;s/-we-/-/;s/-they-/-/;s/-you-/-/;s/^to-//'                                                   \
 	    | sed 's/-is-/-/;s/-was-/-/;s/-be-/-/;s/-being-/-/;s/-were-/-/;s/-werent-/-/;s/-wasnt-/-/;s/-isnt-/-/;s/-not-/-/'                          \
 	    | sed 's/^on-//;s/^who//;s/^why-//;s/^what-//;s/^when-//;s/^which-//;s/^how-//;s/^would-//;s/^some-//;s/^several-//'                       \
 	    | sed 's/^can-//;s/^do-//;s/^did-//;s/^does-//;s/^dont-//;s/^didnt-//;s/^doesnt-//;s/^is-//;s/^are-//;s/^will-//;s/^might-//'              \

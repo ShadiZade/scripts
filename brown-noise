@@ -22,7 +22,7 @@ bntmp="/tmp/brown-noise-pid"
 	--no-video         \
 	--osd-fractions    \
 	--volume-max=200   \
-	--volume=200       \
+	--volume=180       \
 	"$bnfile" &
     bnpid="$(pgrep -f "${bnfile##*/}")"
     if ! ps -p "$bnpid" > /dev/null || [[ -z "$bnpid" ]]
