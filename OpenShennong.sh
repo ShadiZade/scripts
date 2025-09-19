@@ -509,6 +509,7 @@ function fetch-bib-citation {
 	    | sed 's/^it-//;s/^he-//;s/^she-//;s/^his-//;s/^her-//;s/^they-//;s/^them-//;s/^their-//;s/^hers-//;s/^theirs-//'                          \
 	    | sed 's/^a-//;s/^an-//;s/^the-//;s/^i-//;s/^we-//;s/^they-//;s/^you-//'                                                                   \
 	    | sed 's/^is-//;s/^was-//;s/^be-//;s/^being-//;s/^were-//;s/^werent-//;s/^wasnt-//;s/^isnt-//;s/^not-//'                                   \
+	    | sed 's/^here-//;s/^there-//;s/^where-//;s/^while-//;s/^whilst-//;s/^when-//;s/^whence-//;s/^then-//;s/^for-//'                           \
 	    | awk -F '-' '{print $1}'
     }
     authorkey="$(grep 'author=' "$tmp_bib" | authorkey-filter)"
