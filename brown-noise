@@ -7,22 +7,21 @@ bntmp="/tmp/brown-noise-pid"
     killall dunst
     notify-send -t 4000 "Brown noise off"
 } || {
-    bnfile="$HOME/Misc/brown-noise.mp3"
+    bnfile="$HOME/.local/share/user-scripts/sounds/brown-noise.flac"
     [[ ! -e "$bnfile" ]] && {
 	notify-send -t 4000 -u critical "ERROR" "Brown noise file does not exist."
 	exit 1
     }
     quodlibet --pause
-    pamixer --set-volume 60
+    pamixer --set-volume 70
     mpv \
 	--really-quiet     \
 	--loop=inf         \
 	--profile=fast     \
 	--no-audio-display \
 	--no-video         \
-	--osd-fractions    \
-	--volume-max=200   \
-	--volume=180       \
+	--volume-max=120   \
+	--volume=120       \
 	"$bnfile" &
     bnpid="$(pgrep -f "${bnfile##*/}")"
     if ! ps -p "$bnpid" > /dev/null || [[ -z "$bnpid" ]]
