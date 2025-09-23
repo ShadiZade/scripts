@@ -1,3 +1,4 @@
+
 #!/bin/bash
 source ~/Repositories/scripts/essential-functions
 log="$HOME/.local/logs/roll/roll-$(date-string ymd)"
@@ -37,7 +38,7 @@ function x-stump {
 
 function detect-lang {
     wifi-connected-p || return 1
-    test_stump="$(echo "$1" | tr -d '[’a-zA-Z[:punct:][:digit:][:space:]]…＂：∶–—⧸｜？')"
+    test_stump="$(echo "$1" | tr -d '[’a-zA-Z[:punct:][:digit:][:space:]]…＂：∶–—⧸｜？’‘')"
     [[ -z "$test_stump" ]] && return 1
     if ! cmp -s <(echo "$1") <(echo "$1" | iconv -c -f utf8 -t ascii//TRANSLIT)
     then
