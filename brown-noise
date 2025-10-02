@@ -13,7 +13,7 @@ bntmp="/tmp/brown-noise-pid"
 	exit 1
     }
     quodlibet --pause
-    pamixer --set-volume 70
+    pamixer --set-volume 60
     mpv \
 	--really-quiet     \
 	--loop=inf         \
