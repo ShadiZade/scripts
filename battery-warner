@@ -1,6 +1,9 @@
 #!/bin/bash
 source ~/Repositories/scripts/essential-functions
 
+source ~/Repositories/dotfiles/zsh/variables
+[[ "$battery_warning_on" -eq 0 ]] && exit
+
 while true
 do
     sleep 3s
@@ -38,8 +41,6 @@ do
     fi
     
     [[ "$batterylow" -eq 1 ]] && {
-	source ~/Repositories/dotfiles/zsh/variables
-	[[ "$battery_warning_on" -eq 0 ]] && continue
 	killall dunst
 	remaining="$(acpi -b | grep 'remaining' | awk -F ', ' '{print $NF}')"
 	notify-send -u critical -t 4000 "BATTERY WARNING" "${battery1percent}%\n$remaining"
