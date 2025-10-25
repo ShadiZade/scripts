@@ -1,0 +1,14 @@
+#!/bin/bash
+source "$HOME/Repositories/scripts/essential-functions"
+logfile="$HOME/.local/logs/bspwm/unhide-nodes.log"
+hidden_nodes=($(bspc query -N -n .hidden))
+num_hidden_nodes="${#hidden_nodes[@]}"
+
+notify-send -t '2000' 'BSPWM' "unhiding $num_hidden_nodes nodes"
+echo "$(date-string) ${hidden_nodes[@]}" >> "$logfile"
+for j in ${hidden_nodes[@]}
+do
+    bspc node "$j" --flag hidden=off
+done
+
+
