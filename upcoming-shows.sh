@@ -32,13 +32,14 @@ function get-series {
 
 function get-movie {
     echolor blue-white "““Film:”” $1 ““∎∎”” " 1
-    curlo="$(curl -s "https://thetvdb.com/movies/$2")"
-    releasedate="$(echo "$curlo" | grep -i -C 3 'strong>released' | tail -n 1 | awk '{print $2,$1,$3}' | tr -d ,$'\r')"
+    curlo="$(curl -s "https://www.themoviedb.org/movie/$2")"
+    releasedate="$(echo "$curlo" | grep -i -C 1 'class="release"' | tail -n 1 | awk -F ' ' '{print $1}' | awk -F '/' '{print $3"-"$2"-"$1}' | xargs -I DATE date -d DATE +"%d %B %Y")"
     beside=''
     under=''
     [[ -z "$releasedate" ]] && {
-	echolor red ":: Could not find ““$1””"
-	return 1
+	echolor black "unknown"
+	echolor black "\tunknown"
+	return
     }
     if datetest "$(date -I -d "$releasedate")" --lt "$(date -I -d today)"
     then
