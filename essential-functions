@@ -90,7 +90,7 @@ function kebab {
     echo -e "$kebab_input"                             \
 	| iconv -c -f utf8 -t ascii//TRANSLIT          \
 	| perl -pe 's|&.*?;||g'                        \
-	| tr -d '"’“”!?*=$:;#@^~()[]{}<>\t\\'          \
+	| tr -d '"’“”!?*=$:;`#@^~()[]{}<>\t\\'          \
 	| sed 's|/| |g;s/\&/-and-/g;s/\%/-percent-/g'  \
 	| tr -d "'"                                    \
 	| tr '_ .|/+,\n–—' '-'                         \

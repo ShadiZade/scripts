@@ -9,6 +9,11 @@ function zaytouna {
     dlded="$(eza -1f "$loc" | grep 'pdf$' | tail -n 1 | awk -F '-' '{print $2}')"
     echolor orange ":: ❯❯ Updating ““$nlname”” now. Current edition: ““$dlded””" 1
     jinurl="$(curl -m 15 -s "$nl" | grep '\.pdf'  | awk -F '" rel="' '{print $1}' | awk -F 'href="' '{print $NF}')"
+    grep -qi "cloudflare" <<< "$jinurl" && {
+	clear-line
+	echolor red ":: ⨯  Cloudflare blocking ““$nlname””"
+	return
+    }
     urled=''
     urled="$(echo "$jinurl" | awk -F '_' '{print $4}')"
     [[ -z "$urled" ]] && {
@@ -51,6 +56,11 @@ function kassioun {
     dlded="$(eza -1f "$loc" | grep 'pdf$' | tail -n 1 | awk -F '-' '{print $2}' | awk -F '.' '{print $1}')"
     echolor orange ":: ❯❯ Updating ““$nlname”” now. Current edition: ““$dlded””" 1
     jinurl="$(curl -m 15 -s "$nl" | grep 'href="/pdf-archive/' | awk -F 'href="' '{print $NF}' | tr -d '"' | sed 1q)"
+    grep -qi "cloudflare" <<< "$jinurl" && {
+	clear-line
+	echolor red ":: ⨯  Cloudflare blocking ““$nlname””"
+	return
+    }
     urled=''
     urled="$(echo "$jinurl" | awk -F '-' '{print $3}' | awk -F '/' '{print $1}')"
     [[ -z "$urled" ]] && {
@@ -93,7 +103,12 @@ function al-akhbar {
     dlded=''
     dlded="$(eza -1f "$loc" | grep 'pdf$' | tail -n 1 | awk -F '-' '{print $3}')"
     echolor orange ":: ❯❯ Updating ““$nlname”” now. Current edition: ““$dlded””" 1
-    wget -qO- "$nl" | tr '\\' '\n' > "$akhbar_tmp"
+    curl -s "$nl" | tr '\\' '\n' > "$akhbar_tmp"
+    grep -qi "cloudflare" < "$akhbar_tmp" && {
+	clear-line
+	echolor red ":: ⨯  Cloudflare blocking ““$nlname””"
+	return
+    }
     urled=''
     urled="$(cat "$akhbar_tmp" | grep -i -A 2 -m 1 'publicurl' | sed -n 3p | awk -F '/' '{print $NF}')"
     urldt="$(cat "$akhbar_tmp" | grep -i -A 2 -m 1 'publishdate' | sed -n 3p | awk -F '"' '{print $NF}' | awk -F ' ' '{print $1}')"

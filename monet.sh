@@ -10,6 +10,7 @@ searchterm=''
 images=()
 hidden=0
 vids=0
+types="l"
 matter="images"
 children=' itself.'
 count_only=0
@@ -20,7 +21,7 @@ time_before="$(date -d tomorrow +'%Y-%m-%d')"
 function date-formatter {
     date -d "$1" +'%Y-%m-%d %H:%M:%S' 2>/dev/null || return 1
 }
-while getopts 'had:s:vclA:B:r:' OPTION; do
+while getopts 'had:s:vclA:B:r:f' OPTION; do
     case "$OPTION" in
 	"a") depth=999
 	     children=' or its children.' ;;
@@ -38,6 +39,7 @@ while getopts 'had:s:vclA:B:r:' OPTION; do
 	     time_after="$OPTARG" ;;
 	"B") date-formatter "$OPTARG" >/dev/null || exit 1
 	     time_before="$OPTARG" ;;
+	"f") types="f" ;;
 	*) echolor red ":: Unknown option"; exit ;;
     esac
 done
@@ -53,9 +55,9 @@ done
 IFS=$'\n'
 if [[ "$hidden" -eq 1 ]]
 then
-    images=($(fd -IH --newer "$time_after" --older "$time_before" -d "$depth" "$exts" "$img_dir" | sort -V))
+    images=($(fd -IH -t f -t "$types" --newer "$time_after" --older "$time_before" -d "$depth" "$exts" "$img_dir" | sort -V))
 else
-    images=($(fd -I --newer "$time_after" --older "$time_before" -d "$depth" "$exts" "$img_dir" | sort -V))
+    images=($(fd -I -t f -t "$types" --newer "$time_after" --older "$time_before" -d "$depth" "$exts" "$img_dir" | sort -V))
 fi
 [[ -z "$images" ]] && {
     [[ "$count_only" -eq 0 ]] && {

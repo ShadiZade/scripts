@@ -31,7 +31,7 @@ function get-series {
 }
 
 function get-movie {
-    echolor blue-white "““Film:”” $1 ““∎∎”” " 1
+    echolor white-blue "““Film:”” $1 ““∎∎”” " 1
     curlo="$(curl -s "https://www.themoviedb.org/movie/$2")"
     releasedate="$(echo "$curlo" | grep -i -C 1 'class="release"' | tail -n 1 | awk -F ' ' '{print $1}' | awk -F '/' '{print $3"-"$2"-"$1}' | xargs -I DATE date -d DATE +"%d %B %Y")"
     beside=''
@@ -49,7 +49,7 @@ function get-movie {
 	beside="““unreleased””"
 	under="$releasedate"
     fi
-    echolor white-black "$beside" 1
+    echolor blue-black "$beside" 1
     if [[ ! "$beside" = "““unreleased””" ]]
     then
 	[[ "$(date -d "$beside" '+%Y%m%d')" = "$(date '+%Y%m%d')" ]] && echolor red ' •' 1

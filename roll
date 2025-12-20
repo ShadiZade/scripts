@@ -1,4 +1,3 @@
-
 #!/bin/bash
 source ~/Repositories/scripts/essential-functions
 log="$HOME/.local/logs/roll/roll-$(date-string ymd)"
