@@ -417,16 +417,11 @@ function download-paper {
 	echolor yellow ":: Caught in evil CAPTCHA hell. Please inform the website that you’re an honest researcher and retry."
 	return 1
     }
-        echo "$shurl" | grep -q "Error 5" && {
+    echo "$shurl" | grep -q "Error 5" && {
 	echolor yellow ":: Server error on mirror ““.$scimirror””"
 	return 1
     }
-    ddurl="$(echo "$shurl" | grep -i 'application/pdf' | awk -F 'src="' '{print $2}' | awk -F '#' '{print $1}' | tr -d "\n" | sed 's|https://||;s|^//||')"
-    for j in "downloads" "uptodate" "tree"
-    do
-	echo "$ddurl" | grep -q "$j" || continue
-	ddurl="$(echo "$ddurl" | sed "s|^/$j|sci-hub.$scimirror/$j|")"
-    done
+    ddurl="$(echo "$shurl" | grep -A 1 'class="download"' | tail -n 1 | awk -F 'href="' '{print $2}' | awk -F '"></a>' '{print $1}')"
     [[ -z "$2" ]] && bibname="unnamed" || bibname="$(kebab "$2")"
     [[ -s "$bibname".pdf ]] && {
 	echolor yellow-neonblue ":: Paper ““$bibname”” already exists. Overwrite? (y/N) " 1
@@ -441,7 +436,7 @@ function download-paper {
 	echolor red ":: Unknown fatal error."
 	return 1
     }
-    wget --load-cookies "$COOKIE_FILE" -nc -O ./"$bibname".pdf -t 0 -- https://"$ddurl" && touch -c ./"$bibname".pdf
+    wget --load-cookies "$COOKIE_FILE" -nc -O ./"$bibname".pdf -t 0 -- "https://sci-hub.$scimirror$ddurl" && touch -c ./"$bibname".pdf
 }
 
 function fetch-bib-citation {
