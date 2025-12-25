@@ -7,7 +7,11 @@ archlasttitle="$usdd/latest-arch-news-title"
 function update-news {
     wifi-connected-p || exit 1
     echolor orange  ":: ❯❯ Updating ““Arch News”” now. " 1
-    curl -s 'https://archlinux.org/feeds/news/' > "$archnewsfile"
+    curl --max-time 10 -s 'https://archlinux.org/feeds/news/' > "$archnewsfile" || {
+	clear-line
+	echolor red ":: ““Arch News”” timed out."
+	exit 1
+    }
     [[ "$(date -d "$(hq -f "$archnewsfile" lastBuildDate text)" +"%Y%m%d%H%M%S")" = "$(cat "$archlastdate")" ]] && {
 	clear-line
 	echolor green-white ":: ✓  ““Arch News”” is up to date."
