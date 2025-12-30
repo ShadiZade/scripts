@@ -398,7 +398,6 @@ function count-all {
 }
 
 function download-paper {
-    echolor green ":: Starting PDF retrieval..."
     [[ -z "$1" ]] && {
 	echolor red ":: No DOI entered."
 	return 1
@@ -408,8 +407,11 @@ function download-paper {
     echolor green-neonblue ":: Going to ““https://sci-hub.$scimirror/$indoi””"
     extract-cookies
     shurl="$(curl --cookie "$COOKIE_FILE" -s "https://sci-hub.$scimirror/$indoi")"
-    echolor green ":: Sci-Hub queried!"
     echo "$shurl" | grep -q "doesn't have the requested document" && {
+	echolor yellow ":: Sci-Hub does not have this file."
+	return 1
+    }
+    echo "$shurl" | grep -q "not yet available" && {
 	echolor yellow ":: Sci-Hub does not have this file."
 	return 1
     }
@@ -421,7 +423,8 @@ function download-paper {
 	echolor yellow ":: Server error on mirror ““.$scimirror””"
 	return 1
     }
-    ddurl="$(echo "$shurl" | grep -A 1 'class="download"' | tail -n 1 | awk -F 'href="' '{print $2}' | awk -F '"></a>' '{print $1}')"
+    ddurl="$(echo "$shurl" | grep -A 1 'class = "download"' | tail -n 1 | awk -F 'href = "' '{print $2}' | awk -F '"></a>' '{print $1}')"
+    echolor green-neonblue ":: File link is ““https://sci-hub.$scimirror$ddurl””"
     [[ -z "$2" ]] && bibname="unnamed" || bibname="$(kebab "$2")"
     [[ -s "$bibname".pdf ]] && {
 	echolor yellow-neonblue ":: Paper ““$bibname”” already exists. Overwrite? (y/N) " 1
@@ -433,7 +436,9 @@ function download-paper {
 	echolor green ":: $(rm -vf "$bibname".pdf)" || return 1
     }
     [[ -z "$ddurl" ]] && {
-	echolor red ":: Unknown fatal error."
+	errortmpfile="/tmp/openshennong-fatal-error-$(random-string)"
+	echo "$shurl" > "$errortmpfile"
+	echolor red ":: Unknown fatal error, see log at ““$errortmpfile””"
 	return 1
     }
     wget --load-cookies "$COOKIE_FILE" -nc -O ./"$bibname".pdf -t 0 -- "https://sci-hub.$scimirror$ddurl" && touch -c ./"$bibname".pdf
@@ -457,7 +462,6 @@ function fetch-bib-citation {
     product_url="${product_url%/}"
     product_url="$(sed 's/\[/\\[/g;s/\]/\\]/g' <<< "$product_url")"
     tmp_bib="/tmp/tmp-bib-$(date-string)"
-    echolor green ":: Starting bib retrieval..."
     echolor green-neonblue ":: Going to ““https://api.citeas.org/product/$product_url?email=$EMAIL””"
     extract-cookies
     curl --cookie "$COOKIE_FILE" -s "https://api.citeas.org/product/$product_url?email=$EMAIL" > "$tmp_bib-full"
@@ -472,7 +476,6 @@ function fetch-bib-citation {
 	read -r
     }
     jq -r '.exports.[] | select( .export_name == "bibtex" ) | .export' "$tmp_bib-full" > "$tmp_bib"
-    echolor green ":: Citeas.org queried!"
     sed -i 's/journal-article/article/g;s/book-chapter/incollection/g;s/,,/,/g;s/title={/title={{/g;s/title=/\ntitle=/g;/title=/s/}/}}/g' "$tmp_bib"
     sed -i 's/<i>//g;s|</i>||g' "$tmp_bib"
     doikey="$(jq -r '.metadata.DOI' "$tmp_bib-full")"

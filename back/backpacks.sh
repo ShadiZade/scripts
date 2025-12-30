@@ -40,3 +40,8 @@ echolor ←yellow ":: Backing Buku bookmarks..."
 rsync -qaru ~/.local/share/buku/bookmarks.db ~/Misc/Backups/bookmarks/buku
 echolor yellow "$(basic-commit ~/Misc/Backups/bookmarks/buku/)" \
     && echolor blue "\t\t → Done!"
+
+echolor ←yellow ":: Backing video watch history..."
+rsync -qaru ~/Excluding/youtube/.record.log ~/Misc/Backups/video/local-watch-history.log
+echolor yellow "$(basic-commit ~/Misc/Backups/video)" \
+    && echolor blue "\t\t → Done!"
