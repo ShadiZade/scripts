@@ -19,7 +19,7 @@ randomness=0
 time_after="1970-01-01"
 time_before="$(date -d tomorrow +'%Y-%m-%d')"
 function date-formatter {
-    date -d "$1" +'%Y-%m-%d %H:%M:%S' 2>/dev/null || return 1
+    date -d "$1" +'%Y-%m-%d' 2>/dev/null || return 1
 }
 while getopts 'had:s:vclA:B:r:f' OPTION; do
     case "$OPTION" in
@@ -36,9 +36,9 @@ while getopts 'had:s:vclA:B:r:f' OPTION; do
 	"c") count_only=1 ;;
 	"l") log_results=1 ;;
 	"A") date-formatter "$OPTARG" >/dev/null || exit 1
-	     time_after="$OPTARG" ;;
+	     time_after="$(date-formatter "$OPTARG")" ;;
 	"B") date-formatter "$OPTARG" >/dev/null || exit 1
-	     time_before="$OPTARG" ;;
+	     time_before="$(date-formatter "$OPTARG")" ;;
 	"f") types="f" ;;
 	*) echolor red ":: Unknown option"; exit ;;
     esac

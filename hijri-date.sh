@@ -8,4 +8,9 @@ grep -q "API limit exceeded" "$jsonfile" && {
     exit 1
 }
 
-echo "$(jq -r '.data.hijri.day' "$jsonfile") $(jq -r '.data.hijri.month.en' "$jsonfile") ($(jq -r '.data.hijri.month.number' "$jsonfile")) $(jq -r '.data.hijri.year' "$jsonfile")"
+hijri_day="$(jq -r '.data.hijri.day' "$jsonfile")"
+hijri_monthname="$(jq -r '.data.hijri.month.en' "$jsonfile")"
+hijri_monthnum="$(jq -r '.data.hijri.month.number' "$jsonfile")"
+hijri_year="$(jq -r '.data.hijri.year' "$jsonfile")"
+[[ -z "$hijri_day" || -z "$hijri_monthname" || -z "$hijri_monthnum" || -z "$hijri_year" ]] && exit 1
+echo "$hijri_day $hijri_monthname ($hijri_monthnum) $hijri_year"
