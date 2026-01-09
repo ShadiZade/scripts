@@ -33,7 +33,7 @@ function get-series {
 function get-movie {
     echolor white-blue "““Film:”” $1 ““∎∎”” " 1
     curlo="$(curl -s "https://www.themoviedb.org/movie/$2")"
-    releasedate="$(echo "$curlo" | grep -i -C 1 'class="release"' | tail -n 1 | awk -F ' ' '{print $1}' | awk -F '/' '{print $3"-"$2"-"$1}' | xargs -I DATE date -d DATE +"%d %B %Y")"
+    releasedate="$(echo "$curlo" | grep -i -C 1 'class="release"' | tail -n 1 | awk -F ' ' '{print $1}' | awk -F '.' '{print $3"-"$2"-"$1}' | xargs -I DATE date -d DATE +"%d %B %Y")"
     beside=''
     under=''
     [[ -z "$releasedate" ]] && {

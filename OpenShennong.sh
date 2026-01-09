@@ -450,7 +450,7 @@ function fetch-bib-citation {
 	echolor red ":: Email variable not found. Exiting."
 	return 1
     }
-    hostile_websites=("sciencedirect.com" "jstor.org" "cabidigitallibrary.org" "ebscohost.com" "plos.org" "oup.com" "elibrary.ru")
+    hostile_websites=("sciencedirect.com" "jstor.org" "cabidigitallibrary.org" "ebscohost.com" "plos.org" "oup.com" "elibrary.ru" "bioone.org" "frontiersin.org")
     for j in ${hostile_websites[@]}
     do
 	grep -q "$j" <<< "$1" && {
@@ -477,7 +477,7 @@ function fetch-bib-citation {
     }
     jq -r '.exports.[] | select( .export_name == "bibtex" ) | .export' "$tmp_bib-full" > "$tmp_bib"
     sed -i 's/journal-article/article/g;s/book-chapter/incollection/g;s/,,/,/g;s/title={/title={{/g;s/title=/\ntitle=/g;/title=/s/}/}}/g' "$tmp_bib"
-    sed -i 's/<i>//g;s|</i>||g' "$tmp_bib"
+    sed -i 's/<i>//g;s|</i>||g;s/&amp;/\\\&/g' "$tmp_bib"
     doikey="$(jq -r '.metadata.DOI' "$tmp_bib-full")"
     [[ "$doikey" = "null" ]] && doikey=''
     function authorkey-filter {
