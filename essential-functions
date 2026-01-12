@@ -31,7 +31,7 @@ function random-string {
 }
 
 function random-number {
-    shuf --random-source=/dev/urandom -r -zn "${1:-8}" -i 0-9
+    echo -n '0123456789' | fold -w1 | shuf --random-source=/dev/urandom -r -n "${1:-8}" | tr -d '\n'
 }
 
 function random-word {
