@@ -450,7 +450,7 @@ function fetch-bib-citation {
 	echolor red ":: Email variable not found. Exiting."
 	return 1
     }
-    hostile_websites=("sciencedirect.com" "jstor.org" "cabidigitallibrary.org" "ebscohost.com" "plos.org" "oup.com" "elibrary.ru" "bioone.org" "frontiersin.org")
+    hostile_websites=("sciencedirect.com" "jstor.org" "cabidigitallibrary.org" "ebscohost.com" "plos.org" "oup.com" "elibrary.ru" "bioone.org" "frontiersin.org" "cell.com" "jbc.org" "mdpi.com")
     for j in ${hostile_websites[@]}
     do
 	grep -q "$j" <<< "$1" && {
@@ -482,6 +482,7 @@ function fetch-bib-citation {
     [[ "$doikey" = "null" ]] && doikey=''
     function authorkey-filter {
 	sed 's/al-//gi;s/al //gi;s/de /de/gi;s/den /den/gi;s/don /don/gi;s/van /van/gi;s/von /von/gi;s/le /le/gi;s/la /la/gi;s/les /les/gi'            \
+	    | sed 's/bin /bin/gi;s/ben /ben/gi;s/abu /abu/gi;s/ibn /ibn/gi;s/san /san/gi;s/sao /sao/gi;s/são /sao/gi;s/santa /santa/gi'                \
 	    | tr -d -- '-‐'                                                                                                                            \
 	    | awk -F '{' '{print $2}'                                                                                                                  \
 	    | awk -F '}' '{print $1}'                                                                                                                  \
