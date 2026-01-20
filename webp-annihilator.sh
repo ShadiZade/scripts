@@ -36,12 +36,12 @@ do
 	    fi
 	    ;;
 	"image")
-	    newname="${j%.*}.png"
+	    newname="${j%.*}.jxl"
 	    if [[ "$newname" = "$j" ]]
 	    then
 		echolor red ":: File ““$j”” is already in desired format."
 	    else
-		echolor yellow-aquamarine "======> Converting to png..."
+		echolor yellow-aquamarine "======> Converting to jxl..."
 		magick "$j" "$newname" && {
 		    rm -f "$j" > /dev/null
 		} || {

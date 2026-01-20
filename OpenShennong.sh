@@ -415,6 +415,10 @@ function download-paper {
 	echolor yellow ":: Sci-Hub does not have this file."
 	return 1
     }
+        echo "$shurl" | grep -q "do not have" && {
+	echolor yellow ":: Sci-Hub does not have this file."
+	return 1
+    }
     echo "$shurl" | grep -q "Checking your browser" && {
 	echolor yellow ":: Caught in evil CAPTCHA hell. Please inform the website that you’re an honest researcher and retry."
 	return 1
@@ -450,7 +454,7 @@ function fetch-bib-citation {
 	echolor red ":: Email variable not found. Exiting."
 	return 1
     }
-    hostile_websites=("sciencedirect.com" "jstor.org" "cabidigitallibrary.org" "ebscohost.com" "plos.org" "oup.com" "elibrary.ru" "bioone.org" "frontiersin.org" "cell.com" "jbc.org" "mdpi.com")
+    hostile_websites=("sciencedirect.com" "jstor.org" "cabidigitallibrary.org" "ebscohost.com" "plos.org" "oup.com" "elibrary.ru" "bioone.org" "frontiersin.org" "cell.com" "jbc.org" "mdpi.com" "thelancet.com" "ingentaconnect.com" "usp.br")
     for j in ${hostile_websites[@]}
     do
 	grep -q "$j" <<< "$1" && {
