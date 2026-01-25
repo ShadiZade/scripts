@@ -486,7 +486,7 @@ function fetch-bib-citation {
     [[ "$doikey" = "null" ]] && doikey=''
     function authorkey-filter {
 	sed 's/al-//gi;s/al //gi;s/de /de/gi;s/den /den/gi;s/don /don/gi;s/van /van/gi;s/von /von/gi;s/le /le/gi;s/la /la/gi;s/les /les/gi'            \
-	    | sed 's/bin /bin/gi;s/ben /ben/gi;s/abu /abu/gi;s/ibn /ibn/gi;s/san /san/gi;s/sao /sao/gi;s/são /sao/gi;s/santa /santa/gi'                \
+	    | sed 's/bin /bin/gi;s/ben /ben/gi;s/abu /abu/gi;s/ibn /ibn/gi;s/san /san/gi;s/sao /sao/gi;s/são /sao/gi;s/santa /santa/gi;s/del /del/gi'  \
 	    | tr -d -- '-‐'                                                                                                                            \
 	    | awk -F '{' '{print $2}'                                                                                                                  \
 	    | awk -F '}' '{print $1}'                                                                                                                  \
