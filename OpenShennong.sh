@@ -1,13 +1,6 @@
 #!/bin/bash
 #
-#   神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农
-#   神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农
-#   神农                                                                                                                   神农
-#   神农                                                                                                                   神农
-#   神农                                                                                                                   神农
-#   神农                                                                                                                   神农
-#   神农                                                                                                                   神农
-#   神农                                                                                                                   神农
+
 #   神农        .d88888b.                          .d8888b. 888                                                            神农
 #   神农       d88P" "Y88b                        d88P  Y88b888                                                            神农
 #   神农       888     888                        Y88b.     888                                                            神农
@@ -20,14 +13,8 @@
 #   神农                  888                                                                               Y8b d88P       神农
 #   神农                  888                            OpenShennong                                        "Y88P"        神农
 #   神农                                             LaTeX Project Manager                                                 神农
-#   神农                                                                                                                   神农
-#   神农                                                                                                                   神农
-#   神农                                                                                                                   神农
-#   神农                                                                                                                   神农
-#   神农                                                                                                                   神农
-#   神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农
-#   神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农神农
-#
+
+
 source ~/Repositories/scripts/essential-functions
 data_dir="$XDG_DATA_HOME/OpenShennong"
 local_registry="$data_dir/projects.csv"
@@ -407,6 +394,7 @@ function download-paper {
     echolor green-neonblue ":: Going to ““https://sci-hub.$scimirror/$indoi””"
     extract-cookies
     shurl="$(curl --cookie "$COOKIE_FILE" -s "https://sci-hub.$scimirror/$indoi")"
+    echo -n "$bibkey" | xclip -selection clipboard
     echo "$shurl" | grep -q "doesn't have the requested document" && {
 	echolor yellow ":: Sci-Hub does not have this file."
 	return 1
@@ -502,6 +490,7 @@ function fetch-bib-citation {
 	    | tr -d '[1234567890]'                                                                                                                     \
 	    | kebab                                                                                                                                    \
 	    | sed 's/-and-/-/;s/-or-/-/;s/^and-//;s/^or-//'                                                                                            \
+	    | sed 's/^from-//;s/-from-/-/;s/^since//;s/-since-/-/;s/^toward-//;s/-toward-/-/;s/^towards-//;s/-towards-/-/'                             \
 	    | sed 's/-on-/-/;s/-who/-/;s/-why-/-/;s/-what-/-/;s/-when-/-/;s/-which-/-/;s/-how-/-/;s/-would-/-/;s/-some-/-/;s/-several-/-/'             \
 	    | sed 's/-can-/-/;s/-do-/-/;s/-did-/-/;s/-does-/-/;s/-dont-/-/;s/-didnt-/-/;s/-doesnt-/-/;s/-is-/-/;s/-are-/-/;s/-will-/-/;s/-might-/-/'   \
 	    | sed 's/-it-/-/;s/-he-/-/;s/-she-/-/;s/-his-/-/;s/-her-/-/;s/-they-/-/;s/-them-/-/;s/-their-/-/;s/-hers-/-/;s/-theirs-/-/'                \
@@ -510,7 +499,7 @@ function fetch-bib-citation {
 	    | sed 's/^on-//;s/^who//;s/^why-//;s/^what-//;s/^when-//;s/^which-//;s/^how-//;s/^would-//;s/^some-//;s/^several-//'                       \
 	    | sed 's/^can-//;s/^do-//;s/^did-//;s/^does-//;s/^dont-//;s/^didnt-//;s/^doesnt-//;s/^is-//;s/^are-//;s/^will-//;s/^might-//'              \
 	    | sed 's/^it-//;s/^he-//;s/^she-//;s/^his-//;s/^her-//;s/^they-//;s/^them-//;s/^their-//;s/^hers-//;s/^theirs-//'                          \
-	    | sed 's/^a-//;s/^an-//;s/^the-//;s/^i-//;s/^we-//;s/^they-//;s/^you-//'                                                                   \
+	    | sed 's/^a-//;s/^an-//;s/^the-//;s/^i-//;s/^we-//;s/^they-//;s/^you-//;s/^to-//;s/-to-/-/'                                                \
 	    | sed 's/^is-//;s/^was-//;s/^be-//;s/^being-//;s/^were-//;s/^werent-//;s/^wasnt-//;s/^isnt-//;s/^not-//'                                   \
 	    | sed 's/^here-//;s/^there-//;s/^where-//;s/^while-//;s/^whilst-//;s/^when-//;s/^whence-//;s/^then-//;s/^for-//'                           \
 	    | awk -F '-' '{print $1}'
