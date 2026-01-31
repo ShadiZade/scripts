@@ -393,7 +393,9 @@ function download-paper {
     indoi="$(echo -n "$1" | sed 's|https://doi.org/||;s/\[/\\[/g;s/\]/\\]/g')"
     echolor green-neonblue ":: Going to ““https://sci-hub.$scimirror/$indoi””"
     extract-cookies
-    shurl="$(curl --cookie "$COOKIE_FILE" -s "https://sci-hub.$scimirror/$indoi")"
+    scihub_src="/tmp/scihub-src-$(date-string)"
+    wget --continue --load-cookies "$COOKIE_FILE" --no-use-server-timestamps -q -O "$scihub_src" -nc -t 0 -- "https://sci-hub.$scimirror/$indoi"
+    shurl="$(cat "$scihub_src")"
     echo -n "$bibkey" | xclip -selection clipboard
     echo "$shurl" | grep -q "doesn't have the requested document" && {
 	echolor yellow ":: Sci-Hub does not have this file."
@@ -475,6 +477,7 @@ function fetch-bib-citation {
     function authorkey-filter {
 	sed 's/al-//gi;s/al //gi;s/de /de/gi;s/den /den/gi;s/don /don/gi;s/van /van/gi;s/von /von/gi;s/le /le/gi;s/la /la/gi;s/les /les/gi'            \
 	    | sed 's/bin /bin/gi;s/ben /ben/gi;s/abu /abu/gi;s/ibn /ibn/gi;s/san /san/gi;s/sao /sao/gi;s/são /sao/gi;s/santa /santa/gi;s/del /del/gi'  \
+	    | sed 's/los /los/gi;s/el-//gi;s/el //gi'                                                                                                  \
 	    | tr -d -- '-‐'                                                                                                                            \
 	    | awk -F '{' '{print $2}'                                                                                                                  \
 	    | awk -F '}' '{print $1}'                                                                                                                  \
