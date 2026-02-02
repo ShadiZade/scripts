@@ -469,6 +469,7 @@ function fetch-bib-citation {
 	echolor red ":: Continue? <return> " 1
 	read -r
     }
+    sed -i 's/\\n            <i>/ /g;s|</i>\\n            | |g' "$tmp_bib-full"
     jq -r '.exports.[] | select( .export_name == "bibtex" ) | .export' "$tmp_bib-full" > "$tmp_bib"
     sed -i 's/journal-article/article/g;s/book-chapter/incollection/g;s/,,/,/g;s/title={/title={{/g;s/title=/\ntitle=/g;/title=/s/}/}}/g' "$tmp_bib"
     sed -i 's/<i>//g;s|</i>||g;s/&amp;/\\\&/g' "$tmp_bib"
