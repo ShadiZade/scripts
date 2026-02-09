@@ -1,0 +1,53 @@
+#!/bin/bash
+source "$HOME"/Repositories/scripts/essential-functions
+
+[[ -e "$1" ]] || {
+    echolor red ":: File ““$1”” does not exist!"
+    exit 1
+}
+[[ "$(mimetype -b "$1")" = "application/pdf" ]] || {
+    echolor red ":: File ““$1”” is not a PDF!"
+    exit 1
+}
+
+function null-char-p {
+    if  od -b "$1" | grep -qw '000'
+    then
+	return 0
+    else
+	return 1
+    fi
+}
+
+function remove-null-char {
+    sed -i 's/\x0//g' "$1"
+}
+
+function clean-bookmarks {
+tmp="pdf-bookmarks-$(date-string)"
+mv "$1" "$1_old"
+pdftk "$1_old" dump_data_utf8 output "/tmp/$tmp"
+[[ -e "/tmp/$tmp" ]] || {
+    echolor red ":: Bookmark extraction failed!"
+    mv "$1_old" "$1"
+    return 1
+}
+null-char-p "/tmp/$tmp" && {
+    remove-null-char "/tmp/$tmp"
+    echolor green ":: Null characters removed!"
+} || {
+    echolor red ":: No null characters detected!"
+    mv "$1_old" "$1"
+    return 1
+}
+pdftk "$1_old" update_info_utf8 "/tmp/$tmp" output "$1"
+echolor green ":: New PDF generated!"
+move-to-trash "$1_old"
+}
+
+for j in "${@}"
+do
+    echolor blue ":: Doing file ““$j””"
+    clean-bookmarks "$j"
+    echolor white "---------------------"
+done
