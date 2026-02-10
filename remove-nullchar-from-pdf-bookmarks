@@ -20,7 +20,7 @@ function null-char-p {
 }
 
 function remove-null-char {
-    sed -i 's/\x0//g' "$1"
+    sed -i 's/\x0//g;/^$/d' "$1"
 }
 
 function clean-bookmarks {
@@ -33,6 +33,9 @@ pdftk "$1_old" dump_data_utf8 output "/tmp/$tmp"
     return 1
 }
 null-char-p "/tmp/$tmp" && {
+    grep -q "Bookmark" "/tmp/$tmp" || {
+	echolor red ":: Info file does not contain any bookmarks."
+    }
     remove-null-char "/tmp/$tmp"
     echolor green ":: Null characters removed!"
 } || {
