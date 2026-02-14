@@ -313,7 +313,10 @@ function extract-cookies {
 function between {
     awk -F "${1:-/}" '{print $NF}' | awk -F "${2:-.}" '{print $1}'
 }
-    
+
+function sort-roman {
+    sed -e 's/^Overture. /0–&/;s/^I. /1–&/;s/^II. /2–&/;s/^III. /3–&/;s/^IV. /4–&/;s/^V. /5–&/;s/^VI. /6–&/;s/^VII. /7–&/;s/^VIII. /8–&/;s/^IX. /9–&/;s/^X. /10–&/;s/^XI. /11–&/;s/^XII. /12–&/;s/^XIII. /13–&/;s/^XIV. /14–&/;s/^XV. /15–&/;s/^XVI. /16–&/;s/^XVII. /17–&/;s/^XVIII. /18–&/;s/^XIX. /19–&/;s/^XX. /20–&/;s/^XXI. /21–&/;s/^XXII. /22–&/;s/^XXIII. /23–&/;s/^XXIV. /24–&/;s/^XXV. /25–&/;s/^XXVI. /26–&/;s/^XXVII. /27–&/;s/^XXVIII. /28–&/;s/^XXIX. /29–&/;s/^XXX. /30–&/;s/^XXXI. /31–&/;s/^XXXII. /32–&/;s/^XXXIII. /33–&/;s/^XXXIV. /34–&/;s/^XXXV. /35–&/;s/^XXXVI. /36–&/;s/^XXXVII. /37–&/;s/^XXXVIII. /38–&/' | sort -V | sed 's/^.*–//g'
+}
 
 
 # function ¿ {

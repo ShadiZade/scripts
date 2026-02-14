@@ -12,9 +12,9 @@ i=0
 for j in ${piece_list[@]}
 do
     ((i++))
-    working_metadata="$(tagutil -- "$j")"
-    working_title="$(echo "$working_metadata" | grep 'title:' | awk -F ':' '{print $NF}' | sed 's|^ *||g')"
-    working_artist="$(echo "$working_metadata" | grep 'artist:' | awk -F ':' '{print $NF}' | sed 's|^ *||g')"
+    working_metadata="$(tagutil -F json -- "$j")"
+    working_title="$(echo "$working_metadata" | jq -r '.[0].title')"
+    working_artist="$(echo "$working_metadata" | jq -r '.[1].artist')"
     [ -z "$working_artist" ] && working_artist="Unknown"
     echo -e ":: \033[33m($i/${#piece_list[@]})\033[0m Processing \033[32m$working_artist\033[0m’s $working_title"
     echo "$working_title" >> "$working_artist"-works.txt
