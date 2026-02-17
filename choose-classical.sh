@@ -6,7 +6,7 @@ music_composer="$(ls -1 ~/Misc/Backups/my-music/classical | sed 's|-works.txt||g
 sane "$music_composer"
 composer_file="$HOME/Misc/Backups/my-music/classical/$music_composer-works.txt"
 sane "$composer_file"
-chosen_title="$(cat "$composer_file" | awk -F ' — ' '{print $1}' | sort | uniq -c | sed 's/^/←/g;s/←      1 //g' | perl -pe 's|← *.*? |→ |' | rofi -normalize-match -dmenu -i -p 'choose piece' | sed 's/→ //g')"
+chosen_title="$(cat "$composer_file" | awk -F ' — ' '{print $1}' | sort -V | uniq -c | sed 's/^/←/g;s/←      1 //g' | perl -pe 's|← *.*? |→ |' | rofi -normalize-match -dmenu -i -p 'choose piece' | sed 's/→ //g')"
 [[ -z "$chosen_title" ]] && exit
 sane "$chosen_title"
 mov_q="$(cat "$composer_file" | grep "$chosen_title" | wc -l)"

@@ -29,7 +29,7 @@ fi
 
 [[ -z "$wf" ]] && return 1
 
-[[ ! -z "$title" ]] && tagutil add:title="$title" "$wf"
-[[ ! -z "$artist" ]] && tagutil add:artist="$artist" "$wf"
-[[ ! -z "$genre" ]] && tagutil add:genre="$genre" "$wf"
+[[ ! -z "$title" ]] && tagutil set:title="$title" "$wf"
+[[ ! -z "$artist" ]] && tagutil set:artist="$artist" "$wf"
+[[ ! -z "$genre" ]] && tagutil set:genre="$genre" "$wf"
 
