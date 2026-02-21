@@ -70,13 +70,13 @@ function show-metadata {
     }
     tmp="/tmp/metadatacheck-$1-$(date-string)"
     ffmpeg -loglevel 8 -i "$1" -f ffmetadata "$tmp" || return 1
-    echo -n "Title: " 
+    echo -en "Title:  \t" 
     grep '^title=' "$tmp" | cut -d "=" -f 2- | ifne -n echo
-    echo -n "Artist: " 
+    echo -en "Artist:  \t" 
     grep '^artist=' "$tmp" | cut -d "=" -f 2- | ifne -n echo
-    echo -n "Genre: " 
+    echo -en "Genre:  \t" 
     grep '^genre=' "$tmp" | cut -d "=" -f 2- | ifne -n echo
-    echo -n "Performer: " 
+    echo -en "Performer: \t" 
     grep '^album_artist=' "$tmp" | cut -d "=" -f 2- | ifne -n echo
 }
 
@@ -97,4 +97,12 @@ done
     exit 0
 }
 [[ "$view" -eq 0 ]] && auto-multiple-files "$@"
-[[ "$view" -eq 1 ]] && show-metadata "$2"
+[[ "$view" -eq 1 ]] && {
+    for m in "$@"
+    do
+	[[ ! -e "$m" ]] && continue
+	echo -e "Filename: \t$m"
+	show-metadata "$m"
+	echo ---------------
+    done
+}
