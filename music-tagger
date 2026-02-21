@@ -2,34 +2,99 @@
 source ~/Repositories/scripts/essential-functions
 
 
-[[ -n "$1" ]] && {
+function manual-one-file {
+    [[ ! -e "$1" ]] && {
+	return 1
+    }
+    echolor blue ":: Doing file ““$1””"
+    tmp="/tmp/metadata-$1-$(date-string)"
+    ffmpeg -loglevel 8 -i "$1" -f ffmetadata "$tmp" || return 1
+    function add-missing-lines {
+	grep -q "^$1=" "$tmp" || echo "$1=" >> "$tmp"
+    }
+    add-missing-lines "title"
+    add-missing-lines "artist"
+    add-missing-lines "genre"
+    add-missing-lines "album_artist"
+    metadataline="$(grep '^;' "$tmp")"
+    encoderline="$(grep "^encoder=" "$tmp")"
+    cat "$tmp" \
+	| sed "s/^title=/1–title=/;s/^artist=/2–artist=/;s/^genre=/3–genre=/;s/^album_artist=/4–album_artist=/"     \
+	| sed "/$metadataline/d;/$encoderline/d"                                                                    \
+	| sort -h                                                                                                   \
+	| sed 's/^.*–//g'                                                                                           \
+	| sponge "$tmp"
+    echo -e "\n\n### $1 " >> "$tmp"
+    emacsclient -nw -a emacs "$tmp"
+    sed -i '/^###/d' "$tmp"
+    cat <(echo "$metadataline") "$tmp" | sponge "$tmp"
+    echo "$encoderline" >> "$tmp"
+    ffmpeg -loglevel 8 -y -i "$1" -i "$tmp" -map_metadata 1 -codec copy "/tmp/$1" || return 1
+    mv -f "/tmp/$1" "$1"
+    show-metadata "$1"
+}
+
+function auto-one-file {
+    [[ ! -e "$1" ]] && {
+	return 1
+    }
+    echolor blue ":: Doing file ““$1””"
+    tmp="/tmp/metadata-$1-$(date-string)"
+    ffmpeg -loglevel 8 -i "$1" -f ffmetadata "$tmp" || return 1
+    [[ -z "$add_title" ]] || echo "title=$add_title" >> "$tmp"
+    [[ -z "$add_artist" ]] || echo "artist=$add_artist" >> "$tmp"
+    [[ -z "$add_genre" ]] || echo "genre=$add_genre" >> "$tmp"
+    [[ -z "$add_performer" ]] || echo "album_artist=$add_performer" >> "$tmp"
+    function add-missing-lines {
+	grep -q "^$1=" "$tmp" || echo "$1=" >> "$tmp"
+    }
+    add-missing-lines "title"
+    add-missing-lines "artist"
+    add-missing-lines "genre"
+    add-missing-lines "album_artist"
+    ffmpeg -loglevel 8 -y -i "$1" -i "$tmp" -map_metadata 1 -codec copy "/tmp/$1" || return 1
+    mv -f "/tmp/$1" "$1"
+}
+
+function auto-multiple-files {
+    for k in "$@"
+    do
+	auto-one-file "$k"
+    done
+}
+
+function show-metadata {
     [[ ! -e "$1" ]] && {
 	echolor red ":: File ““$1”” does not exist."
-	exit 1
+	return 1
     }
-    echolor yellow ":: Current metadata for this file:"
-    echolor white "$(tagutil -- "$(realpath "$1")")"
-    echolor yellow "---"
-}   
+    tmp="/tmp/metadatacheck-$1-$(date-string)"
+    ffmpeg -loglevel 8 -i "$1" -f ffmetadata "$tmp" || return 1
+    echo -n "Title: " 
+    grep '^title=' "$tmp" | cut -d "=" -f 2- | ifne -n echo
+    echo -n "Artist: " 
+    grep '^artist=' "$tmp" | cut -d "=" -f 2- | ifne -n echo
+    echo -n "Genre: " 
+    grep '^genre=' "$tmp" | cut -d "=" -f 2- | ifne -n echo
+    echo -n "Performer: " 
+    grep '^album_artist=' "$tmp" | cut -d "=" -f 2- | ifne -n echo
+}
 
-echolor green "Title: " 1
-read -r title
-echolor violet "Artist: " 1
-read -r artist
-echolor orange "Genre: " 1
-read -r genre
-
-if [[ -z "$1" ]]
-then
-    wf="$(eza -1f | ifne fzf)"
-else
-    wf="$1"
-fi
-
-
-[[ -z "$wf" ]] && return 1
-
-[[ ! -z "$title" ]] && tagutil set:title="$title" "$wf"
-[[ ! -z "$artist" ]] && tagutil set:artist="$artist" "$wf"
-[[ ! -z "$genre" ]] && tagutil set:genre="$genre" "$wf"
-
+view=0
+while getopts 't:a:g:p:v' OPTION; do
+    case "$OPTION" in
+	t) add_title="$OPTARG" ;;
+	a) add_artist="$OPTARG" ;;
+	g) add_genre="$OPTARG" ;;
+	p) add_performer="$OPTARG" ;;
+	v) view=1 ;;
+	*) echolor red ":: Incorrect input"
+	   exit ;;
+    esac
+done
+(( $OPTIND == 1 )) && {
+    manual-one-file "$1"
+    exit 0
+}
+[[ "$view" -eq 0 ]] && auto-multiple-files "$@"
+[[ "$view" -eq 1 ]] && show-metadata "$2"

@@ -6,16 +6,20 @@ cd ~/Misc/Backups/my-music/classical > /dev/null \
 rm ./*-works.txt \
     && echolor yellow ":: Deleted previous back"
 IFS=$'\n'
-piece_list=($(fd 'mp3$' ~/Music/classical))
+piece_list=($(fd 'mp3$|flac$' ~/Music/classical))
 echolor yellow ":: ““${#piece_list[@]}”” pieces detected."
 i=0
 for j in ${piece_list[@]}
 do
     ((i++))
     working_metadata="$(tagutil -F json -- "$j")"
-    working_title="$(echo "$working_metadata" | jq -r '.[0].title')"
-    working_artist="$(echo "$working_metadata" | jq -r '.[1].artist')"
-    [ -z "$working_artist" ] && working_artist="Unknown"
+    working_title="$(echo "$working_metadata" | jq -r '.[].title' | sed '/^null$/d')"
+    working_artist="$(echo "$working_metadata" | jq -r '.[].artist' | sed '/^null$/d')"
+    [[ -z "$working_title" ]] && {
+	echolor red ":: File ““$j”” has no title"
+	continue
+    }
+    [[ -z "$working_artist" ]] && working_artist="Unknown"
     echo -e ":: \033[33m($i/${#piece_list[@]})\033[0m Processing \033[32m$working_artist\033[0m’s $working_title"
     echo "$working_title" >> "$working_artist"-works.txt
 done
