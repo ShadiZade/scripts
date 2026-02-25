@@ -16,13 +16,14 @@ function manual-one-file {
     add-missing-lines "artist"
     add-missing-lines "genre"
     add-missing-lines "album_artist"
+    add-missing-lines "date"
     metadataline="$(grep '^;' "$tmp")"
     encoderline="$(grep "^encoder=" "$tmp")"
     cat "$tmp" \
-	| sed "s/^title=/1–title=/;s/^artist=/2–artist=/;s/^genre=/3–genre=/;s/^album_artist=/4–album_artist=/"     \
-	| sed "/$metadataline/d;/$encoderline/d"                                                                    \
-	| sort -h                                                                                                   \
-	| sed 's/^.*–//g'                                                                                           \
+	| sed "s/^title=/1–title=/;s/^artist=/2–artist=/;s/^genre=/3–genre=/;s/^album_artist=/4–album_artist=/;s/^date=/5–date=/" \
+	| sed "/$metadataline/d;/$encoderline/d"                                                                                  \
+	| sort -h                                                                                                                 \
+	| sed 's/^.*–//g'                                                                                                         \
 	| sponge "$tmp"
     echo -e "\n\n### $1 " >> "$tmp"
     emacsclient -nw -a emacs "$tmp"
@@ -45,6 +46,7 @@ function auto-one-file {
     [[ -z "$add_artist" ]] || echo "artist=$add_artist" >> "$tmp"
     [[ -z "$add_genre" ]] || echo "genre=$add_genre" >> "$tmp"
     [[ -z "$add_performer" ]] || echo "album_artist=$add_performer" >> "$tmp"
+    [[ -z "$add_date" ]] || echo "date=$add_date" >> "$tmp"
     function add-missing-lines {
 	grep -q "^$1=" "$tmp" || echo "$1=" >> "$tmp"
     }
@@ -52,6 +54,7 @@ function auto-one-file {
     add-missing-lines "artist"
     add-missing-lines "genre"
     add-missing-lines "album_artist"
+    add-missing-lines "date"
     ffmpeg -loglevel 8 -y -i "$1" -i "$tmp" -map_metadata 1 -codec copy "/tmp/$1" || return 1
     mv -f "/tmp/$1" "$1"
 }
@@ -78,15 +81,18 @@ function show-metadata {
     grep '^genre=' "$tmp" | cut -d "=" -f 2- | ifne -n echo
     echo -en "Performer: \t" 
     grep '^album_artist=' "$tmp" | cut -d "=" -f 2- | ifne -n echo
+    echo -en "Date:      \t" 
+    grep '^date=' "$tmp" | cut -d "=" -f 2- | ifne -n echo
 }
 
 view=0
-while getopts 't:a:g:p:v' OPTION; do
+while getopts 't:a:g:p:d:v' OPTION; do
     case "$OPTION" in
 	t) add_title="$OPTARG" ;;
 	a) add_artist="$OPTARG" ;;
 	g) add_genre="$OPTARG" ;;
 	p) add_performer="$OPTARG" ;;
+	d) add_date="$OPTARG" ;;
 	v) view=1 ;;
 	*) echolor red ":: Incorrect input"
 	   exit ;;

@@ -31,10 +31,9 @@ function get-series {
 }
 
 function get-movie {
-    return
     echolor white-blue "““Film:”” $1 ““∎∎”” " 1
-    curlo="$(curl -s "https://www.themoviedb.org/movie/$2")"
-    releasedate="$(echo "$curlo" | grep -i -C 1 'class="release"' | tail -n 1 | awk -F ' ' '{print $1}' | tr -c '[:digit:]' '/' | sed 's|/$||g' | xargs -I DATE date -d DATE +"%d %B %Y")"
+    curlo="$(curl -s "https://www.allmovie.com/movie/$2")"
+    releasedate="$(echo "$curlo" | grep 'Release Date' | hq span text | xargs -I DATE date -d DATE +"%d %B %Y")"
     beside=''
     under=''
     [[ -z "$releasedate" ]] && {
