@@ -18,6 +18,14 @@ function manual-one-file {
     add-missing-lines "album_artist"
     add-missing-lines "date"
     metadataline="$(grep '^;' "$tmp")"
+    function unwantedlines {
+	unwanted_lines=()
+	for j in "${@}"
+	do
+	    sed -i "/^$j=/d" "$tmp"
+	done
+    }
+    unwantedlines "compatible_brands" "major_brand" "minor_version"
     encoderline="$(grep "^encoder=" "$tmp")"
     cat "$tmp" \
 	| sed "s/^title=/1–title=/;s/^artist=/2–artist=/;s/^genre=/3–genre=/;s/^album_artist=/4–album_artist=/;s/^date=/5–date=/" \

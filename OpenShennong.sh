@@ -25,23 +25,6 @@ function conf-info-extract {
     cat project.conf | grep "^$1 = " | awk -F ' = ' '{print $NF}'
 }
 
-function goto-project {
-    # doesn't work, more fucking subshell bullshit again.
-    [[ "$(cat "$local_registry" | wc -l)" = 0 ]] && {
-	echolor yellow ":: No projects in local data file."
-	return 1
-    }
-    intended_target="$(xsv select 1 "$local_registry" | fzf)"
-    [[ -z "$intended_target" ]] && {
-	echolor yellow ":: Nothing selected." 
-	return 1
-    }
-    cd "$(grep "^$intended_target," "$local_registry" | xsv select 2)" \
-	&& echolor green-neonblue ":: Welcome to ““$intended_target”” at ““$(pwd)””." \
-	&& list-project-files \
-		|| echolor yellow-neonblue ":: Failed to go to ““$intended_target””"
-}
-
 function list-project-files {
     runcase-dealer not F
     case $runcase in
@@ -51,7 +34,6 @@ function list-project-files {
 	   esac
 	   ;;
 	2) eza -lX --icons --no-user --time-style=iso --sort=newest --color-scale all && exit ;;
-# 	F) goto-project ;;
 	0) runcase-dealer only 0
 	   eza -lX --icons --no-user --time-style=iso --sort=modified --color-scale all --color=always \
 	       --group-directories-first --no-quotes --no-permissions --git -I "*log|*aux|*toc|*conf|*blg|*bbl|set.sh" ;;
@@ -62,8 +44,8 @@ function list-project-files {
 function runcase-determiner {
     # runcase F is when there's no TeX project in sight
     # runcase 0 is the main TeX project
-    # runcase 1 is the project/papers dir
-    # runcase 2 is the project/images dir
+    # runcase 1 is project/papers
+    # runcase 2 is project/images
     #
     # to define other runcases, add another other-runcases definition in this
     # function, and a goto location in runcase-dealer goto

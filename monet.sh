@@ -16,12 +16,13 @@ children=' itself.'
 count_only=0
 log_results=0
 randomness=0
+parity=0
 time_after="1970-01-01"
 time_before="$(date -d tomorrow +'%Y-%m-%d')"
 function date-formatter {
     date -d "$1" +'%Y-%m-%d' 2>/dev/null || return 1
 }
-while getopts 'had:s:vclA:B:r:f' OPTION; do
+while getopts 'had:s:vclA:B:r:fp:' OPTION; do
     case "$OPTION" in
 	"a") depth=999
 	     children=' or its children.' ;;
@@ -33,6 +34,7 @@ while getopts 'had:s:vclA:B:r:f' OPTION; do
 	     matter="videos" ;;
 	"r") randomness=1
 	     num_rand_files="${OPTARG:-1}" ;;
+	"p") parity="${OPTARG:-1}" ;; 
 	"c") count_only=1 ;;
 	"l") log_results=1 ;;
 	"A") date-formatter "$OPTARG" >/dev/null || exit 1
@@ -91,6 +93,56 @@ then
     }
 fi
 
+[[ "$parity" -gt 0 ]] && {
+    [[ "$depth" -ne 999 ]] && {
+	[[ "$count_only" -eq 0 ]] && {
+	    echolor red ":: Illegal combination: -p requires -a"
+	}
+	exit 1
+    }
+    [[ "$count_only" -eq 0 ]] && {
+	echolor green-purple ":: Equalizing according to parity value ““$parity””..."
+    }
+    tmp="/tmp/parity-$(date-string)"
+    encountered="/tmp/parity-encountered-$(date-string)"
+    IFS=$'\n'
+    for j in "${images[@]}"
+    do
+	echo "$j" >> "$tmp"
+    done
+    cat "$tmp" | shuf --random-source=/dev/urandom | sponge "$tmp"
+    i=0
+    images_par=()
+    while true
+    do
+	[[ "$i" -gt 20000 ]] && {
+	    [[ "$count_only" -eq 0 ]] && {
+		echolor red ":: Exceeded 20,000 operations, probable failure."
+	    }
+	    exit 1
+	}
+	clear-line
+	[[ -z "$(cat "$tmp")" ]] && {
+	    echo -n > "$encountered"
+	    break
+	}
+	echo -n "$(wc -l < "$tmp")"
+	k="$(head -n 1 "$tmp")"
+	tail -n +2 "$tmp" | sponge "$tmp"
+	k_dir="$(echo -n "$k" | awk -F '/' '{print $2}')"
+	images_par+=("$k")
+	echo "$k_dir" >> "$encountered"
+	[[ "$(rg -sc --include-zero "^$k_dir$" "$encountered")" -ge "$parity" ]] && sed -i "$(printf '/^\.\/%s\//d' "$k_dir");/^$/d" "$tmp"
+	((i++))
+	clear-line
+    done
+    images=("${images_par[@]}")
+    [[ "$count_only" -eq 0 ]] && {
+	echolor green-purple ":: Giving ““${#images[@]}”” results according to parity value ““$parity””..."
+    }
+    unset IFS
+}
+
 [[ "$randomness" -eq 1 ]] && {
    [[ "$count_only" -eq 0 ]] && {
        [[ "$num_rand_files" -gt 1 ]] && echolor green-purple ":: Giving ““$num_rand_files”” random results..."
@@ -100,17 +152,17 @@ fi
 	   echolor green-purple ":: Scrambling all ““$num_rand_files”” results..."
        }
    }
-    images_rand=()
-    for j in $(shuf --random-source=/dev/urandom -n "$num_rand_files" -i "1-${#images[@]}")
-    do
-	images_rand+=("${images[$((j - 1))]}")
-    done
-    images=(${images_rand[@]})
-    [[ "$count_only" -eq 0 ]] && {
-	[[ "$num_rand_files" -ne "${#images[@]}" ]] && {
-	    echolor green-purple ":: Could not supply ““$num_rand_files”” random results, only ““${#images[@]}””..."
-	}
-    }
+   images_rand=()
+   for j in $(shuf --random-source=/dev/urandom -n "$num_rand_files" -i "1-${#images[@]}")
+   do
+       images_rand+=("${images[$((j - 1))]}")
+   done
+   images=("${images_rand[@]}")
+   [[ "$count_only" -eq 0 ]] && {
+       [[ "$num_rand_files" -ne "${#images[@]}" ]] && {
+	   echolor green-purple ":: Could not supply ““$num_rand_files”” random results, only ““${#images[@]}””..."
+       }
+   }
 }
 
 [[ "$log_results" -eq 1 ]] && {
