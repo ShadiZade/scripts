@@ -1,7 +1,7 @@
 #!/bin/bash
 source ~/Repositories/scripts/essential-functions
 
-
+# TODO add support for other tags viz. lyrics to be hidden yet remain afterwards using grep -v
 function manual-one-file {
     [[ ! -e "$1" ]] && {
 	return 1
