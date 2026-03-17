@@ -17,6 +17,7 @@ function manual-one-file {
     add-missing-lines "genre"
     add-missing-lines "album_artist"
     add-missing-lines "date"
+    add-missing-lines "album_id"
     metadataline="$(grep '^;' "$tmp")"
     function unwantedlines {
 	unwanted_lines=()
@@ -28,10 +29,16 @@ function manual-one-file {
     unwantedlines "compatible_brands" "major_brand" "minor_version"
     encoderline="$(grep "^encoder=" "$tmp")"
     cat "$tmp" \
-	| sed "s/^title=/1–title=/;s/^artist=/2–artist=/;s/^genre=/3–genre=/;s/^album_artist=/4–album_artist=/;s/^date=/5–date=/" \
-	| sed "/$metadataline/d;/$encoderline/d"                                                                                  \
-	| sort -h                                                                                                                 \
-	| sed 's/^.*–//g'                                                                                                         \
+	| sed "s/^title=/1–title=/"                                                       \
+	| sed "s/^artist=/2–artist=/"                                                     \
+	| sed "s/^genre=/3–genre=/"                                                       \
+	| sed "s/^album_artist=/4–album_artist=/"                                         \
+	| sed "s/^date=/5–date=/"                                                         \
+	| sed "s/^album_id=/6–album_id=/"                                                 \
+	| sed "/$metadataline/d"                                                          \
+	| sed "/$encoderline/d"                                                           \
+	| sort -h                                                                         \
+	| sed 's/^.*–//g'                                                                 \
 	| sponge "$tmp"
     echo -e "\n\n### $1 " >> "$tmp"
     emacsclient -nw -a emacs "$tmp"
@@ -55,6 +62,7 @@ function auto-one-file {
     [[ -z "$add_genre" ]] || echo "genre=$add_genre" >> "$tmp"
     [[ -z "$add_performer" ]] || echo "album_artist=$add_performer" >> "$tmp"
     [[ -z "$add_date" ]] || echo "date=$add_date" >> "$tmp"
+    [[ -z "$add_id" ]] || echo "album_id=$add_id" >> "$tmp"
     function add-missing-lines {
 	grep -q "^$1=" "$tmp" || echo "$1=" >> "$tmp"
     }
@@ -63,6 +71,7 @@ function auto-one-file {
     add-missing-lines "genre"
     add-missing-lines "album_artist"
     add-missing-lines "date"
+    add-missing-lines "album_id"
     ffmpeg -loglevel 8 -y -i "$1" -i "$tmp" -map_metadata 1 -codec copy "/tmp/$1" || return 1
     mv -f "/tmp/$1" "$1"
 }
@@ -91,16 +100,19 @@ function show-metadata {
     grep '^album_artist=' "$tmp" | cut -d "=" -f 2- | ifne -n echo
     echo -en "Date:      \t" 
     grep '^date=' "$tmp" | cut -d "=" -f 2- | ifne -n echo
+    echo -en "ID:      \t" 
+    grep '^album_id=' "$tmp" | cut -d "=" -f 2- | ifne -n echo
 }
 
 view=0
-while getopts 't:a:g:p:d:v' OPTION; do
+while getopts 't:a:g:p:d:i:v' OPTION; do
     case "$OPTION" in
 	t) add_title="$OPTARG" ;;
 	a) add_artist="$OPTARG" ;;
 	g) add_genre="$OPTARG" ;;
 	p) add_performer="$OPTARG" ;;
 	d) add_date="$OPTARG" ;;
+	i) add_id="$OPTARG" ;;
 	v) view=1 ;;
 	*) echolor red ":: Incorrect input"
 	   exit ;;
