@@ -6,16 +6,17 @@ function manual-one-file {
     [[ ! -e "$1" ]] && {
 	return 1
     }
-    echolor blue ":: Doing file ““$1””"
-    tmp="/tmp/metadata-$1-$(date-string)"
+    echolor blue ":: Doing file ““$(realpath -s --relative-base=. -- "$1")””"
+    tmp="/tmp/metadata-$(basename "$1")-$(date-string)"
     ffmpeg -loglevel 8 -i "$1" -f ffmetadata "$tmp" || return 1
     function add-missing-lines {
 	grep -q "^$1=" "$tmp" || echo "$1=" >> "$tmp"
     }
     add-missing-lines "title"
     add-missing-lines "artist"
-    add-missing-lines "genre"
     add-missing-lines "album_artist"
+    add-missing-lines "conductor"
+    add-missing-lines "genre"
     add-missing-lines "date"
     add-missing-lines "album_id"
     metadataline="$(grep '^;' "$tmp")"
@@ -31,10 +32,11 @@ function manual-one-file {
     cat "$tmp" \
 	| sed "s/^title=/1–title=/"                                                       \
 	| sed "s/^artist=/2–artist=/"                                                     \
-	| sed "s/^genre=/3–genre=/"                                                       \
-	| sed "s/^album_artist=/4–album_artist=/"                                         \
-	| sed "s/^date=/5–date=/"                                                         \
-	| sed "s/^album_id=/6–album_id=/"                                                 \
+	| sed "s/^album_artist=/3–album_artist=/"                                         \
+	| sed "s/^conductor=/4–conductor=/"                                         \
+	| sed "s/^genre=/5–genre=/"                                                       \
+	| sed "s/^date=/6–date=/"                                                         \
+	| sed "s/^album_id=/7–album_id=/"                                                 \
 	| sed "/$metadataline/d"                                                          \
 	| sed "/$encoderline/d"                                                           \
 	| sort -h                                                                         \
@@ -45,8 +47,8 @@ function manual-one-file {
     sed -i '/^###/d' "$tmp"
     cat <(echo "$metadataline") "$tmp" | sponge "$tmp"
     echo "$encoderline" >> "$tmp"
-    ffmpeg -loglevel 8 -y -i "$1" -i "$tmp" -map_metadata 1 -codec copy "/tmp/$1" || return 1
-    mv -f "/tmp/$1" "$1"
+    ffmpeg -loglevel 8 -y -i "$1" -i "$tmp" -map_metadata 1 -codec copy "/tmp/$(basename "$1")" || return 1
+    mv -f "/tmp/$(basename "$1")" "$1"
     show-metadata "$1"
 }
 
@@ -55,12 +57,13 @@ function auto-one-file {
 	return 1
     }
     echolor blue ":: Doing file ““$1””"
-    tmp="/tmp/metadata-$1-$(date-string)"
+    tmp="/tmp/metadata-$(basename "$1")-$(date-string)"
     ffmpeg -loglevel 8 -i "$1" -f ffmetadata "$tmp" || return 1
     [[ -z "$add_title" ]] || echo "title=$add_title" >> "$tmp"
     [[ -z "$add_artist" ]] || echo "artist=$add_artist" >> "$tmp"
-    [[ -z "$add_genre" ]] || echo "genre=$add_genre" >> "$tmp"
     [[ -z "$add_performer" ]] || echo "album_artist=$add_performer" >> "$tmp"
+    [[ -z "$add_conductor" ]] || echo "conductor=$add_conductor" >> "$tmp"
+    [[ -z "$add_genre" ]] || echo "genre=$add_genre" >> "$tmp"
     [[ -z "$add_date" ]] || echo "date=$add_date" >> "$tmp"
     [[ -z "$add_id" ]] || echo "album_id=$add_id" >> "$tmp"
     function add-missing-lines {
@@ -68,12 +71,13 @@ function auto-one-file {
     }
     add-missing-lines "title"
     add-missing-lines "artist"
-    add-missing-lines "genre"
     add-missing-lines "album_artist"
+    add-missing-lines "conductor"
+    add-missing-lines "genre"
     add-missing-lines "date"
     add-missing-lines "album_id"
-    ffmpeg -loglevel 8 -y -i "$1" -i "$tmp" -map_metadata 1 -codec copy "/tmp/$1" || return 1
-    mv -f "/tmp/$1" "$1"
+    ffmpeg -loglevel 8 -y -i "$1" -i "$tmp" -map_metadata 1 -codec copy "/tmp/$(basename "$1")" || return 1
+    mv -f "/tmp/$(basename "$1")" "$1"
 }
 
 function auto-multiple-files {
@@ -88,16 +92,18 @@ function show-metadata {
 	echolor red ":: File ““$1”” does not exist."
 	return 1
     }
-    tmp="/tmp/metadatacheck-$1-$(date-string)"
+    tmp="/tmp/metadatacheck-$(basename "$1")-$(date-string)"
     ffmpeg -loglevel 8 -i "$1" -f ffmetadata "$tmp" || return 1
     echo -en "Title:  \t" 
     grep '^title=' "$tmp" | cut -d "=" -f 2- | ifne -n echo
     echo -en "Artist:  \t" 
     grep '^artist=' "$tmp" | cut -d "=" -f 2- | ifne -n echo
-    echo -en "Genre:  \t" 
-    grep '^genre=' "$tmp" | cut -d "=" -f 2- | ifne -n echo
     echo -en "Performer: \t" 
     grep '^album_artist=' "$tmp" | cut -d "=" -f 2- | ifne -n echo
+    echo -en "Conductor:  \t" 
+    grep '^conductor=' "$tmp" | cut -d "=" -f 2- | ifne -n echo
+    echo -en "Genre:  \t" 
+    grep '^genre=' "$tmp" | cut -d "=" -f 2- | ifne -n echo
     echo -en "Date:      \t" 
     grep '^date=' "$tmp" | cut -d "=" -f 2- | ifne -n echo
     echo -en "ID:      \t" 
@@ -105,12 +111,13 @@ function show-metadata {
 }
 
 view=0
-while getopts 't:a:g:p:d:i:v' OPTION; do
+while getopts 't:a:p:c:g:d:i:v' OPTION; do
     case "$OPTION" in
 	t) add_title="$OPTARG" ;;
 	a) add_artist="$OPTARG" ;;
-	g) add_genre="$OPTARG" ;;
 	p) add_performer="$OPTARG" ;;
+	c) add_conductor="$OPTARG" ;;
+	g) add_genre="$OPTARG" ;;
 	d) add_date="$OPTARG" ;;
 	i) add_id="$OPTARG" ;;
 	v) view=1 ;;
@@ -119,16 +126,17 @@ while getopts 't:a:g:p:d:i:v' OPTION; do
     esac
 done
 (( $OPTIND == 1 )) && {
-    manual-one-file "$1"
+    manual-one-file "$(realpath -s "$1")"
     exit 0
 }
 [[ "$view" -eq 0 ]] && auto-multiple-files "$@"
 [[ "$view" -eq 1 ]] && {
     for m in "$@"
     do
-	[[ ! -e "$m" ]] && continue
-	echo -e "Filename: \t$m"
-	show-metadata "$m"
+	fullname="$(realpath -s "$m" 2>/dev/null)"
+	[[ ! -e "$fullname" ]] && continue
+	echo -e "Filename: \t$(realpath -s --relative-to=. -- "$m")"
+	show-metadata "$fullname"
 	echo ---------------
     done
 }
