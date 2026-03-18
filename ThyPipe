@@ -1,15 +1,23 @@
 #!/bin/bash
 source ~/Repositories/scripts/essential-functions
 
-notify-send -t 4000 "ThyPipe" "Extracting $1"
-tmp="/tmp/ThyPipe-$(date-string)-$(random-string 12)-$(awk -F '/' '{print $NF}' <<< "$1").json"
-yt-dlp -j --use-postprocessor DeArrow:when=pre_process "$1" > "$tmp" || {
+[[ "$1" = "inquire" ]] && {
+    fd "ThyPipe-downloading" "/tmp" | wc -l
+    exit 0
+}
+
+id="$(awk -F 'v=' '{print $NF}' <<< "$1")"
+touch "/tmp/ThyPipe-downloading-$id"
+notify-send -u low -t 1000 "ThyPipe" "Extracting $1"
+tmp="/tmp/ThyPipe-$(date-string)-$(random-string 12)-$id.json"
+yt-dlp -j --use-postprocessor DeArrow:when=pre_process "$1" 2>> "/tmp/ThyPipe-error-message-$(date-string)-$id.log" 1> "$tmp" || {
     notify-send -u critical -t 4000 "ThyPipe" "Video $1 failed to extract"
+    mv "/tmp/ThyPipe-downloading-$id" "/tmp/ThyPipe-errorjson-$id-$(date-string)-$(random-string)"
     exit 1
 }
 title="$(jq -r '.title' "$tmp" | kebab)"
-id="$(jq -r '.id' "$tmp")"
-notify-send -t 4000 "ThyPipe" "Downloading video \"$title\" now"
+echo "$title-[$id].mp4" >> "/tmp/ThyPipe-downloading-$id"
+notify-send -u low -t 1000 "ThyPipe" "Downloading video \"$title\" now"
 yt-dlp \
     -f 'bestvideo[height=1080][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'        \
     --fragment-retries infinite                                                       \
@@ -17,11 +25,21 @@ yt-dlp \
     --use-postprocessor DeArrow:when=pre_process --remote-components ejs:github       \
     --extractor-args "youtube:player-client=default,-tv_simply,-android_sdkless"      \
     --no-playlist -o "$title-[$id].%(ext)s" -P "/tmp/"                                \
-    "$1" || {
-    notify-send -u critical -t 4000 "ThyPipe" "Video $1 failed to download"
+    "$1" 2>> "/tmp/ThyPipe-error-message-$(date-string)-$id.log" || {
+    notify-send -u critical -t 4000 "ThyPipe" "Errors detected while downloading video \"$title\""
+}
+[[ -z "/tmp/$title-[$id].mp4" ]] && {
+    notify-send -u critical -t 4000 "ThyPipe" "Did not find video $1 after download!"
+    mv "/tmp/ThyPipe-downloading-$id" "/tmp/ThyPipe-errormissingfile-$id-$(date-string)-$(random-string)"
     exit 1
 }
-mv /tmp/"$title-[$id]."* "$HOME/Excluding/youtube/"
+
+mv /tmp/"$title"* "$HOME/Excluding/youtube/" || {
+    notify-send -u critical -t 4000 "ThyPipe" "Failed to move \"$1\""
+    mv "/tmp/ThyPipe-downloading-$id" "/tmp/ThyPipe-errorcantmv-$id-$(date-string)-$(random-string)"
+    exit 1
+}
+mv "/tmp/ThyPipe-downloading-$id" "/tmp/ThyPipe-done-$id-$(date-string)-$(random-string)"
 notify-send -t 4000 "ThyPipe" "Video \"$title\" successfully downloaded!"
     
 
