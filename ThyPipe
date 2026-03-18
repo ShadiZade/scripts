@@ -1,0 +1,27 @@
+#!/bin/bash
+source ~/Repositories/scripts/essential-functions
+
+notify-send -t 4000 "ThyPipe" "Extracting $1"
+tmp="/tmp/ThyPipe-$(date-string)-$(random-string 12)-$(awk -F '/' '{print $NF}' <<< "$1").json"
+yt-dlp -j --use-postprocessor DeArrow:when=pre_process "$1" > "$tmp" || {
+    notify-send -u critical -t 4000 "ThyPipe" "Video $1 failed to extract"
+    exit 1
+}
+title="$(jq -r '.title' "$tmp" | kebab)"
+id="$(jq -r '.id' "$tmp")"
+notify-send -t 4000 "ThyPipe" "Downloading video \"$title\" now"
+yt-dlp \
+    -f 'bestvideo[height=1080][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'        \
+    --fragment-retries infinite                                                       \
+    --no-mtime --embed-chapters --embed-subs --sub-langs en,-live_chat                \
+    --use-postprocessor DeArrow:when=pre_process --remote-components ejs:github       \
+    --extractor-args "youtube:player-client=default,-tv_simply,-android_sdkless"      \
+    --no-playlist -o "$title-[$id].%(ext)s" -P "/tmp/"                                \
+    "$1" || {
+    notify-send -u critical -t 4000 "ThyPipe" "Video $1 failed to download"
+    exit 1
+}
+mv /tmp/"$title-[$id]."* "$HOME/Excluding/youtube/"
+notify-send -t 4000 "ThyPipe" "Video \"$title\" successfully downloaded!"
+    
+
