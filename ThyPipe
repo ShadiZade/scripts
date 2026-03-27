@@ -1,8 +1,27 @@
 #!/bin/bash
 source ~/Repositories/scripts/essential-functions
 
+function detect-lang {
+    test_stump="$(echo "$1" | tr -d '[’a-zA-Z[:punct:][:digit:][:space:]]…＂：∶–-—⧸｜？’‘')"
+    [[ -z "$test_stump" ]] && return 1
+    if ! cmp -s <(echo "$1") <(echo "$1" | iconv -c -f utf8 -t ascii//TRANSLIT)
+    then
+	if echo "$1" | grep -qP '\P{ASCII}'
+	   # \P in pcresyntax(3) manual
+	   # https://perldoc.perl.org/perlrecharclass#Unicode-Properties
+	then
+	    return 0 # yes translate
+	else
+	    return 1 # no translate
+	fi
+    else
+	return 1
+    fi    
+}
+
+
 [[ "$1" = "inquire" ]] && {
-    fd "ThyPipe-downloading" "/tmp" | wc -l
+    find /tmp/ -name "ThyPipe-downloading*" 2>/dev/null | wc -l
     exit 0
 }
 
@@ -10,12 +29,23 @@ id="$(awk -F 'v=' '{print $NF}' <<< "$1")"
 touch "/tmp/ThyPipe-downloading-$id"
 notify-send -u low -t 1000 "ThyPipe" "Extracting $1"
 tmp="/tmp/ThyPipe-$(date-string)-$(random-string 12)-$id.json"
-yt-dlp -j --use-postprocessor DeArrow:when=pre_process "$1" 2>> "/tmp/ThyPipe-error-message-$(date-string)-$id.log" 1> "$tmp" || {
+yt-dlp -j --use-postprocessor DeArrow:when=pre_process "$1" 2>> "/tmp/ThyPipe-ytdlplog-1-$(date-string)-$id.log" 1> "$tmp" || {
     notify-send -u critical -t 4000 "ThyPipe" "Video $1 failed to extract"
     mv "/tmp/ThyPipe-downloading-$id" "/tmp/ThyPipe-errorjson-$id-$(date-string)-$(random-string)"
     exit 1
 }
-title="$(jq -r '.title' "$tmp" | kebab)"
+title_raw="$(jq -r '.title' "$tmp")"
+detect-lang "$title_raw" && {
+    title="$(trans -b :en "$title_raw" | kebab)"
+} || {
+    title="$(kebab "$title_raw")"
+}
+[[ -z "$title" || -z "$id" ]] && {
+    notify-send -u critical -t 4000 "ThyPipe" "Information missing for Video\n$1"
+    echo -e "$title_raw\n$title\n$id" >> "/tmp/ThyPipe-downloading-$id"
+    mv "/tmp/ThyPipe-downloading-$id" "/tmp/ThyPipe-erroremptyinfo-$id-$(date-string)-$(random-string)"
+    exit 1
+}
 echo "$title-[$id].mp4" >> "/tmp/ThyPipe-downloading-$id"
 notify-send -u low -t 1000 "ThyPipe" "Downloading video \"$title\" now"
 yt-dlp \
@@ -25,7 +55,7 @@ yt-dlp \
     --use-postprocessor DeArrow:when=pre_process --remote-components ejs:github       \
     --extractor-args "youtube:player-client=default,-tv_simply,-android_sdkless"      \
     --no-playlist -o "$title-[$id].%(ext)s" -P "/tmp/"                                \
-    "$1" 2>> "/tmp/ThyPipe-error-message-$(date-string)-$id.log" || {
+    "$1" 2>> "/tmp/ThyPipe-ytdlplog-2-$(date-string)-$id.log" || {
     notify-send -u critical -t 4000 "ThyPipe" "Errors detected while downloading video \"$title\""
 }
 [[ -z "/tmp/$title-[$id].mp4" ]] && {
@@ -34,12 +64,12 @@ yt-dlp \
     exit 1
 }
 
-mv /tmp/"$title"* "$HOME/Excluding/youtube/" || {
+mv /tmp/"$title"*']'.mp4 "$HOME/Excluding/youtube/" || {
     notify-send -u critical -t 4000 "ThyPipe" "Failed to move \"$1\""
     mv "/tmp/ThyPipe-downloading-$id" "/tmp/ThyPipe-errorcantmv-$id-$(date-string)-$(random-string)"
     exit 1
 }
+echo -e "$(jq '.description' "$tmp")" > "$HOME/Excluding/youtube/.$title-[$id].dooblydoo"
 mv "/tmp/ThyPipe-downloading-$id" "/tmp/ThyPipe-done-$id-$(date-string)-$(random-string)"
 notify-send -t 4000 "ThyPipe" "Video \"$title\" successfully downloaded!"
     
-

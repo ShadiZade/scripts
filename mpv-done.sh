@@ -10,29 +10,56 @@ source ~/Repositories/scripts/essential-functions
     echolor red ":: No file selected."
     exit
 }
+[[ -e ".${ep%mp4}dooblydoo" ]] && bat -pp ".${ep%mp4}dooblydoo"
 mpv --osd-fractions --volume=100 --volume-max=200 --alang=eng --slang=eng "$ep" || exit
-fd -q donefile && exit
-fd -q "^done$" && done_exists="y" || done_exists="n"
+fd -q donefile && {
+    echolor red ":: Found a donefile, doing nothing..."
+    exit
+}
+pwd | grep -q "$HOME/Excluding/youtube" && {
+    done_exists="y"
+    } || {
+    fd -q "^done$" && done_exists="y" || done_exists="n"
+}
 [[ "$done_exists" = "n" ]] && \
-    choose_no_done="$(echo -e 'Create done marker\nCreate done dir\nDo nothing' | fzf)"
+    choose_no_done="$(echo -e 'Create done marker\nCreate done dir\nDo nothing' | fzf --no-input)"
 case "$choose_no_done" in
     "Do nothing")
-	echo ":: Doing nothing."
+	echolor yellow ":: Doing nothing."
 	exit ;;
     "Create done marker")
-	echo "$ep is done on $(date +"%Y-%m-%d %H:%M")." > ./"donefile-$(date +"%Y-%m-%d-%H-%M")"
-	echo ":: Done marker created."
+	donetime="$(date -Isec)"
+	echo -e "$ep\n$donetime" > "./donefile-$(date -d "$donetime" +"%Y-%m-%d-%H-%M")"
+	echolor green ":: Done marker created:"
+	echolor white "$(cat "./donefile-$(date -d "$donetime" +"%Y-%m-%d-%H-%M")")"
 	exit ;;
     "Create done dir")
 	mkdir -v "done"
 	fd -q "^done$" && done_exists="y" || done_exists="n"
 	;;
 esac
-[[ "$done_exists" = "y" ]] && choose_done="$(echo -e 'yes\nno' | fzf --prompt='Move to done? ')"
+[[ "$done_exists" = "y" ]] && choose_done="$(echo -e 'Move to done\nDo nothing\nAbandon file' | fzf --no-input --prompt='Move to done? ')"
 ext_alone="$(echo "$ep" | awk -F '.' '{print $NF}')"
-allrelatedfiles="$(echo "$ep" | sed "s/\.$ext_alone//")"
-[[ "$choose_done" = "yes" ]] && {
-    mv -v "$allrelatedfiles"* done/
-    touch .record.log
-    echo "$allrelatedfiles is done at $(date +"%Y-%m-%d %H:%M")" >> .record.log
-}
+allrelatedfiles="$(echo "$ep" | sed "s/\.$ext_alone//;s/,/‚/g")"
+case "$choose_done" in
+    "Move to done")
+	pwd | grep -q "$HOME/Excluding/youtube" && {
+	mv -v "$allrelatedfiles"* "$HOME/Excluding/youtube/done/"
+	mv -v ."$allrelatedfiles".dooblydoo "$HOME/Excluding/youtube/done/$allrelatedfiles.dooblydoo" 2> /dev/null
+	echo -e "$allrelatedfiles,$(date -Isec)" >> "$HOME"/Misc/Backups/video/watch-history-youtube.csv
+	    echolor green ":: The file ““$allrelatedfiles””\n:: has been logged into the YouTube record"
+	} || {
+	    mv -v "$allrelatedfiles"* .done/
+	    echo -e "$allrelatedfiles,$(date -Isec)" >> "$HOME"/Misc/Backups/video/watch-history-general.csv
+	    echolor green ":: The file ““$allrelatedfiles””\n:: has been logged into the general record"
+	}
+	;;
+    "Do nothing")
+	echolor yellow ":: Nothing was done"
+	;;
+    "Abandon file")
+	mv -v "$allrelatedfiles"* done/ 
+	mv -v ."$allrelatedfiles".dooblydoo done/"$allrelatedfiles".dooblydoo 2> /dev/null
+	echolor yellow ":: The file ““$allrelatedfiles””\n:: has been abandoned"
+	;;
+esac

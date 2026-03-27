@@ -1,5 +1,4 @@
 #!/bin/bash
-#
 
 #   神农        .d88888b.                          .d8888b. 888                                                            神农
 #   神农       d88P" "Y88b                        d88P  Y88b888                                                            神农
@@ -400,7 +399,13 @@ function download-paper {
 	return 1
     }
     ddurl="$(echo "$shurl" | grep '/download/' | awk -F '/download/' '{print $2}' | awk -F '"></a>' '{print $1}')"
-    echolor green-neonblue ":: File link is ““https://sci-hub.$scimirror/download/$ddurl””"
+    [[ -z "$ddurl" ]] && {
+	ddurl="$(echo "$shurl" | grep -m 1 '/storage/' | awk -F '/storage/' '{print $2}' | awk -F '">' '{print $1}')"
+	scihub_root="storage"	
+    } || {
+	scihub_root="download"
+    }
+    echolor green-neonblue ":: File link is ““https://sci-hub.$scimirror/$scihub_root/$ddurl””"
     [[ -z "$2" ]] && bibname="unnamed" || bibname="$(kebab "$2")"
     [[ -s "$bibname".pdf ]] && {
 	echolor yellow-neonblue ":: Paper ““$bibname”” already exists. Overwrite? (y/N) " 1
@@ -417,7 +422,7 @@ function download-paper {
 	echolor red ":: Unknown fatal error, see log at ““$errortmpfile””"
 	return 1
     }
-    wget --load-cookies "$COOKIE_FILE" -nc -O ./"$bibname".pdf -t 0 -- "https://sci-hub.$scimirror/download/$ddurl" && touch -c ./"$bibname".pdf
+    wget --load-cookies "$COOKIE_FILE" -nc -O ./"$bibname".pdf -t 0 -- "https://sci-hub.$scimirror/$scihub_root/$ddurl" && touch -c ./"$bibname".pdf
 }
 
 function fetch-bib-citation {
