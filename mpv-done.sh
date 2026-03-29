@@ -10,7 +10,7 @@ source ~/Repositories/scripts/essential-functions
     echolor red ":: No file selected."
     exit
 }
-[[ -e ".${ep%mp4}dooblydoo" ]] && bat -pp ".${ep%mp4}dooblydoo"
+[[ -e "$HOME/Excluding/youtube/.${ep%mp4}dooblydoo" ]] && bat -pp "$HOME/Excluding/youtube/.${ep%mp4}dooblydoo"
 mpv --osd-fractions --volume=100 --volume-max=200 --alang=eng --slang=eng "$ep" || exit
 fd -q donefile && {
     echolor red ":: Found a donefile, doing nothing..."
@@ -44,9 +44,9 @@ allrelatedfiles="$(echo "$ep" | sed "s/\.$ext_alone//;s/,/‚/g")"
 case "$choose_done" in
     "Move to done")
 	pwd | grep -q "$HOME/Excluding/youtube" && {
-	mv -v "$allrelatedfiles"* "$HOME/Excluding/youtube/done/"
-	mv -v ."$allrelatedfiles".dooblydoo "$HOME/Excluding/youtube/done/$allrelatedfiles.dooblydoo" 2> /dev/null
-	echo -e "$allrelatedfiles,$(date -Isec)" >> "$HOME"/Misc/Backups/video/watch-history-youtube.csv
+	    mv -v "$allrelatedfiles"* "$HOME/Excluding/youtube/done/"
+	    mv -v "$HOME/Excluding/youtube/.$allrelatedfiles".dooblydoo "$HOME/Excluding/youtube/done/$allrelatedfiles.dooblydoo" 2> /dev/null
+	    echo -e "$allrelatedfiles,$(date -Isec)" >> "$HOME"/Misc/Backups/video/watch-history-youtube.csv
 	    echolor green ":: The file ““$allrelatedfiles””\n:: has been logged into the YouTube record"
 	} || {
 	    mv -v "$allrelatedfiles"* .done/
@@ -58,8 +58,14 @@ case "$choose_done" in
 	echolor yellow ":: Nothing was done"
 	;;
     "Abandon file")
-	mv -v "$allrelatedfiles"* done/ 
-	mv -v ."$allrelatedfiles".dooblydoo done/"$allrelatedfiles".dooblydoo 2> /dev/null
-	echolor yellow ":: The file ““$allrelatedfiles””\n:: has been abandoned"
+	pwd | grep -q "$HOME/Excluding/youtube" && {
+	    mv -v "$allrelatedfiles"* "$HOME/Excluding/youtube/done/"
+	    mv -v "$HOME/Excluding/youtube/.$allrelatedfiles".dooblydoo done/"$allrelatedfiles".dooblydoo 2> /dev/null
+	    echolor yellow ":: The file ““$allrelatedfiles””\n:: has been abandoned"
+	    } || {
+	    mv -v "$allrelatedfiles"* done/ 
+	    mv -v ".$allrelatedfiles".dooblydoo done/"$allrelatedfiles".dooblydoo 2> /dev/null
+	    echolor yellow ":: The file ““$allrelatedfiles””\n:: has been abandoned"
+	}
 	;;
 esac

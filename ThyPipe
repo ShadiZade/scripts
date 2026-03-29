@@ -119,7 +119,7 @@ mv /tmp/"$title"*']'.mp4 "$thypipe_dir/$hezicle" || {
     mv "/tmp/ThyPipe-downloading-$id" "/tmp/ThyPipe-errorcantmv-$id-$(date-string)-$(random-string)"
     exit 1
 }
-echo -e "$(jq '.description' "$tmp")" > "$hezicle_path/.$title-[$id].dooblydoo"
+echo -e "$(jq '.description' "$tmp")" > "$thypipe_dir/.$title-[$id].dooblydoo"
 mv "/tmp/ThyPipe-downloading-$id" "/tmp/ThyPipe-done-$id-$(date-string)-$(random-string)"
 notify-send -t 4000 "ThyPipe" "Video \"$title\" successfully downloaded!"
     
