@@ -1,6 +1,13 @@
 #!/bin/bash
 source ~/Repositories/scripts/essential-functions
 
+[[ "$1" = "inquire" ]] && {
+    find /tmp/ -name "ThyPipe-downloading*" 2>/dev/null | wc -l
+    exit 0
+}
+
+thypipe_dir="$HOME/Excluding/youtube"
+hezi_file="$thypipe_dir/.rules.hezi"
 function detect-lang {
     test_stump="$(echo "$1" | tr -d '[’a-zA-Z[:punct:][:digit:][:space:]]…＂：∶–-—⧸｜？’‘')"
     [[ -z "$test_stump" ]] && return 1
@@ -19,10 +26,52 @@ function detect-lang {
     fi    
 }
 
-
-[[ "$1" = "inquire" ]] && {
-    find /tmp/ -name "ThyPipe-downloading*" 2>/dev/null | wc -l
-    exit 0
+function hezifier {
+    [[ -e "$hezi_file" ]] || return 1
+    function trim-spaces {
+	sed 's/^ *//g;s/ *$//g; s/  */ /g'
+    }
+    function interpret-matcher {
+       	grep -q "=" <<< "$1" && {
+	    operation="equality"
+	    field="$(awk -F '=' '{print $1}' <<< "$1" | trim-spaces)"
+	    statement="$(awk -F '=' '{print $2}' <<< "$1" | trim-spaces)"
+	    return
+	}
+	grep -q "%" <<< "$1" && {
+	    operation="contains"
+	    field="$(awk -F '%' '{print $1}' <<< "$1" | trim-spaces)"
+	    statement="$(awk -F '%' '{print $2}' <<< "$1" | trim-spaces)"
+	    return
+	}
+    }
+    while read line
+    do
+	[[ "$line" = "end rules" ]] && break
+	matcher="$(awk -F '→' '{print $1}' <<< "$line" | trim-spaces)"
+	hezicle="$(awk -F '→' '{print $2}' <<< "$line" | trim-spaces | kebab)"
+	[[ -z "$matcher" || -z "$hezicle" ]] && continue
+	interpret-matcher "$matcher"
+	echo -e "hezi results: matcher '$matcher' hezicle '$hezicle' operation '$operation' field '$field' statement '$statement'" \
+	     >> "/tmp/ThyPipe-downloading-$id"
+	[[ "$operation" = "equality" ]] && {
+	    [[ "$(jq -r ".$field" "$tmp")" = "$statement" ]] && {
+		mkdir "$thypipe_dir"/"$(kebab "$hezicle")"
+		echo "MATCHED! line '$line'" >> "/tmp/ThyPipe-downloading-$id"
+		echo -n "$hezicle"
+		return
+	    }
+	}
+	[[ "$operation" = "contains" ]] && {
+	    jq -r ".$field" "$tmp" | grep -q "$statement" && {
+		mkdir "$thypipe_dir"/"$(kebab "$hezicle")"
+		echo "MATCHED! line '$line'" >> "/tmp/ThyPipe-downloading-$id"
+		echo -n "$hezicle"
+		return
+	    }
+	}
+	hezicle=''
+    done < "$hezi_file"
 }
 
 id="$(awk -F 'v=' '{print $NF}' <<< "$1")"
@@ -58,18 +107,19 @@ yt-dlp \
     "$1" 2>> "/tmp/ThyPipe-ytdlplog-2-$(date-string)-$id.log" || {
     notify-send -u critical -t 4000 "ThyPipe" "Errors detected while downloading video \"$title\""
 }
-[[ -z "/tmp/$title-[$id].mp4" ]] && {
+[[ ! -e "/tmp/$title-[$id].mp4" ]] && {
     notify-send -u critical -t 4000 "ThyPipe" "Did not find video $1 after download!"
     mv "/tmp/ThyPipe-downloading-$id" "/tmp/ThyPipe-errormissingfile-$id-$(date-string)-$(random-string)"
     exit 1
 }
-
-mv /tmp/"$title"*']'.mp4 "$HOME/Excluding/youtube/" || {
+hezicle=$(hezifier)
+[[ -z "$hezicle" ]] && hezicle="main"
+mv /tmp/"$title"*']'.mp4 "$thypipe_dir/$hezicle" || {
     notify-send -u critical -t 4000 "ThyPipe" "Failed to move \"$1\""
     mv "/tmp/ThyPipe-downloading-$id" "/tmp/ThyPipe-errorcantmv-$id-$(date-string)-$(random-string)"
     exit 1
 }
-echo -e "$(jq '.description' "$tmp")" > "$HOME/Excluding/youtube/.$title-[$id].dooblydoo"
+echo -e "$(jq '.description' "$tmp")" > "$hezicle_path/.$title-[$id].dooblydoo"
 mv "/tmp/ThyPipe-downloading-$id" "/tmp/ThyPipe-done-$id-$(date-string)-$(random-string)"
 notify-send -t 4000 "ThyPipe" "Video \"$title\" successfully downloaded!"
     
