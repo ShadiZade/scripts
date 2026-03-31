@@ -92,6 +92,7 @@ detect-lang "$title_raw" && {
 [[ -z "$title" || -z "$id" ]] && {
     notify-send -u critical -t 4000 "ThyPipe" "Information missing for Video\n$1"
     echo -e "$title_raw\n$title\n$id" >> "/tmp/ThyPipe-downloading-$id"
+    jq -r '.filesize_approx' "$tmp" >> "/tmp/ThyPipe-downloading-$id"
     mv "/tmp/ThyPipe-downloading-$id" "/tmp/ThyPipe-erroremptyinfo-$id-$(date-string)-$(random-string)"
     exit 1
 }
@@ -119,7 +120,7 @@ mv /tmp/"$title"*']'.mp4 "$thypipe_dir/$hezicle" || {
     mv "/tmp/ThyPipe-downloading-$id" "/tmp/ThyPipe-errorcantmv-$id-$(date-string)-$(random-string)"
     exit 1
 }
-echo -e "$(jq '.description' "$tmp")" > "$thypipe_dir/.$title-[$id].dooblydoo"
+cp "$tmp" "$thypipe_dir/.$title-[$id].json"
 mv "/tmp/ThyPipe-downloading-$id" "/tmp/ThyPipe-done-$id-$(date-string)-$(random-string)"
-notify-send -t 4000 "ThyPipe" "Video \"$title\" successfully downloaded!"
+notify-send -t 4000 "ThyPipe" "Video \"$title\" successfully downloaded\ninto hezicle \"$hezicle\""
     
