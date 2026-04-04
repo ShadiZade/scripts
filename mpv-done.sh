@@ -10,6 +10,10 @@ source ~/Repositories/scripts/essential-functions
     echolor red ":: No file selected."
     exit
 }
+[[ -e "$HOME/Excluding/youtube/.${ep%mp4}json" ]] && {
+    echo -n 'Uploaded '
+    date -Idate -d "$(jq -r '.upload_date' "$HOME/Excluding/youtube/.${ep%mp4}json")"
+}
 [[ -e "$HOME/Excluding/youtube/.${ep%mp4}json" ]] && jq -r '.description' "$HOME/Excluding/youtube/.${ep%mp4}json" | bat -pp 
 mpv --osd-fractions --volume=100 --volume-max=200 --alang=eng --slang=eng "$ep" || exit
 fd -q donefile && {
