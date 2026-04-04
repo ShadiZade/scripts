@@ -1,10 +1,30 @@
 #!/bin/bash
 source ~/Repositories/scripts/essential-functions
+watch_history_yt="$HOME/Misc/Backups/video/watch-history-youtube.csv"
+watch_history_gen="$HOME/Misc/Backups/video/watch-history-general.csv"
+
+case "$1" in
+    "yt"|"youtube")
+	tail -n 20 "$watch_history_yt" | xan view -n
+	;;
+    "gen"|"general"|"tv")
+	tail -n 20 "$watch_history_gen" | xan view -n
+	;;
+    "hist"|"history"|"all")
+	tail -n 8 "$watch_history_yt"  | xan view -n
+	tail -n 8 "$watch_history_gen" | xan view -n
+	    
+	;;
+    *)
+	:
+	;;
+esac
+	
 
 [[ -z "$1" ]] && {
     ep="$(eza --no-quotes -1fX --show-symlinks | sed '/^$/d' | sort | grep -Ev 'srt$|vtt$|part$' | fzf)"
 } || {
-    ep="$1"
+    exit
 }
 [[ -z "$ep" ]] && {
     echolor red ":: No file selected."
@@ -52,13 +72,13 @@ case "$choose_done" in
 		echo -ne "$allrelatedfiles,"
 		echo -ne "$(jq '.channel' "$HOME/Excluding/youtube/.$allrelatedfiles".json),"
 		echo  -e "$(date -Isec)"
-	    } >> "$HOME"/Misc/Backups/video/watch-history-youtube.csv
+	    } >> "$watch_history_yt"
 	    mv -v "$allrelatedfiles"* "$HOME/Excluding/youtube/done/"
 	    mv -v "$HOME/Excluding/youtube/.$allrelatedfiles".json "$HOME/Excluding/youtube/done/$allrelatedfiles.json" 2> /dev/null
 	    echolor green ":: The file ““$allrelatedfiles””\n:: has been logged into the YouTube record"
 	} || {
 	    mv -v "$allrelatedfiles"* .done/
-	    echo -e "$allrelatedfiles,$(date -Isec)" >> "$HOME"/Misc/Backups/video/watch-history-general.csv
+	    echo -e "$allrelatedfiles,$(date -Isec)" >> "$watch_history_gen"
 	    echolor green ":: The file ““$allrelatedfiles””\n:: has been logged into the general record"
 	}
 	;;

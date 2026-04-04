@@ -80,7 +80,7 @@ notify-send -u low -t 1000 "ThyPipe" "Extracting $1"
 tmp="/tmp/ThyPipe-$(date-string)-$(random-string 12)-$id.json"
 yt-dlp -j --use-postprocessor DeArrow:when=pre_process "$1" 2>> "/tmp/ThyPipe-ytdlplog-1-$(date-string)-$id.log" 1> "$tmp" || {
     notify-send -u critical -t 4000 "ThyPipe" "Video $1 failed to extract"
-    mv "/tmp/ThyPipe-downloading-$id" "/tmp/ThyPipe-errorjson-$id-$(date-string)-$(random-string)"
+    mv "/tmp/ThyPipe-downloading-$id" "/tmp/ThyPipe-failedjson-$id-$(date-string)-$(random-string)"
     exit 1
 }
 title_raw="$(jq -r '.title' "$tmp")"
@@ -93,7 +93,7 @@ detect-lang "$title_raw" && {
     notify-send -u critical -t 4000 "ThyPipe" "Information missing for Video\n$1"
     echo -e "$title_raw\n$title\n$id" >> "/tmp/ThyPipe-downloading-$id"
     jq -r '.filesize_approx' "$tmp" >> "/tmp/ThyPipe-downloading-$id"
-    mv "/tmp/ThyPipe-downloading-$id" "/tmp/ThyPipe-erroremptyinfo-$id-$(date-string)-$(random-string)"
+    mv "/tmp/ThyPipe-downloading-$id" "/tmp/ThyPipe-failedemptyinfo-$id-$(date-string)-$(random-string)"
     exit 1
 }
 echo "$title-[$id].mp4" >> "/tmp/ThyPipe-downloading-$id"
@@ -110,14 +110,14 @@ yt-dlp \
 }
 [[ ! -e "/tmp/$title-[$id].mp4" ]] && {
     notify-send -u critical -t 4000 "ThyPipe" "Did not find video $1 after download!"
-    mv "/tmp/ThyPipe-downloading-$id" "/tmp/ThyPipe-errormissingfile-$id-$(date-string)-$(random-string)"
+    mv "/tmp/ThyPipe-downloading-$id" "/tmp/ThyPipe-failedmissingfile-$id-$(date-string)-$(random-string)"
     exit 1
 }
 hezicle=$(hezifier)
 [[ -z "$hezicle" ]] && hezicle="main"
 mv /tmp/"$title"*']'.mp4 "$thypipe_dir/$hezicle" || {
     notify-send -u critical -t 4000 "ThyPipe" "Failed to move \"$1\""
-    mv "/tmp/ThyPipe-downloading-$id" "/tmp/ThyPipe-errorcantmv-$id-$(date-string)-$(random-string)"
+    mv "/tmp/ThyPipe-downloading-$id" "/tmp/ThyPipe-failedcantmv-$id-$(date-string)-$(random-string)"
     exit 1
 }
 cp "$tmp" "$thypipe_dir/.$title-[$id].json"
