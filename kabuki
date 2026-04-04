@@ -21,13 +21,12 @@ case "$1" in
 esac
 	
 
-[[ -z "$1" ]] && {
-    ep="$(eza --no-quotes -1fX --show-symlinks | sed '/^$/d' | sort | grep -Ev 'srt$|vtt$|part$' | fzf)"
-} || {
-    exit
-}
+vid_exts=
+[[ -z "$1" ]] || exit
+
+ep="$(eza --no-quotes -1fX --show-symlinks | sed '/^$/d' | sort | grep -E 'mkv$|avi$|mp4$|ts$|mov$|webm$|m4v$' | ifne fzf)"
 [[ -z "$ep" ]] && {
-    echolor red ":: No file selected."
+    echolor yellow ":: No file selected."
     exit
 }
 [[ -e "$HOME/Excluding/youtube/.${ep%mp4}json" ]] && {
