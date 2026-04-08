@@ -2,8 +2,37 @@
 source ~/Repositories/scripts/essential-functions
 
 [[ "$1" = "inquire" ]] && {
-    find /tmp/ -name "ThyPipe-downloading*" 2>/dev/null | wc -l
+    find /tmp/ -name "ThyPipe-downloading*]" 2>/dev/null | wc -l
     exit 0
+}
+
+[[ "$1" = "poison" ]] && {
+    [[ -e '/tmp/ThyPipe-poison' ]] && {
+	rm '/tmp/ThyPipe-poison'
+	notify-send -t 4000 "ThyPipe" "Poison removed..."
+	exit
+    } || {
+	touch '/tmp/ThyPipe-poison'
+	notify-send -t 4000 "ThyPipe" "Poison set..."
+	exit 0
+    }
+}
+
+[[ "$1" = "retry" ]] && {
+    for j in $(fd 'ThyPipe-failed' /tmp)
+    do
+	echo "$(grep '^∎TITLE' "$j" | awk '{print $2}'),$(grep '^∎ID' "$j" | awk '{print $2}')"
+    done | fzf | ifne xan select -n 1 | xargs -I ARG ThyPipe ARG
+    exit 0
+}
+
+function eat-poison {
+    [[ -e '/tmp/ThyPipe-poison' ]] && {
+	notify-send -u critical -t 4000 "ThyPipe" "AAAAARGH!\n$1 choked on poison!"
+	echo "AAAAAAAAAAAAAAAAAAAAAAAAARGH!!!!!!!!!!!!!!!!!!!!!! POISON!!!!!!!!!!!!!!!!!" >> "$dlfile"
+	mv "$dlfile" "/tmp/ThyPipe-failed-[$id]"
+	exit 1
+    }
 }
 
 thypipe_dir="$HOME/Excluding/youtube"
@@ -53,11 +82,11 @@ function hezifier {
 	[[ -z "$matcher" || -z "$hezicle" ]] && continue
 	interpret-matcher "$matcher"
 	echo -e "hezi results: matcher '$matcher' hezicle '$hezicle' operation '$operation' field '$field' statement '$statement'" \
-	     >> "/tmp/ThyPipe-downloading-$id"
+	     >> "$dlfile"
 	[[ "$operation" = "equality" ]] && {
 	    [[ "$(jq -r ".$field" "$tmp")" = "$statement" ]] && {
 		mkdir "$thypipe_dir"/"$(kebab "$hezicle")"
-		echo "MATCHED! line '$line'" >> "/tmp/ThyPipe-downloading-$id"
+		echo "MATCHED! line '$line'" >> "$dlfile"
 		echo -n "$hezicle"
 		return
 	    }
@@ -65,7 +94,7 @@ function hezifier {
 	[[ "$operation" = "contains" ]] && {
 	    jq -r ".$field" "$tmp" | grep -q "$statement" && {
 		mkdir "$thypipe_dir"/"$(kebab "$hezicle")"
-		echo "MATCHED! line '$line'" >> "/tmp/ThyPipe-downloading-$id"
+		echo "MATCHED! line '$line'" >> "$dlfile"
 		echo -n "$hezicle"
 		return
 	    }
@@ -75,15 +104,33 @@ function hezifier {
 }
 
 id="$(awk -F 'v=' '{print $NF}' <<< "$1")"
-touch "/tmp/ThyPipe-downloading-$id"
+dlfile="/tmp/ThyPipe-downloading-[$id]"
+[[ -e '/tmp/ThyPipe-poison' ]] && {
+    notify-send -u critical -t 4000 "ThyPipe" "Can't start because of poison"
+    exit 1
+}
+[[ -e "$dlfile" ]] && {
+    notify-send -u critical -t 4000 "ThyPipe" "Video $1 already downloading"
+    exit 1
+}
+[[ -e "/tmp/ThyPipe-failed-[$id]" ]] && {
+    notify-send -t 4000 "ThyPipe" "Video $1 previously failed, retrying..."
+    mv "/tmp/ThyPipe-failed-[$id]" "/tmp/ThyPipe-retried-$(date-string)-$(random-string 12)-[$id]"
+}
+touch "$dlfile"
+echo "∎ID $id" >> "$dlfile"
 notify-send -u low -t 1000 "ThyPipe" "Extracting $1"
-tmp="/tmp/ThyPipe-$(date-string)-$(random-string 12)-$id.json"
-yt-dlp -j --use-postprocessor DeArrow:when=pre_process "$1" 2>> "/tmp/ThyPipe-ytdlplog-1-$(date-string)-$id.log" 1> "$tmp" || {
+tmp="/tmp/ThyPipe-$(date-string)-$(random-string 12)-[$id].json"
+echo "Starting JSON extraction, any errors will show up below:" >> "$dlfile"
+yt-dlp -j --socket-timeout 10 -R 2                       \
+       --use-postprocessor DeArrow:when=pre_process "$1" \
+       2>> "$dlfile" 1> "$tmp" || {
     notify-send -u critical -t 4000 "ThyPipe" "Video $1 failed to extract"
-    mv "/tmp/ThyPipe-downloading-$id" "/tmp/ThyPipe-failedjson-$id-$(date-string)-$(random-string)"
+    mv "$dlfile" "/tmp/ThyPipe-failed-[$id]"
     exit 1
 }
 title_raw="$(jq -r '.title' "$tmp")"
+eat-poison
 detect-lang "$title_raw" && {
     title="$(trans -b :en "$title_raw" | kebab)"
 } || {
@@ -91,36 +138,44 @@ detect-lang "$title_raw" && {
 }
 [[ -z "$title" || -z "$id" ]] && {
     notify-send -u critical -t 4000 "ThyPipe" "Information missing for Video\n$1"
-    echo -e "$title_raw\n$title\n$id" >> "/tmp/ThyPipe-downloading-$id"
-    jq -r '.filesize_approx' "$tmp" >> "/tmp/ThyPipe-downloading-$id"
-    mv "/tmp/ThyPipe-downloading-$id" "/tmp/ThyPipe-failedemptyinfo-$id-$(date-string)-$(random-string)"
+    echo "ERROR: Info empty, as such:"
+    echo -ne "title_raw: $title_raw\ntitle: $title\nid: $id\nfilesize: " >> "$dlfile"
+    jq -r '.filesize_approx' "$tmp" >> "$dlfile"
+    mv "$dlfile" "/tmp/ThyPipe-failed-[$id]"
     exit 1
 }
-echo "$title-[$id].mp4" >> "/tmp/ThyPipe-downloading-$id"
+echo "∎TITLE $title" >> "$dlfile"
 notify-send -u low -t 1000 "ThyPipe" "Downloading video \"$title\" now"
+eat-poison
+echo "Downloading video..." >> "$dlfile"
 yt-dlp \
     -f 'bestvideo[height=1080][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'        \
-    --fragment-retries infinite                                                       \
     --no-mtime --embed-chapters --embed-subs --sub-langs en,-live_chat                \
     --use-postprocessor DeArrow:when=pre_process --remote-components ejs:github       \
     --extractor-args "youtube:player-client=default,-tv_simply,-android_sdkless"      \
     --no-playlist -o "$title-[$id].%(ext)s" -P "/tmp/"                                \
-    "$1" 2>> "/tmp/ThyPipe-ytdlplog-2-$(date-string)-$id.log" || {
+    --socket-timeout 10 -R 2                                                          \
+    "$1" 2>> "$dlfile" 1> "$dlfile-progress" || {
     notify-send -u critical -t 4000 "ThyPipe" "Errors detected while downloading video \"$title\""
-}
-[[ ! -e "/tmp/$title-[$id].mp4" ]] && {
-    notify-send -u critical -t 4000 "ThyPipe" "Did not find video $1 after download!"
-    mv "/tmp/ThyPipe-downloading-$id" "/tmp/ThyPipe-failedmissingfile-$id-$(date-string)-$(random-string)"
+    rm "$dlfile-progress"
+    mv "$dlfile" "/tmp/ThyPipe-failed-[$id]"
     exit 1
 }
+rm "$dlfile-progress"
+[[ ! -e "/tmp/$title-[$id].mp4" ]] && {
+    notify-send -u critical -t 4000 "ThyPipe" "Did not find video $1 after download!"
+    echo "ERROR: Video file missing after download!" >> "$dlfile"
+    mv "$dlfile" "/tmp/ThyPipe-failed-[$id]"
+    exit 1
+}
+eat-poison
 hezicle=$(hezifier)
 [[ -z "$hezicle" ]] && hezicle="main"
-mv /tmp/"$title"*']'.mp4 "$thypipe_dir/$hezicle" || {
+mv /tmp/"$title"*']'.mp4 "$thypipe_dir/$hezicle" 2>> "$dlfile" || {
     notify-send -u critical -t 4000 "ThyPipe" "Failed to move \"$1\""
-    mv "/tmp/ThyPipe-downloading-$id" "/tmp/ThyPipe-failedcantmv-$id-$(date-string)-$(random-string)"
+    mv "$dlfile" "/tmp/ThyPipe-failed-[$id]"
     exit 1
 }
 cp "$tmp" "$thypipe_dir/.$title-[$id].json"
-mv "/tmp/ThyPipe-downloading-$id" "/tmp/ThyPipe-done-$id-$(date-string)-$(random-string)"
+mv "$dlfile" "/tmp/ThyPipe-done-$id-$(date-string)-$(random-string)"
 notify-send -t 4000 "ThyPipe" "Video \"$title\" successfully downloaded\ninto hezicle \"$hezicle\""
-    
