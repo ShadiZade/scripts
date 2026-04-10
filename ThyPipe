@@ -178,4 +178,4 @@ mv /tmp/"$title"*']'.mp4 "$thypipe_dir/$hezicle" 2>> "$dlfile" || {
 }
 cp "$tmp" "$thypipe_dir/.$title-[$id].json"
 mv "$dlfile" "/tmp/ThyPipe-done-$id-$(date-string)-$(random-string)"
-notify-send -t 4000 "ThyPipe" "Video \"$title\" successfully downloaded\ninto hezicle \"$hezicle\""
+notify-send -t 4000 "ThyPipe" "\"$title\"\nsuccessfully downloaded\ninto hezicle \"$hezicle\""

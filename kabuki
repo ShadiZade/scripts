@@ -7,16 +7,16 @@ watch_history_tv="$HOME/Misc/Backups/video/watch-history-tv.csv"
 
 case "$1" in
     "yt"|"youtube")
-	tail -n 20 "$watch_history_yt" | xan view -MRn --color=always --theme="striped" | sed '/^$/d'
+	tail -n 24 "$watch_history_yt" | xan view -MRn --color=always --theme="striped" | sed '/^$/d'
 	;;
     "gen"|"general")
-	tail -n 20 "$watch_history_gen" | xan view -MRn --color=always --theme="striped" | sed '/^$/d'
+	tail -n 24 "$watch_history_gen" | xan view -MRn --color=always --theme="striped" | sed '/^$/d'
 	;;
     "tv"|"show"|"shows")
-	tail -n 20 "$watch_history_tv" | xan view -MRn --color=always --theme="striped" | sed '/^$/d'
+	tail -n 24 "$watch_history_tv" | xan view -MRn --color=always --theme="striped" | sed '/^$/d'
 	;;
     "doc"|"docs"|"documentaries"|"documentary")
-	tail -n 20 "$watch_history_docs" | xan view -MRn --color=always --theme="striped" | sed '/^$/d'
+	tail -n 24 "$watch_history_docs" | xan view -MRn --color=always --theme="striped" | sed '/^$/d'
 	;;
     "hist"|"history"|"all")
 	echo -n YouTube
@@ -76,11 +76,11 @@ case "$choose_no_done" in
 	fd -q "^done$" && done_exists="y" || done_exists="n"
 	;;
 esac
-[[ "$done_exists" = "y" ]] && choose_done="$(echo -e 'Move to done\nDo nothing\nAbandon file' | fzf --no-input --prompt='Move to done? ')"
+[[ "$done_exists" = "y" ]] && choose_done="$(echo -e 'Mark as done\nDo nothing\nAbandon file' | fzf --no-input)"
 ext_alone="$(echo "$ep" | awk -F '.' '{print $NF}')"
 allrelatedfiles="$(echo "$ep" | sed "s/\.$ext_alone//;s/,/‚/g")"
 case "$choose_done" in
-    "Move to done")
+    "Mark as done")
 	if pwd | grep -q "$HOME/Excluding/youtube"
 	then
 	    {
@@ -94,7 +94,7 @@ case "$choose_done" in
 	then
 	    {
 		echo -ne "$(pwd | awk -F '/' '{print $5}'),"
-		echo -ne "$allrelatedfiles,"
+		echo -ne "$(tr -d ',' <<< "$allrelatedfiles"),"
 		echo -e "$(date -Isec)"
 	    } >> "$watch_history_tv"
        	    mv -v "$allrelatedfiles"* done/
