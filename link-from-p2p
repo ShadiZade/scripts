@@ -4,7 +4,7 @@ p2p_dir="$HOME/P2P"
 
 
 function remove-spaces {
-    sed 's/ - /./g;s/ /./g'
+    sed 's/ - /./g;s/ /./g' | tr -d ','
 }
 
 function link-from-finished {
