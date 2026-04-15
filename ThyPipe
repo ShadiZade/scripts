@@ -18,12 +18,24 @@ source ~/Repositories/scripts/essential-functions
     }
 }
 
+[[ "$1" = "now" ]] && {
+    for j in /tmp/ThyPipe-downloading*\]
+    do
+	cat "$j" 2>/dev/null | ifne grep "^∎TITLE" | awk '{print $2}'
+	grep '\[download\]' "$j"-progress 2>/dev/null
+    	echolor white '======'
+    	echolor white '======'
+    done
+    exit
+}
+
 [[ "$1" = "retry" ]] && {
+    exit 0
+    # todo fix
     for j in $(fd 'ThyPipe-failed' /tmp)
     do
 	echo "$(grep '^∎TITLE' "$j" | awk '{print $2}'),$(grep '^∎ID' "$j" | awk '{print $2}')"
     done | fzf | ifne xan select -n 1 | xargs -I ARG ThyPipe ARG
-    exit 0
 }
 
 function eat-poison {
