@@ -28,4 +28,4 @@ rsync -Paru "$HOME"/.config/quodlibet/playlists/* "$HOME"/Misc/Backups/my-music/
     && echolor yellow ":: Updated playlists..."
 echolor yellow ":: committing to git..."
 basic-commit ~/Misc/Backups/my-music/
-
+cat ./*-works.txt | sort | uniq -c | sed 's/^ *//g' | grep -v '^1 '
