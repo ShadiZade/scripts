@@ -28,6 +28,16 @@ case "$1" in
 	echo -n General
 	tail -n 3 "$watch_history_gen" | xan view -MRn --color=always --theme="striped" | sed '/^$/d'	    
 	;;
+    "fav"|"star"|"stars"|"starred")
+	echo '🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟'
+	rg -N '🌟' "$watch_history_yt" |                       \
+	    xan select -n 0,1                                   \
+	    | sort                                              \
+	    | uniq                                              \
+	    | cut -c 22-                                        \
+	    | xan view -MRn --color=always --theme="striped"
+	echo '🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟'
+	;;
     *)
 	:
 	;;
@@ -76,20 +86,22 @@ case "$choose_no_done" in
 	fd -q "^done$" && done_exists="y" || done_exists="n"
 	;;
 esac
-[[ "$done_exists" = "y" ]] && choose_done="$(echo -e 'Mark as done\nDo nothing\nAbandon file' | fzf --no-input)"
+[[ "$done_exists" = "y" ]] && choose_done="$(echo -e 'Mark as done\nDo nothing\nAbandon file\nDone and star' | fzf --no-input)"
 ext_alone="$(echo "$ep" | awk -F '.' '{print $NF}')"
 allrelatedfiles="$(echo "$ep" | sed "s/\.$ext_alone//;s/,/‚/g")"
+addstar=''
+[[ "$choose_done" = "Done and star" ]] && addstar='🌟'
 case "$choose_done" in
-    "Mark as done")
+    "Mark as done"|"Done and star")
 	if pwd | grep -q "$HOME/Excluding/youtube"
 	then
 	    {
-		echo -ne "$allrelatedfiles,"
+		echo -ne "$addstar$allrelatedfiles,"
 		echo -ne "$(jq '.channel' "$HOME/Excluding/youtube/.$allrelatedfiles".json),"
 		echo  -e "$(date -Isec)"
 	    } >> "$watch_history_yt"
 	    move-to-trash-recursively "$allrelatedfiles"* "$HOME/Excluding/youtube/.$allrelatedfiles".json
-	    echolor green ":: Logged into the YouTube record"
+	    echolor green ":: Logged into the YouTube record $addstar"
 	elif pwd | grep -q "$HOME/TV"
 	then
 	    {
