@@ -1,193 +1,197 @@
 #!/bin/bash
 source ~/Repositories/scripts/essential-functions
 
-[[ "$1" = "inquire" ]] && {
-    find /tmp/ -name "ThyPipe-downloading*]" 2>/dev/null | wc -l
-    exit 0
-}
-
-[[ "$1" = "poison" ]] && {
-    [[ -e '/tmp/ThyPipe-poison' ]] && {
-	rm '/tmp/ThyPipe-poison'
-	notify-send -t 4000 "ThyPipe" "Poison removed..."
-	exit
-    } || {
-	touch '/tmp/ThyPipe-poison'
-	notify-send -t 4000 "ThyPipe" "Poison set..."
-	exit 0
+function download-video {    
+    function eat-poison {
+	[[ -e '/tmp/ThyPipe-poison' ]] && {
+	    notify-send -u critical -t 4000 "ThyPipe" "AAAAARGH!\n$1 choked on poison!"
+	    echo "AAAAAAAAAAAAAAAAAAAAAAAAARGH!!!!!!!!!!!!!!!!!!!!!! POISON!!!!!!!!!!!!!!!!!" >> "$dlfile"
+	    mv "$dlfile" "/tmp/ThyPipe-failed-[$id]"
+	    exit 1
+	}
     }
-}
-
-[[ "$1" = "now" ]] && {
-    for j in /tmp/ThyPipe-downloading*\]
-    do
-	cat "$j" 2>/dev/null | ifne grep "^∎TITLE" | awk '{print $2}'
-	grep '\[download\]' "$j"-progress 2>/dev/null
-    	echolor white '======'
-    	echolor white '======'
-    done
-    exit
-}
-
-[[ "$1" = "retry" ]] && {
-    exit 0
-    # todo fix
-    for j in $(fd 'ThyPipe-failed' /tmp)
-    do
-	echo "$(grep '^∎TITLE' "$j" | awk '{print $2}'),$(grep '^∎ID' "$j" | awk '{print $2}')"
-    done | fzf | ifne xan select -n 1 | xargs -I ARG ThyPipe ARG
-}
-
-function eat-poison {
+    
+    thypipe_dir="$HOME/Excluding/youtube"
+    hezi_file="$thypipe_dir/.rules.hezi"
+    function detect-lang {
+	test_stump="$(echo "$1" | tr -d '[’a-zA-Z[:punct:][:digit:][:space:]]…＂：∶–-—⧸｜？’‘')"
+	[[ -z "$test_stump" ]] && return 1
+	if ! cmp -s <(echo "$1") <(echo "$1" | iconv -c -f utf8 -t ascii//TRANSLIT)
+	then
+	    if echo "$1" | grep -qP '\P{ASCII}'
+	       # \P in pcresyntax(3) manual
+	       # https://perldoc.perl.org/perlrecharclass#Unicode-Properties
+	    then
+		return 0 # yes translate
+	    else
+		return 1 # no translate
+	    fi
+	else
+	    return 1
+	fi    
+    }
+    
+    function hezifier {
+	[[ -e "$hezi_file" ]] || return 1
+	function trim-spaces {
+	    sed 's/^ *//g;s/ *$//g; s/  */ /g'
+	}
+	function interpret-matcher {
+       	    grep -q "=" <<< "$1" && {
+		operation="equality"
+		field="$(awk -F '=' '{print $1}' <<< "$1" | trim-spaces)"
+		statement="$(awk -F '=' '{print $2}' <<< "$1" | trim-spaces)"
+		return
+	    }
+	    grep -q "%" <<< "$1" && {
+		operation="contains"
+		field="$(awk -F '%' '{print $1}' <<< "$1" | trim-spaces)"
+		statement="$(awk -F '%' '{print $2}' <<< "$1" | trim-spaces)"
+		return
+	    }
+	}
+	while read line
+	do
+	    [[ "$line" = "end rules" ]] && break
+	    matcher="$(awk -F '→' '{print $1}' <<< "$line" | trim-spaces)"
+	    hezicle="$(awk -F '→' '{print $2}' <<< "$line" | trim-spaces | kebab)"
+	    [[ -z "$matcher" || -z "$hezicle" ]] && continue
+	    interpret-matcher "$matcher"
+	    echo -e "hezi results: matcher '$matcher' hezicle '$hezicle' operation '$operation' field '$field' statement '$statement'" \
+		 >> "$dlfile"
+	    [[ "$operation" = "equality" ]] && {
+		[[ "$(jq -r ".$field" "$tmp")" = "$statement" ]] && {
+		    mkdir "$thypipe_dir"/"$(kebab "$hezicle")"
+		    echo "MATCHED! line '$line'" >> "$dlfile"
+		    echo -n "$hezicle"
+		    return
+		}
+	    }
+	    [[ "$operation" = "contains" ]] && {
+		jq -r ".$field" "$tmp" | grep -q "$statement" && {
+		    mkdir "$thypipe_dir"/"$(kebab "$hezicle")"
+		    echo "MATCHED! line '$line'" >> "$dlfile"
+		    echo -n "$hezicle"
+		    return
+		}
+	    }
+	    hezicle=''
+	done < "$hezi_file"
+    }
+    
+    id="$(awk -F 'v=' '{print $NF}' <<< "$1")"
+    dlfile="/tmp/ThyPipe-downloading-[$id]"
     [[ -e '/tmp/ThyPipe-poison' ]] && {
-	notify-send -u critical -t 4000 "ThyPipe" "AAAAARGH!\n$1 choked on poison!"
-	echo "AAAAAAAAAAAAAAAAAAAAAAAAARGH!!!!!!!!!!!!!!!!!!!!!! POISON!!!!!!!!!!!!!!!!!" >> "$dlfile"
+	notify-send -u critical -t 4000 "ThyPipe" "Can't start because of poison"
+	exit 1
+    }
+    [[ -e "$dlfile" ]] && {
+	notify-send -u critical -t 4000 "ThyPipe" "Video $1 already downloading"
+	exit 1
+    }
+    [[ -e "/tmp/ThyPipe-failed-[$id]" ]] && {
+	notify-send -t 4000 "ThyPipe" "Video $1 previously failed, retrying..."
+	mv "/tmp/ThyPipe-failed-[$id]" "/tmp/ThyPipe-retried-$(date-string)-$(random-string 12)-[$id]"
+    }
+    touch "$dlfile"
+    echo "∎ID $id" >> "$dlfile"
+    notify-send -u low -t 1000 "ThyPipe" "Extracting $1"
+    tmp="/tmp/ThyPipe-$(date-string)-$(random-string 12)-[$id].json"
+    echo "Starting JSON extraction, any errors will show up below:" >> "$dlfile"
+    yt-dlp -j --socket-timeout 10 -R 2                       \
+	   --use-postprocessor DeArrow:when=pre_process "$1" \
+	   2>> "$dlfile" 1> "$tmp" || {
+	notify-send -u critical -t 4000 "ThyPipe" "Video $1 failed to extract"
 	mv "$dlfile" "/tmp/ThyPipe-failed-[$id]"
 	exit 1
     }
-}
-
-thypipe_dir="$HOME/Excluding/youtube"
-hezi_file="$thypipe_dir/.rules.hezi"
-function detect-lang {
-    test_stump="$(echo "$1" | tr -d '[’a-zA-Z[:punct:][:digit:][:space:]]…＂：∶–-—⧸｜？’‘')"
-    [[ -z "$test_stump" ]] && return 1
-    if ! cmp -s <(echo "$1") <(echo "$1" | iconv -c -f utf8 -t ascii//TRANSLIT)
-    then
-	if echo "$1" | grep -qP '\P{ASCII}'
-	   # \P in pcresyntax(3) manual
-	   # https://perldoc.perl.org/perlrecharclass#Unicode-Properties
-	then
-	    return 0 # yes translate
-	else
-	    return 1 # no translate
-	fi
-    else
-	return 1
-    fi    
-}
-
-function hezifier {
-    [[ -e "$hezi_file" ]] || return 1
-    function trim-spaces {
-	sed 's/^ *//g;s/ *$//g; s/  */ /g'
+    title_raw="$(jq -r '.title' "$tmp")"
+    eat-poison
+    detect-lang "$title_raw" && {
+	title="$(trans -b :en "$title_raw" | kebab)"
+    } || {
+	title="$(kebab "$title_raw")"
     }
-    function interpret-matcher {
-       	grep -q "=" <<< "$1" && {
-	    operation="equality"
-	    field="$(awk -F '=' '{print $1}' <<< "$1" | trim-spaces)"
-	    statement="$(awk -F '=' '{print $2}' <<< "$1" | trim-spaces)"
-	    return
-	}
-	grep -q "%" <<< "$1" && {
-	    operation="contains"
-	    field="$(awk -F '%' '{print $1}' <<< "$1" | trim-spaces)"
-	    statement="$(awk -F '%' '{print $2}' <<< "$1" | trim-spaces)"
-	    return
-	}
+    [[ -z "$title" || -z "$id" ]] && {
+	notify-send -u critical -t 4000 "ThyPipe" "Information missing for Video\n$1"
+	echo "ERROR: Info empty, as such:"
+	echo -ne "title_raw: $title_raw\ntitle: $title\nid: $id\nfilesize: " >> "$dlfile"
+	jq -r '.filesize_approx' "$tmp" >> "$dlfile"
+	mv "$dlfile" "/tmp/ThyPipe-failed-[$id]"
+	exit 1
     }
-    while read line
-    do
-	[[ "$line" = "end rules" ]] && break
-	matcher="$(awk -F '→' '{print $1}' <<< "$line" | trim-spaces)"
-	hezicle="$(awk -F '→' '{print $2}' <<< "$line" | trim-spaces | kebab)"
-	[[ -z "$matcher" || -z "$hezicle" ]] && continue
-	interpret-matcher "$matcher"
-	echo -e "hezi results: matcher '$matcher' hezicle '$hezicle' operation '$operation' field '$field' statement '$statement'" \
-	     >> "$dlfile"
-	[[ "$operation" = "equality" ]] && {
-	    [[ "$(jq -r ".$field" "$tmp")" = "$statement" ]] && {
-		mkdir "$thypipe_dir"/"$(kebab "$hezicle")"
-		echo "MATCHED! line '$line'" >> "$dlfile"
-		echo -n "$hezicle"
-		return
-	    }
-	}
-	[[ "$operation" = "contains" ]] && {
-	    jq -r ".$field" "$tmp" | grep -q "$statement" && {
-		mkdir "$thypipe_dir"/"$(kebab "$hezicle")"
-		echo "MATCHED! line '$line'" >> "$dlfile"
-		echo -n "$hezicle"
-		return
-	    }
-	}
-	hezicle=''
-    done < "$hezi_file"
-}
-
-id="$(awk -F 'v=' '{print $NF}' <<< "$1")"
-dlfile="/tmp/ThyPipe-downloading-[$id]"
-[[ -e '/tmp/ThyPipe-poison' ]] && {
-    notify-send -u critical -t 4000 "ThyPipe" "Can't start because of poison"
-    exit 1
-}
-[[ -e "$dlfile" ]] && {
-    notify-send -u critical -t 4000 "ThyPipe" "Video $1 already downloading"
-    exit 1
-}
-[[ -e "/tmp/ThyPipe-failed-[$id]" ]] && {
-    notify-send -t 4000 "ThyPipe" "Video $1 previously failed, retrying..."
-    mv "/tmp/ThyPipe-failed-[$id]" "/tmp/ThyPipe-retried-$(date-string)-$(random-string 12)-[$id]"
-}
-touch "$dlfile"
-echo "∎ID $id" >> "$dlfile"
-notify-send -u low -t 1000 "ThyPipe" "Extracting $1"
-tmp="/tmp/ThyPipe-$(date-string)-$(random-string 12)-[$id].json"
-echo "Starting JSON extraction, any errors will show up below:" >> "$dlfile"
-yt-dlp -j --socket-timeout 10 -R 2                       \
-       --use-postprocessor DeArrow:when=pre_process "$1" \
-       2>> "$dlfile" 1> "$tmp" || {
-    notify-send -u critical -t 4000 "ThyPipe" "Video $1 failed to extract"
-    mv "$dlfile" "/tmp/ThyPipe-failed-[$id]"
-    exit 1
-}
-title_raw="$(jq -r '.title' "$tmp")"
-eat-poison
-detect-lang "$title_raw" && {
-    title="$(trans -b :en "$title_raw" | kebab)"
-} || {
-    title="$(kebab "$title_raw")"
-}
-[[ -z "$title" || -z "$id" ]] && {
-    notify-send -u critical -t 4000 "ThyPipe" "Information missing for Video\n$1"
-    echo "ERROR: Info empty, as such:"
-    echo -ne "title_raw: $title_raw\ntitle: $title\nid: $id\nfilesize: " >> "$dlfile"
-    jq -r '.filesize_approx' "$tmp" >> "$dlfile"
-    mv "$dlfile" "/tmp/ThyPipe-failed-[$id]"
-    exit 1
-}
-echo "∎TITLE $title" >> "$dlfile"
-notify-send -u low -t 1000 "ThyPipe" "Downloading video \"$title\" now"
-eat-poison
-echo "Downloading video..." >> "$dlfile"
-yt-dlp \
-    -f 'bestvideo[height=1080][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'        \
-    --no-mtime --embed-chapters --embed-subs --sub-langs en,-live_chat                \
-    --use-postprocessor DeArrow:when=pre_process --remote-components ejs:github       \
-    --extractor-args "youtube:player-client=default,-tv_simply,-android_sdkless"      \
-    --no-playlist -o "$title-[$id].%(ext)s" -P "/tmp/"                                \
-    --socket-timeout 10 -R 2                                                          \
-    "$1" 2>> "$dlfile" 1> "$dlfile-progress" || {
-    notify-send -u critical -t 4000 "ThyPipe" "Errors detected while downloading video \"$title\""
+    echo "∎TITLE $title" >> "$dlfile"
+    notify-send -u low -t 1000 "ThyPipe" "Downloading video \"$title\" now"
+    eat-poison
+    echo "Downloading video..." >> "$dlfile"
+    yt-dlp \
+	-f 'bestvideo[height=1080][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'        \
+	--no-mtime --embed-chapters --embed-subs --sub-langs en,-live_chat                \
+	--use-postprocessor DeArrow:when=pre_process --remote-components ejs:github       \
+	--extractor-args "youtube:player-client=default,-tv_simply,-android_sdkless"      \
+	--no-playlist -o "$title-[$id].%(ext)s" -P "/tmp/"                                \
+	--socket-timeout 10 -R 2                                                          \
+	"$1" 2>> "$dlfile" 1> "$dlfile-progress" || {
+	notify-send -u critical -t 4000 "ThyPipe" "Errors detected while downloading video \"$title\""
+	rm "$dlfile-progress"
+	mv "$dlfile" "/tmp/ThyPipe-failed-[$id]"
+	exit 1
+    }
     rm "$dlfile-progress"
-    mv "$dlfile" "/tmp/ThyPipe-failed-[$id]"
-    exit 1
+    [[ ! -e "/tmp/$title-[$id].mp4" ]] && {
+	notify-send -u critical -t 4000 "ThyPipe" "Did not find video $1 after download!"
+	echo "ERROR: Video file missing after download!" >> "$dlfile"
+	mv "$dlfile" "/tmp/ThyPipe-failed-[$id]"
+	exit 1
+    }
+    eat-poison
+    hezicle=$(hezifier)
+    [[ -z "$hezicle" ]] && hezicle="main"
+    mv /tmp/"$title"*']'.mp4 "$thypipe_dir/$hezicle" 2>> "$dlfile" || {
+	notify-send -u critical -t 4000 "ThyPipe" "Failed to move \"$1\""
+	mv "$dlfile" "/tmp/ThyPipe-failed-[$id]"
+	exit 1
+    }
+    cp "$tmp" "$thypipe_dir/.$title-[$id].json"
+    mv "$dlfile" "/tmp/ThyPipe-done-$id-$(date-string)-$(random-string)"
+    notify-send -t 4000 "ThyPipe" "\"$title\"\nsuccessfully downloaded\ninto hezicle \"$hezicle\""   
 }
-rm "$dlfile-progress"
-[[ ! -e "/tmp/$title-[$id].mp4" ]] && {
-    notify-send -u critical -t 4000 "ThyPipe" "Did not find video $1 after download!"
-    echo "ERROR: Video file missing after download!" >> "$dlfile"
-    mv "$dlfile" "/tmp/ThyPipe-failed-[$id]"
-    exit 1
-}
-eat-poison
-hezicle=$(hezifier)
-[[ -z "$hezicle" ]] && hezicle="main"
-mv /tmp/"$title"*']'.mp4 "$thypipe_dir/$hezicle" 2>> "$dlfile" || {
-    notify-send -u critical -t 4000 "ThyPipe" "Failed to move \"$1\""
-    mv "$dlfile" "/tmp/ThyPipe-failed-[$id]"
-    exit 1
-}
-cp "$tmp" "$thypipe_dir/.$title-[$id].json"
-mv "$dlfile" "/tmp/ThyPipe-done-$id-$(date-string)-$(random-string)"
-notify-send -t 4000 "ThyPipe" "\"$title\"\nsuccessfully downloaded\ninto hezicle \"$hezicle\""
+
+case "$1" in
+    "inquire")
+	find /tmp/ -name "ThyPipe-downloading*]" 2>/dev/null | wc -l
+	exit 0
+	;;
+    "poison")
+	[[ -e '/tmp/ThyPipe-poison' ]] && {
+	    rm '/tmp/ThyPipe-poison'
+	    notify-send -t 4000 "ThyPipe" "Poison removed..."
+	    exit
+	} || {
+	    touch '/tmp/ThyPipe-poison'
+	    notify-send -t 4000 "ThyPipe" "Poison set..."
+	    exit 0
+	}
+	;;
+    "now")
+	for j in /tmp/ThyPipe-downloading*\]
+	do
+	    cat "$j" 2>/dev/null | ifne grep "^∎TITLE" | awk '{print $2}'
+	    grep '\[download\]' "$j"-progress 2>/dev/null
+    	    echolor white '======'
+    	    echolor white '======'
+	done
+	exit
+	;;
+    "retry")
+	for j in $(fd 'ThyPipe-failed' /tmp)
+	do
+	    download-video "https://www.youtube.com/watch?v=$(grep '^∎ID' "$j" | awk '{print $2}')" &
+	done 
+	;;
+    *)
+	download-video "$1"
+	;;
+    
+esac
+

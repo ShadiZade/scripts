@@ -330,6 +330,14 @@ function horizontal-line {
     echo -e "\033[${hl_remainder}D\033[K"
 }
 
+function memuse {
+	local rootdisk="$(df -h --sync | grep " /$")" 
+	echolor aquamarine-beige ":: ““$(echo $rootdisk | awk '{print $5}')”” of disk space on " 1
+	echolor aquamarine-beige "““$(echo $rootdisk | awk '{print $1}')”” is used " 1
+	echolor aquamarine-beige "(““$(echo $rootdisk | awk '{print $3}')”” out of " 1
+	echolor aquamarine-beige "““$(echo $rootdisk | awk '{print $2}')””)"
+}
+
 # function ¿ {
 #     : function ¿ interrogates functions and aliases in bash, enabling them to be self-documenting.
 #     :

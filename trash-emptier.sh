@@ -7,7 +7,7 @@ log_dir="$HOME/.local/logs/trash"
 current_time="$(date-string)"
 trash_size="$(du -sh "$trash_dir" 2>/dev/null | awk '{print $1}')"
 emptying_log="$log_dir"/emptying/emptying-"$current_time.log"
-mem_before="$(df | grep ' /$' | awk '{print $5}')"
+mem_before="$(df -h | grep ' /$' | awk '{print $3" used, "$5" occupied"}')"
 
 function manifest-log {
     [[ -d "$log_dir" ]] || {
@@ -162,8 +162,10 @@ function empty-trash {
     }
     echo -n > "$trash_manifest"
     echolor yellow ":: Trash manifest cleared."
+    echolor yellow ":: Calculating memory saving..."
+    mem_after="$(df -h --sync | grep ' /$' | awk '{print $3" used, "$5" occupied"}')"
     echolor yellow-white ":: Occupied memory before: ““$mem_before””"
-    echolor yellow-white ":: Occupied memory after:  ““$(df | grep ' /$' | awk '{print $5}')””"
+    echolor yellow-white ":: Occupied memoery after: ““$mem_after””"
     unset IFS
 }
 
