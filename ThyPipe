@@ -61,7 +61,7 @@ function download-video {
 		 >> "$dlfile"
 	    [[ "$operation" = "equality" ]] && {
 		[[ "$(jq -r ".$field" "$tmp")" = "$statement" ]] && {
-		    mkdir "$thypipe_dir"/"$(kebab "$hezicle")"
+		    mkdir "$thypipe_dir"/"$(kebab "$hezicle")" 2>/dev/null
 		    echo "MATCHED! line '$line'" >> "$dlfile"
 		    echo -n "$hezicle"
 		    return
@@ -69,7 +69,7 @@ function download-video {
 	    }
 	    [[ "$operation" = "contains" ]] && {
 		jq -r ".$field" "$tmp" | grep -q "$statement" && {
-		    mkdir "$thypipe_dir"/"$(kebab "$hezicle")"
+		    mkdir "$thypipe_dir"/"$(kebab "$hezicle")" 2>/dev/null
 		    echo "MATCHED! line '$line'" >> "$dlfile"
 		    echo -n "$hezicle"
 		    return
@@ -188,6 +188,9 @@ case "$1" in
 	do
 	    download-video "https://www.youtube.com/watch?v=$(grep '^∎ID' "$j" | awk '{print $2}')" &
 	done 
+	;;
+    "failed")
+	bat /tmp/ThyPipe*failed* 2>/dev/null
 	;;
     *)
 	download-video "$1"
