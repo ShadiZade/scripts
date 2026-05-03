@@ -6,6 +6,6 @@ inotifywait -qme modify /tmp/current-song \
     while read -r
     do
 	dunstctl close-all
-	notify-send -t 2000 "$(cat /tmp/current-song-full | sed 's/ - /\n/g;s/ — /\n/')"
+	notify-send -t 4000 "$(cat /tmp/current-song-full | sed 's/ - /\n/g;s/ — /\n/')"
     done
 }
