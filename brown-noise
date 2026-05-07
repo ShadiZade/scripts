@@ -4,7 +4,7 @@ bntmp="/tmp/brown-noise-pid"
 [[ -e "$bntmp" ]] && {
     kill "$(cat "$bntmp")"
     rm -f "$bntmp"
-    killall dunst
+    dunstctl close-all
     notify-send -t 4000 "Brown noise off"
 } || {
     bnfile="$HOME/.local/share/user-scripts/sounds/brown-noise.flac"
@@ -31,6 +31,6 @@ bntmp="/tmp/brown-noise-pid"
 	exit 1
     fi
     echo -n "$bnpid" > "$bntmp"
-    killall dunst
+    dunstctl close-all
     notify-send -t 4000 "Brown noise on"
 }

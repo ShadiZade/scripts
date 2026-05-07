@@ -373,7 +373,7 @@ function download-paper {
     scimirror="ru"
     indoi="$(echo -n "$1" | sed 's|https://doi.org/||;s/\[/\\[/g;s/\]/\\]/g')"
     echolor green-neonblue ":: Going to ““https://sci-hub.$scimirror/$indoi””"
-    extract-cookies
+    fd -i -q --newer 10m -p "$COOKIE_FILE" /tmp || extract-cookies
     scihub_src="/tmp/scihub-src-$(date-string)"
     wget --continue --load-cookies "$COOKIE_FILE" --no-use-server-timestamps -q -O "$scihub_src" -nc -t 0 -- "https://sci-hub.$scimirror/$indoi"
     shurl="$(cat "$scihub_src")"
@@ -405,7 +405,7 @@ function download-paper {
     } || {
 	scihub_root="download"
     }
-    echolor green-neonblue ":: File link is ““https://sci-hub.$scimirror/$scihub_root/$ddurl””"
+    echolor green-neonblue ":: File link is ““https://sci-net.xyz/$scihub_root/$ddurl””"
     [[ -z "$2" ]] && bibname="unnamed" || bibname="$(kebab "$2")"
     [[ -s "$bibname".pdf ]] && {
 	echolor yellow-neonblue ":: Paper ““$bibname”” already exists. Overwrite? (y/N) " 1
@@ -422,7 +422,7 @@ function download-paper {
 	echolor red ":: Unknown fatal error, see log at ““$errortmpfile””"
 	return 1
     }
-    wget --load-cookies "$COOKIE_FILE" -nc -O ./"$bibname".pdf -t 0 -- "https://sci-hub.$scimirror/$scihub_root/$ddurl" && touch -c ./"$bibname".pdf
+    wget --load-cookies "$COOKIE_FILE" -nc -O ./"$bibname".pdf -t 0 -- "https://sci-net.xyz/$scihub_root/$ddurl" && touch -c ./"$bibname".pdf
 }
 
 function fetch-bib-citation {
@@ -444,7 +444,7 @@ function fetch-bib-citation {
     product_url="$(sed 's/\[/\\[/g;s/\]/\\]/g' <<< "$product_url")"
     tmp_bib="/tmp/tmp-bib-$(date-string)"
     echolor green-neonblue ":: Going to ““https://api.citeas.org/product/$product_url?email=$EMAIL””"
-    extract-cookies
+    fd -i -q --newer 10m -p "$COOKIE_FILE" /tmp || extract-cookies
     curl --cookie "$COOKIE_FILE" -s "https://api.citeas.org/product/$product_url?email=$EMAIL" > "$tmp_bib-full"
     [[ "$(sed 1q "$tmp_bib-full")" = "<!DOCTYPE html>" ]] && {
 	echolor red ":: Citation returned an HTML file. Exiting."

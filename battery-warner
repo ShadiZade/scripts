@@ -41,7 +41,7 @@ do
     fi
     
     [[ "$batterylow" -eq 1 ]] && {
-	killall dunst
+	dunstctl close-all
 	remaining="$(acpi -b | grep 'remaining' | awk -F ', ' '{print $NF}')"
 	notify-send -u critical -t 4000 "BATTERY WARNING" "${battery1percent}%\n$remaining"
 	quodlibet --pause

@@ -108,9 +108,9 @@ function download-video {
     title_raw="$(jq -r '.title' "$tmp")"
     eat-poison
     detect-lang "$title_raw" && {
-	title="$(trans -b :en "$title_raw" | kebab)"
+	title="$(trans -b :en "$title_raw" | cut -c 1-90 | kebab)"
     } || {
-	title="$(kebab "$title_raw")"
+	title="$(kebab "$title_raw" | cut -c 1-90)"
     }
     [[ -z "$title" || -z "$id" ]] && {
 	notify-send -u critical -t 4000 "ThyPipe" "Information missing for Video\n$1"

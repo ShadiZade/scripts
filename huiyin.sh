@@ -52,7 +52,7 @@ EOF
     ln -sf "$polybar_file" "$HOME/.config/polybar/current-theme.ini"
     ln -sf "$dunst_file" "$HOME/.config/dunst/dunstrc"
     bspc wm -r
-    killall dunst 2>/dev/null
+    dunstctl close-all
 }
 
 
