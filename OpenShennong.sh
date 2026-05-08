@@ -390,6 +390,10 @@ function download-paper {
 	echolor yellow ":: Sci-Hub does not have this file."
 	return 1
     }
+    echo "$shurl" | grep -q "статья отсутствует в базе." && {
+	echolor yellow ":: Sci-Hub does not have this file."
+	return 1
+    }
     echo "$shurl" | grep -q "Checking your browser" && {
 	echolor yellow ":: Caught in evil CAPTCHA hell. Please inform the website that you’re an honest researcher and retry."
 	return 1
@@ -405,7 +409,8 @@ function download-paper {
     } || {
 	scihub_root="download"
     }
-    echolor green-neonblue ":: File link is ““https://sci-net.xyz/$scihub_root/$ddurl””"
+    scihub_root="$(echo "$shurl" | grep -m 1 pdf | awk -F '<!-- ' '{print $NF}' | awk -F ' -->' '{print $1}')"
+    echolor green-neonblue ":: File link is ““$scihub_root$ddurl””"
     [[ -z "$2" ]] && bibname="unnamed" || bibname="$(kebab "$2")"
     [[ -s "$bibname".pdf ]] && {
 	echolor yellow-neonblue ":: Paper ““$bibname”” already exists. Overwrite? (y/N) " 1
@@ -422,7 +427,7 @@ function download-paper {
 	echolor red ":: Unknown fatal error, see log at ““$errortmpfile””"
 	return 1
     }
-    wget --load-cookies "$COOKIE_FILE" -nc -O ./"$bibname".pdf -t 0 -- "https://sci-net.xyz/$scihub_root/$ddurl" && touch -c ./"$bibname".pdf
+    wget --load-cookies "$COOKIE_FILE" -nc -O ./"$bibname".pdf -t 0 -- "$scihub_root$ddurl" && touch -c ./"$bibname".pdf
 }
 
 function fetch-bib-citation {
