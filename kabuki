@@ -66,33 +66,7 @@ ep="$(eza --no-quotes -1fX --show-symlinks | sed '/^$/d' | sort | grep -E 'mkv$|
 }
 [[ -e "$HOME/Excluding/youtube/.${ep%mp4}json" ]] && jq -r '.description' "$HOME/Excluding/youtube/.${ep%mp4}json" | bat -pp 
 mpv --osd-fractions --volume=100 --volume-max=200 --alang=eng --slang=eng "$ep" || exit
-fd -q donefile && {
-    echolor red ":: Found a donefile, doing nothing..."
-    exit
-}
-pwd | grep -q "$HOME/TV" && {
-    fd -q "^done$" && done_exists="y" || done_exists="n"
-    } || {
-    done_exists="y"
-}
-[[ "$done_exists" = "n" ]] && \
-    choose_no_done="$(echo -e 'Create done marker\nCreate done dir\nDo nothing' | fzf --no-input)"
-case "$choose_no_done" in
-    "Do nothing")
-	echolor yellow ":: Doing nothing."
-	exit ;;
-    "Create done marker")
-	donetime="$(date -Isec)"
-	echo -e "$ep\n$donetime" > "./donefile-$(date -d "$donetime" +"%Y-%m-%d-%H-%M")"
-	echolor green ":: Done marker created:"
-	echolor white "$(cat "./donefile-$(date -d "$donetime" +"%Y-%m-%d-%H-%M")")"
-	exit ;;
-    "Create done dir")
-	mkdir -v "done"
-	fd -q "^done$" && done_exists="y" || done_exists="n"
-	;;
-esac
-[[ "$done_exists" = "y" ]] && choose_done="$(echo -e 'Mark as done\nDo nothing\nAbandon file\nDone and star' | fzf --no-input)"
+choose_done="$(echo -e 'Mark as done\nDo nothing\nAbandon file\nDone and star' | fzf --no-input)"
 ext_alone="$(echo "$ep" | awk -F '.' '{print $NF}')"
 allrelatedfiles="$(echo "$ep" | sed "s/\.$ext_alone//;s/,/‚/g")"
 addstar=''
@@ -115,7 +89,7 @@ case "$choose_done" in
 		echo -ne "$(tr -d ',' <<< "$allrelatedfiles"),"
 		echo -e "$(date -Isec)"
 	    } >> "$watch_history_tv"
-       	    mv -v "$allrelatedfiles"* done/
+       	    move-to-trash-recusively "$allrelatedfiles"*
 	    echolor green ":: Logged into the TV record"
 	elif pwd | grep -q "$HOME/Excluding/documentaries"
 	then
@@ -149,7 +123,7 @@ case "$choose_done" in
 	    echolor yellow ":: The video ““$allrelatedfiles””\n:: has been abandoned"
 	elif pwd | grep -q "$HOME/TV"
 	then
-       	    mv -v "$allrelatedfiles"* done/
+       	    move-to-trash-recusively "$allrelatedfiles"*
 	    echolor yellow ":: The episode ““$allrelatedfiles””\n:: has been abandoned"
 	elif pwd | grep -q "$HOME/Excluding/documentaries"
 	then
