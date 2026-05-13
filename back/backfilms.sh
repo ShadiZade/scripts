@@ -1,7 +1,6 @@
 #!/bin/bash 
 source ~/Repositories/scripts/essential-functions
 
-~/Repositories/scripts/donefiler.sh
 eza -1 ~/Films > ~/Misc/Backups/video/movies.txt
 eza -1 ~/TV > ~/Misc/Backups/video/tv.txt
 eza --tree ~/Films > ~/Misc/Backups/video/tree-movies.txt

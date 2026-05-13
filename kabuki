@@ -4,6 +4,7 @@ watch_history_yt="$HOME/Misc/Backups/video/watch-history-youtube.csv"
 watch_history_gen="$HOME/Misc/Backups/video/watch-history-general.csv"
 watch_history_docs="$HOME/Misc/Backups/video/watch-history-docs.csv"
 watch_history_tv="$HOME/Misc/Backups/video/watch-history-tv.csv"
+watch_history_film="$HOME/Misc/Backups/video/watch-history-film.csv"
 
 case "$1" in
     "yt"|"youtube")
@@ -18,15 +19,20 @@ case "$1" in
     "doc"|"docs"|"documentaries"|"documentary")
 	tail -n 24 "$watch_history_docs" | xan view -MRn --color=always --theme="striped" | sed '/^$/d'
 	;;
+    "film"|"films"|"movies"|"movie")
+	tail -n 24 "$watch_history_film" | xan view -MRn --color=always --theme="striped" | sed '/^$/d'
+	;;
     "hist"|"history"|"all")
 	echo -n YouTube
-	tail -n 3 "$watch_history_yt"  | xan view -MRn --color=always --theme="striped" | sed '/^$/d' 
+	tail -n 3 "$watch_history_yt"  | ifne xan view -MRn --color=always --theme="striped" | sed '/^$/d' 
 	echo -n TV
-	tail -n 3 "$watch_history_tv" | xan view -MRn --color=always --theme="striped" | sed '/^$/d'	    
+	tail -n 3 "$watch_history_tv" | ifne xan view -MRn --color=always --theme="striped" | sed '/^$/d'	    
 	echo -n Documentaries
-	tail -n 3 "$watch_history_docs" | xan view -MRn --color=always --theme="striped" | sed '/^$/d'	    
+	tail -n 3 "$watch_history_docs" | ifne xan view -MRn --color=always --theme="striped" | sed '/^$/d'	    
+	echo -n Films
+	tail -n 3 "$watch_history_film" | ifne xan view -MRn --color=always --theme="striped" | sed '/^$/d'	    
 	echo -n General
-	tail -n 3 "$watch_history_gen" | xan view -MRn --color=always --theme="striped" | sed '/^$/d'	    
+	tail -n 3 "$watch_history_gen" | ifne xan view -MRn --color=always --theme="striped" | sed '/^$/d'	    
 	;;
     "fav"|"star"|"stars"|"starred")
 	echo '🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟'
@@ -119,6 +125,14 @@ case "$choose_done" in
 	    } >> "$watch_history_docs"
 	    move-to-trash-recursively "$allrelatedfiles"*
 	    echolor green ":: Logged into the documentaries record"
+	elif pwd | grep -q "$HOME/Films"
+	then
+	    {
+		echo -ne "$allrelatedfiles,"
+		echo -e "$(date -Isec)"
+	    } >> "$watch_history_film"
+	    move-to-trash-recursively "$allrelatedfiles"*
+	    echolor green ":: Logged into the film record"
 	else
 	    {
 		echo -ne "$allrelatedfiles,"
@@ -141,6 +155,10 @@ case "$choose_done" in
 	then
 	    move-to-trash-recursively "$allrelatedfiles"*
 	    echolor yellow ":: The documentary ““$allrelatedfiles””\n:: has been abandoned"
+	elif pwd | grep -q "$HOME/Films"
+	then
+	    move-to-trash-recursively "$allrelatedfiles"*
+	    echolor yellow ":: The film ““$allrelatedfiles””\n:: has been abandoned"
 	else
 	    move-to-trash-recursively "$allrelatedfiles"*
 	    echolor yellow ":: The file ““$allrelatedfiles””\n:: has been abandoned"
