@@ -41,7 +41,11 @@ rsync -qaru ~/.local/share/buku/bookmarks.db ~/Misc/Backups/bookmarks/buku
 echolor yellow "$(basic-commit ~/Misc/Backups/bookmarks/buku/)" \
     && echolor blue "\t\t → Done!"
 
-echolor ←yellow ":: Backing video watch history..."
+echolor ←yellow ":: Backing watch history..."
+eza -1 ~/Films > ~/Misc/Backups/video/movies.txt
+eza -1 ~/TV > ~/Misc/Backups/video/tv.txt
+eza --tree ~/Films > ~/Misc/Backups/video/tree-film.txt
+eza --tree ~/TV > ~/Misc/Backups/video/tree-tv.txt
 echolor yellow "$(basic-commit ~/Misc/Backups/video)" \
     && echolor blue "\t\t → Done!"
 
