@@ -10,7 +10,7 @@ case "$1" in
     "yt"|"youtube")
 	tail -n 24 "$watch_history_yt" | xan view -MRn --color=always --theme="striped" | sed '/^$/d'
 	;;
-    "gen"|"general")
+    "gen"|"general"|"misc")
 	tail -n 24 "$watch_history_gen" | xan view -MRn --color=always --theme="striped" | sed '/^$/d'
 	;;
     "tv"|"show"|"shows")
@@ -38,9 +38,10 @@ case "$1" in
 	echo '🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟'
 	rg -N '🌟' "$watch_history_yt" |                       \
 	    xan select -n 0,1                                   \
+	    | sed 's/🌟//g'                                     \
 	    | sort                                              \
 	    | uniq                                              \
-	    | cut -c 22-                                        \
+	    | cut -c 18-                                        \
 	    | xan view -MRn --color=always --theme="striped"
 	echo '🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟'
 	;;
