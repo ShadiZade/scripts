@@ -89,7 +89,7 @@ case "$choose_done" in
 		echo -ne "$(tr -d ',' <<< "$allrelatedfiles"),"
 		echo -e "$(date -Isec)"
 	    } >> "$watch_history_tv"
-       	    move-to-trash-recusively "$allrelatedfiles"*
+       	    move-to-trash-recursively "$allrelatedfiles"*
 	    echolor green ":: Logged into the TV record"
 	elif pwd | grep -q "$HOME/Excluding/documentaries"
 	then

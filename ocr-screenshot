@@ -3,4 +3,6 @@
 sleep 1s
 flameshot gui -r                 \
     | tesseract - -              \
+    | tr '\n' ' '                \
+    | sed 's/- //g;s/  / /g'     \
     | xclip -selection clipboard
