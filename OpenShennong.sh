@@ -18,6 +18,7 @@ source ~/Repositories/scripts/essential-functions
 data_dir="$XDG_DATA_HOME/OpenShennong"
 local_registry="$data_dir/projects.csv"
 
+
 # non-interactive functions
 function conf-info-extract {
     runcase-dealer only 0
@@ -445,6 +446,13 @@ function fetch-bib-citation {
 	}
     done
     product_url="${1#/}"
+    grep -q 'pdf$' <<< "$1" && {
+	product_url="$(get-doi-from-pdf "$1")"
+	[[ -z "$product_url" ]] && {
+	    echolor red ":: Cannot fetch doi from PDF file."
+	    return 1
+	}   
+    }
     product_url="${product_url%/}"
     product_url="$(sed 's/\[/\\[/g;s/\]/\\]/g' <<< "$product_url")"
     tmp_bib="/tmp/tmp-bib-$(date-string)"
@@ -527,19 +535,24 @@ function fetch-bib-no-add {
 }
 
 function add-bib-citation-to-refs {
-    runcase-dealer only 1
+    [[ "$outside" = "yes" ]] || runcase-dealer only 1
+    bibfile_location='../refs.bib'
+    [[ "$outside" = "yes" ]] && {
+	touch refs.bib
+	bibfile_location='./refs.bib'
+    }
     fetch-bib-citation "$1" || return 1
-    grep -q "{$bibkey," ../refs.bib && {
+    grep -q "{$bibkey," "$bibfile_location" && {
 	echolor red-neonblue ":: Article ““$bibkey”” already exists in refs.bib. Not adding."
     } || {
 	bat -Ppl bib "$tmp_bib"
-	cat "$tmp_bib" >> ../refs.bib
-	echo >> ../refs.bib
+	cat "$tmp_bib" >> "$bibfile_location"
+	echo >> "$bibfile_location"
     }
 }
     
 function get-bib-and-download-paper {
-    runcase-dealer only 1
+    [[ "$outside" = "yes" ]] || runcase-dealer only 1
     add-bib-citation-to-refs "$1" || return 1
     [[ -z "$bibkey" ]] && {
 	echolor red ":: Bibkey not found."
@@ -548,6 +561,19 @@ function get-bib-and-download-paper {
     echolor green-neonblue ":: Downloading paper as ““$bibkey””"
     echolor green-neonblue ":: Detected DOI as ““$doikey””"
     download-paper "${doikey:-$1}" "$bibkey"
+}
+
+function show-bib-file {
+    [[ -e "./refs.bib" ]] && {
+	bat refs.bib
+    } || {
+	echolor red ":: Cannot find a bib file here"
+    }
+}
+
+function get-doi-from-pdf {
+    [[ -e "$1" ]] || exit 1
+    pdfgrep 'doi.org' "$1" | ifne sed 1q | awk -F 'doi.org/' '{print $NF}' | awk -F ' ' '{print $1}'
 }
 
 function rename-stuff {
@@ -605,16 +631,15 @@ check-dependencies
 comd="$1"
 
 case "$comd" in
+    "dl") get-bib-and-download-paper "$2" ;;
+    "bib") add-bib-citation-to-refs "$2" ;;
     "create") create "$2" ;;
+    "ref") show-bib-file ;;
     "see") see-pdf-file ;;
     "set") set-tex-file "$2" ;;
     "help") show-help;;
     "count") count-all ;;
     "info") project-info ;;
-    "dl") get-bib-and-download-paper "$2" ;; # inside project
-    "bib") add-bib-citation-to-refs "$2" ;;  # inside project
-    "download") download-paper "$2" "$3" ;;  # outside project
-    "citation") fetch-bib-no-add "$2" ;;     # outside project
     "ls") list-project-files "$2" ;;
     "anchor") save-to-local ;;
     "unanchor") remove-from-local-prompt ;;
