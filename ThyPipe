@@ -79,7 +79,7 @@ function download-video {
 	done < "$hezi_file"
     }
     
-    id="$(awk -F 'v=' '{print $NF}' <<< "$1")"
+    id="$(sed 's|youtu.be/|www.youtube.com/watch?v=|g' <<< "$1" | awk -F 'v=' '{print $NF}' | awk -F '?' '{print $1}')"
     dlfile="/tmp/ThyPipe-downloading-[$id]"
     [[ -e '/tmp/ThyPipe-poison' ]] && {
 	notify-send -u critical -t 4000 "ThyPipe" "Can't start because of poison"

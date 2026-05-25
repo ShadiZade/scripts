@@ -8,13 +8,13 @@ watch_history_film="$HOME/Misc/Backups/video/watch-history-film.csv"
 
 case "$1" in
     "yt"|"youtube")
-	tail -n 24 "$watch_history_yt" | xan view -MRn --color=always --theme="striped" | sed '/^$/d'
+	tail -n 24 "$watch_history_yt" | xan view -MRn --cols 0.99 --color=always --theme="striped" | sed '/^$/d'
 	;;
     "gen"|"general"|"misc")
 	tail -n 24 "$watch_history_gen" | xan view -MRn --color=always --theme="striped" | sed '/^$/d'
 	;;
     "tv"|"show"|"shows")
-	tail -n 24 "$watch_history_tv" | xan view -MRn --color=always --theme="striped" | sed '/^$/d'
+	tail -n 24 "$watch_history_tv" | xan view -MRn --cols 0.99 --color=always --theme="striped" | sed '/^$/d'
 	;;
     "doc"|"docs"|"documentaries"|"documentary")
 	tail -n 24 "$watch_history_docs" | xan view -MRn --color=always --theme="striped" | sed '/^$/d'
@@ -23,15 +23,15 @@ case "$1" in
 	tail -n 24 "$watch_history_film" | xan view -MRn --color=always --theme="striped" | sed '/^$/d'
 	;;
     "hist"|"history"|"all")
-	echo -n YouTube
+	echo -n "YouTube ($(wc -l "$watch_history_yt" | awk '{print $1}'))"
 	tail -n 3 "$watch_history_yt"  | ifne xan view -MRn --color=always --theme="striped" | sed '/^$/d' 
-	echo -n TV
+	echo -n "TV ($(wc -l "$watch_history_tv" | awk '{print $1}'))"
 	tail -n 3 "$watch_history_tv" | ifne xan view -MRn --color=always --theme="striped" | sed '/^$/d'	    
-	echo -n Documentaries
+	echo -n "Documentaries ($(wc -l "$watch_history_docs" | awk '{print $1}'))"
 	tail -n 3 "$watch_history_docs" | ifne xan view -MRn --color=always --theme="striped" | sed '/^$/d'	    
-	echo -n Films
+	echo -n "Films ($(wc -l "$watch_history_film" | awk '{print $1}'))"
 	tail -n 3 "$watch_history_film" | ifne xan view -MRn --color=always --theme="striped" | sed '/^$/d'	    
-	echo -n General
+	echo -n "General ($(wc -l "$watch_history_gen" | awk '{print $1}'))"
 	tail -n 3 "$watch_history_gen" | ifne xan view -MRn --color=always --theme="striped" | sed '/^$/d'	    
 	;;
     "fav"|"star"|"stars"|"starred")
