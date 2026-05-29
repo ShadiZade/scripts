@@ -78,8 +78,24 @@ function download-video {
 	    hezicle=''
 	done < "$hezi_file"
     }
-    
-    id="$(sed 's|youtu.be/|www.youtube.com/watch?v=|g' <<< "$1" | awk -F 'v=' '{print $NF}' | awk -F '?' '{print $1}')"
+    case "$1" in
+	*"youtu"*)
+	    website="https://www.youtube.com/watch?v="
+	    id="$(sed 's|youtu.be/|www.youtube.com/watch?v=|g' <<< "$1" | awk -F 'v=' '{print $NF}' | awk -F '?' '{print $1}')"
+	    ;;
+	*"dailymo"*)
+	    website="https://www.dailymotion.com/video/"
+	    id="$(awk -F '/video/' '{print $NF}' <<< "$1" | awk -F '?' '{print $1}')"
+	    ;;
+	*"vimeo"*)
+	    website="https://vimeo.com/"
+	    id="$(awk -F 'com/' '{print $NF}' <<< "$1" | awk -F '?' '{print $1}')"
+	    ;;
+	*)
+	    notify-send -u critical -t 4000 "ThyPipe" "Unknown website"
+	    exit 1
+	    ;;
+    esac
     dlfile="/tmp/ThyPipe-downloading-[$id]"
     [[ -e '/tmp/ThyPipe-poison' ]] && {
 	notify-send -u critical -t 4000 "ThyPipe" "Can't start because of poison"
@@ -186,7 +202,7 @@ case "$1" in
     "retry")
 	for j in $(fd 'ThyPipe-failed' /tmp)
 	do
-	    download-video "https://www.youtube.com/watch?v=$(grep '^∎ID' "$j" | awk '{print $2}')" &
+	    download-video "$website$(grep '^∎ID' "$j" | awk '{print $2}')" &
 	done 
 	;;
     "failed")

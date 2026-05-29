@@ -124,7 +124,7 @@ case "$choose_done" in
 	    echolor yellow ":: The video ““$allrelatedfiles””\n:: has been abandoned"
 	elif pwd | grep -q "$HOME/TV"
 	then
-       	    move-to-trash-recusively "$allrelatedfiles"*
+       	    move-to-trash-recursively "$allrelatedfiles"*
 	    echolor yellow ":: The episode ““$allrelatedfiles””\n:: has been abandoned"
 	elif pwd | grep -q "$HOME/Excluding/documentaries"
 	then

@@ -378,7 +378,6 @@ function download-paper {
     scihub_src="/tmp/scihub-src-$(date-string)"
     wget --continue --load-cookies "$COOKIE_FILE" --no-use-server-timestamps -q -O "$scihub_src" -nc -t 0 -- "https://sci-hub.$scimirror/$indoi"
     shurl="$(cat "$scihub_src")"
-    echo -n "$bibkey" | xclip -selection clipboard
     echo "$shurl" | grep -q "doesn't have the requested document" && {
 	echolor yellow ":: Sci-Hub does not have this file."
 	return 1
@@ -437,7 +436,7 @@ function fetch-bib-citation {
 	echolor red ":: Email variable not found. Exiting."
 	return 1
     }
-    hostile_websites=("sciencedirect.com" "jstor.org" "cabidigitallibrary.org" "ebscohost.com" "plos.org" "oup.com" "elibrary.ru" "bioone.org" "frontiersin.org" "cell.com" "jbc.org" "mdpi.com" "thelancet.com" "ingentaconnect.com" "usp.br" "portlandpress.com")
+    hostile_websites=("sciencedirect.com" "jstor.org" "cabidigitallibrary.org" "ebscohost.com" "plos.org" "oup.com" "elibrary.ru" "bioone.org" "frontiersin.org" "cell.com" "jbc.org" "mdpi.com" "thelancet.com" "ingentaconnect.com" "usp.br" "portlandpress.com" "lww.com" "europepmc.org")
     for j in ${hostile_websites[@]}
     do
 	grep -q "$j" <<< "$1" && {
@@ -451,7 +450,9 @@ function fetch-bib-citation {
 	[[ -z "$product_url" ]] && {
 	    echolor red ":: Cannot fetch doi from PDF file."
 	    return 1
-	}   
+	} || {
+	    echolor green ":: Detected doi: ““$product_url””"
+	}
     }
     product_url="${product_url%/}"
     product_url="$(sed 's/\[/\\[/g;s/\]/\\]/g' <<< "$product_url")"
@@ -471,7 +472,10 @@ function fetch-bib-citation {
     }
     sed -i 's/\\n            <i>/ /g;s|</i>\\n            | |g' "$tmp_bib-full"
     jq -r '.exports.[] | select( .export_name == "bibtex" ) | .export' "$tmp_bib-full" > "$tmp_bib"
-    sed -i 's/journal-article/article/g;s/book-chapter/incollection/g;s/,,/,/g;s/title={/title={{/g;s/title=/\ntitle=/g;/title=/s/}/}}/g' "$tmp_bib"
+    sed -i '{:q;N;s|\n *<scp>| |g;s|</scp>\n *| |g;t q}' "$tmp_bib"
+    sed -i 's/  */ /g;s/	/ /g;s/proceedings-article/article/g' "$tmp_bib"
+    sed -i 's/journal-article/article/g;s/book-chapter/incollection/g;s/article-journal/article/g' "$tmp_bib"
+    sed -i 's/,,/,/g;s/title={/title={{/g;s/title=/\ntitle=/g;/title=/s/}/}}/g' "$tmp_bib"
     sed -i 's/<i>//g;s|</i>||g;s/&amp;/\\\&/g' "$tmp_bib"
     doikey="$(jq -r '.metadata.DOI' "$tmp_bib-full")"
     [[ "$doikey" = "null" ]] && doikey=''
@@ -542,6 +546,7 @@ function add-bib-citation-to-refs {
 	bibfile_location='./refs.bib'
     }
     fetch-bib-citation "$1" || return 1
+    echo -n "$bibkey" | xclip -selection clipboard
     grep -q "{$bibkey," "$bibfile_location" && {
 	echolor red-neonblue ":: Article ““$bibkey”” already exists in refs.bib. Not adding."
     } || {
@@ -573,7 +578,55 @@ function show-bib-file {
 
 function get-doi-from-pdf {
     [[ -e "$1" ]] || exit 1
-    pdfgrep 'doi.org' "$1" | ifne sed 1q | awk -F 'doi.org/' '{print $NF}' | awk -F ' ' '{print $1}'
+    function doi-quality-check {
+	[[ -z "$pdfdoi" ]] && return 1
+	grep -q '/' <<< "$pdfdoi" || return 1
+	grep -q '10' <<< "$pdfdoi" || return 1
+	return
+    }
+    function doi-cleaner {
+	sed 's/,$//g;s/ //g;s|/$||g'
+    }
+    
+    pdfgrep --page-range='1-3' -qi 'doi' "$1" || return 1
+
+    pdfdoi="$(pdfgrep --page-range='1-3' 'doi.org' "$1" | ifne sed 1q | awk -F 'doi.org/' '{print $NF}' | awk -F ' ' '{print $1}' | doi-cleaner)"
+    doi-quality-check && {
+	echo -n "$pdfdoi"
+	return
+    }
+    
+    pdfgrep --page-range='1-3' -qi 'doi:' "$1" && {
+	pdfdoi="$(pdfgrep --page-range='1-3' -i 'doi:' "$1" | ifne sed 1q | awk '{print $2}' | doi-cleaner)"
+	doi-quality-check && {
+	    echo -n "$pdfdoi"
+	    return
+	}
+	pdfdoi="$(pdfgrep --page-range='1-3' 'doi:' "$1" | ifne sed 1q | awk -F 'doi:' '{print $2}' | awk '{print $1}' | doi-cleaner)"
+	doi-quality-check && {
+	    echo -n "$pdfdoi"
+	    return
+	}
+	pdfdoi="$(pdfgrep --page-range='1-3' 'DOI:' "$1" | ifne sed 1q | awk -F 'DOI:' '{print $2}' | awk '{print $1}' | doi-cleaner)"
+	doi-quality-check && {
+	    echo -n "$pdfdoi"
+	    return
+	}
+    }
+
+    pdfgrep --page-range='1-3' -qi 'doi ' "$1" && {
+	pdfdoi="$(pdfgrep --page-range='1-3' 'DOI ' "$1" | ifne sed 1q | awk -F 'DOI ' '{print $2}' | awk '{print $1}' | doi-cleaner)"
+	doi-quality-check && {
+	    echo -n "$pdfdoi"
+	    return
+	}
+	pdfdoi="$(pdfgrep --page-range='1-3' 'doi ' "$1" | ifne sed 1q | awk -F 'doi ' '{print $2}' | awk '{print $1}' | doi-cleaner)"
+	doi-quality-check && {
+	    echo -n "$pdfdoi"
+	    return
+	}
+    }
+    return 1
 }
 
 function rename-stuff {

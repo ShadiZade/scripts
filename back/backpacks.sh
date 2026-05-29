@@ -53,7 +53,8 @@ echolor ←yellow ":: Backing notes..."
 echolor yellow "$(basic-commit ~/Notes/)" \
     && echolor blue "\t\t → Done!"
 
-echolor ←yellow ":: Backing current documents..."
+echolor ←yellow ":: Backing document data..."
 rsync -qaru ~/.local/share/sioyek/last_document_path.txt ~/Projects/reading/.data/
+rsync -qaru ~/Documents/papers/refs.bib ~/Projects/reading/.data/misc-academic-papers.bib
 echolor yellow "$(basic-commit ~/Projects/reading/.data/)" \
     && echolor blue "\t\t → Done!"
