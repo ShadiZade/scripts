@@ -68,6 +68,9 @@ ep="$(eza --no-quotes -1fX --show-symlinks | sed '/^$/d' | sort | grep -E 'mkv$|
     date -Idate -d "$(jq -r '.upload_date' "$HOME/Excluding/youtube/.${ep%mp4}json" | sed 1q)"
     echolor white 'Downloaded:\t' 1
     date -Idate -d "$(stat -c '%w' "$ep")"
+    echolor white 'Watch:  \t' 1
+    watch_instance="$(rg "$(echo "$ep" | between '[' ']')" "$watch_history_yt" | wc -l)"
+    echo "$((watch_instance + 1))"
     echo '------------------------------------------------------'
 }
 [[ -e "$HOME/Excluding/youtube/.${ep%mp4}json" ]] && jq -r '.description' "$HOME/Excluding/youtube/.${ep%mp4}json" | bat -pp 
