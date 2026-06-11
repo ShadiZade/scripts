@@ -115,7 +115,8 @@ function download-video {
     tmp="/tmp/ThyPipe-$(date-string)-$(random-string 12)-[$id].json"
     echo "Starting JSON extraction, any errors will show up below:" >> "$dlfile"
     yt-dlp -j --socket-timeout 10 -R 2 "$1"                  \
-	   --use-postprocessor DeArrow:when=pre_process "$1" \
+	   --use-postprocessor DeArrow:when=pre_process      \
+	   "$website$id"                                     \
 	   2>> "$dlfile" 1> "$tmp" || {
 	notify-send -u critical -t 4000 "ThyPipe" "Video $1 failed to extract"
 	mv "$dlfile" "/tmp/ThyPipe-failed-[$id]"
@@ -147,7 +148,7 @@ function download-video {
 	--extractor-args "youtube:player-client=default,-tv_simply,-android_sdkless"      \
 	--no-playlist -o "$title-[$id].%(ext)s" -P "/tmp/"                                \
 	--socket-timeout 10 -R 2                                                          \
-	"$1" 2>> "$dlfile" 1> "$dlfile-progress" || {
+	"$website$id" 2>> "$dlfile" 1> "$dlfile-progress" || {
 	notify-send -u critical -t 4000 "ThyPipe" "Errors detected while downloading video \"$title\""
 	rm "$dlfile-progress"
 	mv "$dlfile" "/tmp/ThyPipe-failed-[$id]"
