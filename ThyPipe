@@ -1,6 +1,5 @@
 #!/bin/bash
 source ~/Repositories/scripts/essential-functions
-
 function download-video {    
     function eat-poison {
 	[[ -e '/tmp/ThyPipe-poison' ]] && {
@@ -60,7 +59,7 @@ function download-video {
 	    echo -e "hezi results: matcher '$matcher' hezicle '$hezicle' operation '$operation' field '$field' statement '$statement'" \
 		 >> "$dlfile"
 	    [[ "$operation" = "equality" ]] && {
-		[[ "$(jq -r ".$field" "$tmp")" = "$statement" ]] && {
+		jq -r ".$field" "$tmp" | grep -wiq "$statement" && {
 		    mkdir "$thypipe_dir"/"$(kebab "$hezicle")" 2>/dev/null
 		    echo "MATCHED! line '$line'" >> "$dlfile"
 		    echo -n "$hezicle"
@@ -68,7 +67,7 @@ function download-video {
 		}
 	    }
 	    [[ "$operation" = "contains" ]] && {
-		jq -r ".$field" "$tmp" | grep -q "$statement" && {
+		jq -r ".$field" "$tmp" | grep -iq "$statement" && {
 		    mkdir "$thypipe_dir"/"$(kebab "$hezicle")" 2>/dev/null
 		    echo "MATCHED! line '$line'" >> "$dlfile"
 		    echo -n "$hezicle"
@@ -110,18 +109,19 @@ function download-video {
 	mv "/tmp/ThyPipe-failed-[$id]" "/tmp/ThyPipe-retried-$(date-string)-$(random-string 12)-[$id]"
     }
     touch "$dlfile"
+    echo "∎LINK $1" >> "$dlfile"
     echo "∎ID $id" >> "$dlfile"
     notify-send -u low -t 1000 "ThyPipe" "Extracting $1"
     tmp="/tmp/ThyPipe-$(date-string)-$(random-string 12)-[$id].json"
     echo "Starting JSON extraction, any errors will show up below:" >> "$dlfile"
-    yt-dlp -j --socket-timeout 10 -R 2                       \
+    yt-dlp -j --socket-timeout 10 -R 2 "$1"                  \
 	   --use-postprocessor DeArrow:when=pre_process "$1" \
 	   2>> "$dlfile" 1> "$tmp" || {
 	notify-send -u critical -t 4000 "ThyPipe" "Video $1 failed to extract"
 	mv "$dlfile" "/tmp/ThyPipe-failed-[$id]"
 	exit 1
     }
-    title_raw="$(jq -r '.title' "$tmp")"
+    title_raw="$(jq -r '.title' "$tmp" 2>/dev/null | sed 1q)"
     eat-poison
     detect-lang "$title_raw" && {
 	title="$(trans -b :en "$title_raw" | cut -c 1-90 | kebab)"
@@ -202,7 +202,7 @@ case "$1" in
     "retry")
 	for j in $(fd 'ThyPipe-failed' /tmp)
 	do
-	    download-video "$website$(grep '^∎ID' "$j" | awk '{print $2}')" &
+	    download-video "$(grep '^∎LINK' "$j" | awk '{print $2}')" &
 	done 
 	;;
     "failed")

@@ -8,7 +8,7 @@ watch_history_film="$HOME/Misc/Backups/video/watch-history-film.csv"
 
 case "$1" in
     "yt"|"youtube")
-	tail -n 24 "$watch_history_yt" | xan view -MRn --cols 0.99 --color=always --theme="striped" | sed '/^$/d'
+	tail -n 24 "$watch_history_yt" | xan view -MRn --cols 0.96 --color=always --theme="striped" | sed '/^$/d'
 	;;
     "gen"|"general"|"misc")
 	tail -n 24 "$watch_history_gen" | xan view -MRn --color=always --theme="striped" | sed '/^$/d'
@@ -60,13 +60,18 @@ ep="$(eza --no-quotes -1fX --show-symlinks | sed '/^$/d' | sort | grep -E 'mkv$|
     exit
 }
 [[ -e "$HOME/Excluding/youtube/.${ep%mp4}json" ]] && {
-    echo -n 'Uploaded '
-    date -Idate -d "$(jq -r '.upload_date' "$HOME/Excluding/youtube/.${ep%mp4}json")"
-    echo -n 'Downloaded '
+    echolor white 'Title:  \t' 1
+    jq -r '.title' "$HOME/Excluding/youtube/.${ep%mp4}json" | sed 1q
+    echolor white 'Channel:\t' 1
+    jq -r '.channel' "$HOME/Excluding/youtube/.${ep%mp4}json" | sed 1q
+    echolor white 'Uploaded:\t' 1
+    date -Idate -d "$(jq -r '.upload_date' "$HOME/Excluding/youtube/.${ep%mp4}json" | sed 1q)"
+    echolor white 'Downloaded:\t' 1
     date -Idate -d "$(stat -c '%w' "$ep")"
+    echo '------------------------------------------------------'
 }
 [[ -e "$HOME/Excluding/youtube/.${ep%mp4}json" ]] && jq -r '.description' "$HOME/Excluding/youtube/.${ep%mp4}json" | bat -pp 
-mpv --osd-fractions --volume=100 --volume-max=200 --alang=eng --slang=eng "$ep" || exit
+mpv --msg-level=all=error --osd-fractions --volume=100 --volume-max=200 --alang=eng --slang=eng "$ep" || exit
 choose_done="$(echo -e 'Mark as done\nDo nothing\nAbandon file\nDone and star' | fzf --no-input)"
 ext_alone="$(echo "$ep" | awk -F '.' '{print $NF}')"
 allrelatedfiles="$(echo "$ep" | sed "s/\.$ext_alone//;s/,/‚/g")"
@@ -78,7 +83,7 @@ case "$choose_done" in
 	then
 	    {
 		echo -ne "$addstar$allrelatedfiles,"
-		echo -ne "$(jq '.channel' "$HOME/Excluding/youtube/.$allrelatedfiles".json),"
+		echo -ne "$(jq '.channel' "$HOME/Excluding/youtube/.$allrelatedfiles".json | sed 1q),"
 		echo  -e "$(date -Isec)"
 	    } >> "$watch_history_yt"
 	    move-to-trash-recursively "$allrelatedfiles"* "$HOME/Excluding/youtube/.$allrelatedfiles".json

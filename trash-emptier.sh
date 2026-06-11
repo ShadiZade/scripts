@@ -1,13 +1,14 @@
 #!/bin/bash
 source ~/Repositories/scripts/essential-functions
 
+echolor yellow ":: Starting..."
 trash_dir="$HOME/.local/share/Trash/files"
 trash_manifest="$HOME/.local/share/Trash/deletetimes"
 log_dir="$HOME/.local/logs/trash"
 current_time="$(date-string)"
 trash_size="$(du -sh "$trash_dir" 2>/dev/null | awk '{print $1}')"
 emptying_log="$log_dir"/emptying/emptying-"$current_time.log"
-mem_before="$(df -h | grep ' /$' | awk '{print $3" used, "$5" occupied"}')"
+mem_before="$(df -h --sync | grep ' /$' | awk '{print $3" used, "$5" occupied"}')"
 
 function manifest-log {
     [[ -d "$log_dir" ]] || {

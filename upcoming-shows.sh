@@ -33,7 +33,7 @@ function get-series {
 function get-movie {
     echolor white-blue "““Film:”” $1 ““∎∎”” " 1
     curlo="$(curl -s "https://www.allmovie.com/movie/$2")"
-    releasedate="$(echo "$curlo" | grep 'Release Date' | hq span text | xargs -I DATE date -d DATE +"%d %B %Y")"
+    releasedate="$(echo "$curlo" | grep 'Release Date' | htmlq -t span | xargs -I DATE date -d DATE +"%d %B %Y")"
     beside=''
     under=''
     [[ -z "$releasedate" ]] && {

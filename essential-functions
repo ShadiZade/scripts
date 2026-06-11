@@ -298,6 +298,10 @@ function sane {
 }
 
 function wifi-connected-p {
+    case "$(nmcli device status | grep "^wlp3s0" | awk '{print $3}')" in
+	"connected") return 0 ;;
+		  *) : ;;
+    esac	     
     case "$(nmcli device status | grep "^wlan0" | awk '{print $3}')" in
 	"connected") return 0 ;;
 		  *) return 1 ;;

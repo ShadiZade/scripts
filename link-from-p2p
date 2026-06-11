@@ -17,15 +17,19 @@ function link-from-finished {
 	}
 	local new_name="$(basename "$j" | remove-spaces)"
 	grep -q "_English.srt" <<< "$new_name" && {
-	    local new_name="$(dirname "$j" | awk -F '/' '{print $NF}').en.srt"
+	    grep -q '/Subs$' <<< "$(dirname "$j")" && {
+		local new_name="$(dirname "$(dirname "$j")" | awk -F '/' '{print $NF}').en.srt"
+	    } || {
+		local new_name="$(dirname "$j" | awk -F '/' '{print $NF}').en.srt"
+	    }
 	}
-	ln -s "$j" ./"$new_name" && echolor green ":: Linked ““$(basename "$j")”” here."
+	ln -s "$j" ./"$new_name" && echolor green ":: Linked ““$new_name”” here."
     done
 }
 
 function link-from-unfinished {
     IFS=$'\n'
-    for j in $(fd -at f . "$p2p_dir"/.unfinished | ifne fzf --wrap --multi)
+    for j in $(fd -at f -E seed -E docs . "$p2p_dir"/.unfinished | ifne fzf --wrap --multi)
     do
 	[[ ! -e "$j" ]] && {
 	    echolor red ":: File ““$(basename "$j")”” does not exist."
@@ -33,9 +37,13 @@ function link-from-unfinished {
 	}
 	local new_name="$(basename "$j" | remove-spaces)"
 	grep -q "_English.srt" <<< "$new_name" && {
-	    local new_name="$(dirname "$j" | awk -F '/' '{print $NF}').en.srt"
+	    grep -q '/Subs$' <<< "$(dirname "$j")" && {
+		local new_name="$(dirname "$(dirname "$j")" | awk -F '/' '{print $NF}').en.srt"
+	    } || {
+		local new_name="$(dirname "$j" | awk -F '/' '{print $NF}').en.srt"
+	    }
 	}
-	ln -s "${j/.unfinished\//}" ./"$new_name" && echolor green ":: Linked ““$(basename "$j")”” here."
+	ln -s "${j/.unfinished\//}" ./"$new_name" && echolor green ":: Linked ““$new_name”” here."
     done
 }
 
