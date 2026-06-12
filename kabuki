@@ -6,6 +6,10 @@ watch_history_docs="$HOME/Misc/Backups/video/watch-history-docs.csv"
 watch_history_tv="$HOME/Misc/Backups/video/watch-history-tv.csv"
 watch_history_film="$HOME/Misc/Backups/video/watch-history-film.csv"
 
+function channel-rankings {
+    xan select 1 "$watch_history_yt" | sed 's/^"//;s/"$//' | sort | uniq -c | sort -bV | tac | nl
+}
+
 case "$1" in
     "yt"|"youtube")
 	tail -n 24 "$watch_history_yt" | xan view -MRn --cols 0.96 --color=always --theme="striped" | sed '/^$/d'
@@ -19,7 +23,7 @@ case "$1" in
     "doc"|"docs"|"documentaries"|"documentary")
 	tail -n 24 "$watch_history_docs" | xan view -MRn --color=always --theme="striped" | sed '/^$/d'
 	;;
-    "film"|"films"|"movies"|"movie")
+    "film"|"films"|"movies"|"movie"|"mov")
 	tail -n 24 "$watch_history_film" | xan view -MRn --color=always --theme="striped" | sed '/^$/d'
 	;;
     "hist"|"history"|"all")
@@ -45,6 +49,9 @@ case "$1" in
 	    | xan view -MRn --color=always --theme="striped"
 	echo '🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟'
 	;;
+    "rank"|"channel"|"channels")
+	echo -e "rank|views|channel\n$(channel-rankings)" | sed 's/\t/ /g;s/  */ /g;s/^ *//g;s/|/ /g;s/ /|/;s/ /|/' | xan view -d '|' -MRnIpA
+	;;
     *)
 	:
 	;;
@@ -68,12 +75,15 @@ ep="$(eza --no-quotes -1fX --show-symlinks | sed '/^$/d' | sort | grep -E 'mkv$|
     date -Idate -d "$(jq -r '.upload_date' "$HOME/Excluding/youtube/.${ep%mp4}json" | sed 1q)"
     echolor white 'Downloaded:\t' 1
     date -Idate -d "$(stat -c '%w' "$ep")"
-    echolor white 'Watch:  \t' 1
+    echolor white 'Video watch:\t' 1
     watch_instance="$(rg "$(echo "$ep" | between '[' ']')" "$watch_history_yt" | wc -l)"
     echo "$((watch_instance + 1))"
+    echolor white 'Channel rank:\t' 1
+    echo -n "#$(channel-rankings | rg -w "$(jq -r '.channel' "$HOME/Excluding/youtube/.${ep%mp4}json" | sed 1q)" | awk '{print $1}') ("
+    echo "$(channel-rankings | rg -w "$(jq -r '.channel' "$HOME/Excluding/youtube/.${ep%mp4}json" | sed 1q)" | awk '{print $2}') watches)"
     echo '------------------------------------------------------'
 }
-[[ -e "$HOME/Excluding/youtube/.${ep%mp4}json" ]] && jq -r '.description' "$HOME/Excluding/youtube/.${ep%mp4}json" | bat -pp 
+[[ -e "$HOME/Excluding/youtube/.${ep%mp4}json" ]] && jq -r '.description' "$HOME/Excluding/youtube/.${ep%mp4}json" | fold -sw 130
 mpv --msg-level=all=error --osd-fractions --volume=100 --volume-max=200 --alang=eng --slang=eng "$ep" || exit
 choose_done="$(echo -e 'Mark as done\nDo nothing\nAbandon file\nDone and star' | fzf --no-input)"
 ext_alone="$(echo "$ep" | awk -F '.' '{print $NF}')"
