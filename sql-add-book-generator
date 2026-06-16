@@ -1,0 +1,100 @@
+#!/bin/bash
+source ~/Repositories/scripts/essential-functions
+[[ ! -e "$1" ]] && exit
+
+tmp="/tmp/sql-add-book-generator-$(random-string 10)"
+
+echo -n 'INSERT INTO csv2 (id, title, subtitle, author, suite, suite_no, genre, series, series_no, volume, edition, first_pub, year, publisher, country, language, trans_p, orig_lang, transor, filename, add_time) VALUES( ' >> "$tmp"
+
+id="$(random-string 8)"
+[[ "$(sqlite3 ~/Athenaeum/sql/database/athenaeum.db <<< ".mode csv" <<< "select * from csv2 where id = '$id'" | wc -l)" != "0" ]] && {
+    echolor red ":: ID ““$id”” already exists."
+    exit
+}
+echo -n "'$id' , " >> "$tmp"
+
+read -rp 'title: ' title
+echo -n "'$title' , "  >> "$tmp"
+
+read -rp 'subtitle: ' subtitle
+echo -n "'$subtitle' , "  >> "$tmp"
+
+read -rp 'author: ' author
+echo -n "'$author' , "  >> "$tmp"
+
+read -rp 'suite: ' suite
+echo -n "'$suite' , "  >> "$tmp"
+
+read -rp 'suite_no: ' suite_no
+echo -n "'$suite_no' , "  >> "$tmp"
+
+read -rp 'genre: ' genre
+echo -n "'$genre' , "  >> "$tmp"
+
+read -rp 'series: ' series
+echo -n "'$series' , "  >> "$tmp"
+
+read -rp 'series_no: ' series_no
+echo -n "'$series_no' , "  >> "$tmp"
+
+read -rp 'volume: ' volume
+echo -n "'$volume' , "  >> "$tmp"
+
+read -rp 'edition: ' edition
+echo -n "'$edition' , "  >> "$tmp"
+
+read -rp 'first_pub: ' first_pub
+echo -n "'$first_pub' , "  >> "$tmp"
+
+read -rp 'year: ' year
+echo -n "'$year' , "  >> "$tmp"
+
+read -rp 'publisher: ' publisher
+echo -n "'$publisher' , "  >> "$tmp"
+
+read -rp 'country: ' country
+echo -n "'$country' , "  >> "$tmp"
+
+read -rp 'language: ' language
+echo -n "'$language' , "  >> "$tmp"
+
+read -rp 'trans_p (0 for no, 1 for yes): ' trans_p
+echo -n "'$trans_p' , "  >> "$tmp"
+
+read -rp 'orig_lang: ' orig_lang
+echo -n "'$orig_lang' , "  >> "$tmp"
+
+read -rp 'transor: ' transor
+echo -n "'$transor' , "  >> "$tmp"
+
+echo -n "'$1' , "  >> "$tmp"
+echo -n "'$(date -uIsec)' );"  >> "$tmp"
+mv "$1" ~/Athenaeum/
+sed -i "s/ '' / NULL /g" "$tmp"
+echolor white '--------------------------'
+cat "$tmp"
+echo
+cat "$tmp" | xclip -selection clipboard
+
+# id text primary key not null,
+#  title text not null,
+#  subtitle text,
+#  author text,
+#  suite text,
+#  suite_no float,
+#  genre text,
+#  series text,
+#  series_no float,
+#  volume float,
+#  edition float,
+#  first_pub integer,
+#  year integer,
+#  publisher text,
+#  country text,
+#  language text,
+#  trans_p integer,
+#  orig_lang text,
+#  transor text,
+#  filename text,
+#  add_time text);
+

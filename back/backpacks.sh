@@ -42,7 +42,7 @@ echolor ←yellow ":: Backing media history..."
 rsync -qaru ~/.config/qBittorrent/categories.json ~/Misc/Backups/video/qbittorrent/
 rsync -qaru ~/.config/qBittorrent/qBittorrent.conf ~/Misc/Backups/video/qbittorrent
 eza --tree -a ~/P2P > ~/Misc/Backups/video/qbittorrent/tree-torrent.txt
-eza --tree -a ~/Aquire/ > ~/Misc/Backups/tree-aquire.txt
+eza --tree -a ~/Aquire/ > ~/Misc/Backups/video/tree-aquire.txt
 eza -1 ~/Films > ~/Misc/Backups/video/movies.txt
 eza -1 ~/TV > ~/Misc/Backups/video/tv.txt
 eza --tree ~/Films > ~/Misc/Backups/video/tree-film.txt

@@ -12,7 +12,7 @@ function channel-rankings {
 
 case "$1" in
     "yt"|"youtube")
-	tail -n 24 "$watch_history_yt" | xan view -MRn --cols 0.96 --color=always --theme="striped" | sed '/^$/d'
+	tail -n 24 "$watch_history_yt" | xan view -MRn --cols 0.9 --color=always --theme="striped" | sed '/^$/d'
 	;;
     "gen"|"general"|"misc")
 	tail -n 24 "$watch_history_gen" | xan view -MRn --color=always --theme="striped" | sed '/^$/d'
@@ -76,14 +76,17 @@ ep="$(eza --no-quotes -1fX --show-symlinks | sed '/^$/d' | sort | grep -E 'mkv$|
     echolor white 'Downloaded:\t' 1
     date -Idate -d "$(stat -c '%w' "$ep")"
     echolor white 'Video watch:\t' 1
-    watch_instance="$(rg "$(echo "$ep" | between '[' ']')" "$watch_history_yt" | wc -l)"
+    watch_instance="$(rg -- "$(echo "$ep" | between '[' ']')" "$watch_history_yt" | wc -l)"
     echo "$((watch_instance + 1))"
     echolor white 'Channel rank:\t' 1
     echo -n "#$(channel-rankings | rg -w "$(jq -r '.channel' "$HOME/Excluding/youtube/.${ep%mp4}json" | sed 1q)" | awk '{print $1}') ("
     echo "$(channel-rankings | rg -w "$(jq -r '.channel' "$HOME/Excluding/youtube/.${ep%mp4}json" | sed 1q)" | awk '{print $2}') watches)"
-    echo '------------------------------------------------------'
+    echolor white '------------------------------------------------------'
 }
-[[ -e "$HOME/Excluding/youtube/.${ep%mp4}json" ]] && jq -r '.description' "$HOME/Excluding/youtube/.${ep%mp4}json" | fold -sw 130
+[[ -e "$HOME/Excluding/youtube/.${ep%mp4}json" ]] && {
+    jq -r '.description' "$HOME/Excluding/youtube/.${ep%mp4}json" | fold -sw 130
+    echolor white '------------------------------------------------------'
+}
 mpv --msg-level=all=error --osd-fractions --volume=100 --volume-max=200 --alang=eng --slang=eng "$ep" || exit
 choose_done="$(echo -e 'Mark as done\nDo nothing\nAbandon file\nDone and star' | fzf --no-input)"
 ext_alone="$(echo "$ep" | awk -F '.' '{print $NF}')"
