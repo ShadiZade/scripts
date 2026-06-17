@@ -3,6 +3,7 @@ source ~/Repositories/scripts/essential-functions
 function download-video {    
     function eat-poison {
 	[[ -e '/tmp/ThyPipe-poison' ]] && {
+	    dunstctl close-all
 	    notify-send -u critical -t 4000 "ThyPipe" "AAAAARGH!\n$1 choked on poison!"
 	    echo "AAAAAAAAAAAAAAAAAAAAAAAAARGH!!!!!!!!!!!!!!!!!!!!!! POISON!!!!!!!!!!!!!!!!!" >> "$dlfile"
 	    mv "$dlfile" "/tmp/ThyPipe-failed-[$id]"
@@ -91,16 +92,19 @@ function download-video {
 	    id="$(awk -F 'com/' '{print $NF}' <<< "$1" | awk -F '?' '{print $1}')"
 	    ;;
 	*)
+	    dunstctl close-all
 	    notify-send -u critical -t 4000 "ThyPipe" "Unknown website"
 	    exit 1
 	    ;;
     esac
     dlfile="/tmp/ThyPipe-downloading-[$id]"
     [[ -e '/tmp/ThyPipe-poison' ]] && {
+	dunstctl close-all
 	notify-send -u critical -t 4000 "ThyPipe" "Can't start because of poison"
 	exit 1
     }
     [[ -e "$dlfile" ]] && {
+	dunstctl close-all
 	notify-send -u critical -t 4000 "ThyPipe" "Video $1 already downloading"
 	exit 1
     }
@@ -114,10 +118,17 @@ function download-video {
     notify-send -u low -t 1000 "ThyPipe" "Extracting $1"
     tmp="/tmp/ThyPipe-$(date-string)-$(random-string 12)-[$id].json"
     echo "Starting JSON extraction, any errors will show up below:" >> "$dlfile"
-    yt-dlp -j --socket-timeout 10 -R 2 "$1"                  \
+    timeout 1m yt-dlp -j -R 2 "$1"                  \
 	   --use-postprocessor DeArrow:when=pre_process      \
 	   "$website$id"                                     \
 	   2>> "$dlfile" 1> "$tmp" || {
+	grep -q 'Premieres' "$dlfile" && {
+	    dunstctl close-all
+	    notify-send -u critical -t 4000 "ThyPipe" "Video $1\n$(grep -m 1 Premieres "$dlfile" | awk -F ': ' '{print $NF}')"
+	    mv "$dlfile" "/tmp/ThyPipe-failed-[$id]"
+	    exit 1
+	}
+	dunstctl close-all
 	notify-send -u critical -t 4000 "ThyPipe" "Video $1 failed to extract"
 	mv "$dlfile" "/tmp/ThyPipe-failed-[$id]"
 	exit 1
@@ -130,6 +141,7 @@ function download-video {
 	title="$(kebab "$title_raw" | cut -c 1-90)"
     }
     [[ -z "$title" || -z "$id" ]] && {
+	dunstctl close-all
 	notify-send -u critical -t 4000 "ThyPipe" "Information missing for Video\n$1"
 	echo "ERROR: Info empty, as such:"
 	echo -ne "title_raw: $title_raw\ntitle: $title\nid: $id\nfilesize: " >> "$dlfile"
@@ -149,6 +161,7 @@ function download-video {
 	--no-playlist -o "$title-[$id].%(ext)s" -P "/tmp/"                                \
 	--socket-timeout 10 -R 2                                                          \
 	"$website$id" 2>> "$dlfile" 1> "$dlfile-progress" || {
+	dunstctl close-all
 	notify-send -u critical -t 4000 "ThyPipe" "Errors detected while downloading video \"$title\""
 	rm "$dlfile-progress"
 	mv "$dlfile" "/tmp/ThyPipe-failed-[$id]"
@@ -156,6 +169,7 @@ function download-video {
     }
     rm "$dlfile-progress"
     [[ ! -e "/tmp/$title-[$id].mp4" ]] && {
+	dunstctl close-all
 	notify-send -u critical -t 4000 "ThyPipe" "Did not find video $1 after download!"
 	echo "ERROR: Video file missing after download!" >> "$dlfile"
 	mv "$dlfile" "/tmp/ThyPipe-failed-[$id]"
@@ -164,7 +178,8 @@ function download-video {
     eat-poison
     hezicle=$(hezifier)
     [[ -z "$hezicle" ]] && hezicle="main"
-    mv /tmp/"$title"*']'.mp4 "$thypipe_dir/$hezicle" 2>> "$dlfile" || {
+    mv -n /tmp/"$title"*']'.mp4 "$thypipe_dir/$hezicle" 2>> "$dlfile" || {
+	dunstctl close-all
 	notify-send -u critical -t 4000 "ThyPipe" "Failed to move \"$1\""
 	mv "$dlfile" "/tmp/ThyPipe-failed-[$id]"
 	exit 1
