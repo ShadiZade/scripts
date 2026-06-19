@@ -2,12 +2,15 @@
 source ~/Repositories/scripts/essential-functions
 [[ ! -e "$1" ]] && exit
 
+( sioyek "$1" >/dev/null 2>/dev/null ) &
 tmp="/tmp/sql-add-book-generator-$(random-string 10)"
+sqldb="$HOME/Athenaeum/sql/database/athenaeum.db"
+csvdb="$HOME/.local/share/user-scripts/athenaeum-index.csv"
 
 echo -n 'INSERT INTO csv2 (id, title, subtitle, author, suite, suite_no, genre, series, series_no, volume, edition, first_pub, year, publisher, country, language, trans_p, orig_lang, transor, filename, add_time) VALUES( ' >> "$tmp"
 
 id="$(random-string 8)"
-[[ "$(sqlite3 ~/Athenaeum/sql/database/athenaeum.db <<< ".mode csv" <<< "select * from csv2 where id = '$id'" | wc -l)" != "0" ]] && {
+[[ "$(sqlite3 "$sqldb" <<< ".mode csv" <<< "select * from csv2 where id = '$id'" | wc -l)" != "0" ]] && {
     echolor red ":: ID ““$id”” already exists."
     exit
 }
@@ -69,12 +72,22 @@ echo -n "'$transor' , "  >> "$tmp"
 
 echo -n "'$1' , "  >> "$tmp"
 echo -n "'$(date -uIsec)' );"  >> "$tmp"
-mv "$1" ~/Athenaeum/
+echolor white '--------------------------'
+mv -v "$1" ~/Athenaeum/
 sed -i "s/ '' / NULL /g" "$tmp"
 echolor white '--------------------------'
 cat "$tmp"
 echo
-cat "$tmp" | xclip -selection clipboard
+echolor white '--------------------------'
+sqlite3 "$sqldb" "$(cat "$tmp")"
+sqlite3 "$sqldb" ".mode line" "SELECT * FROM csv2 WHERE id = '$id' "
+
+csv-book () {
+    sqlite3 "$sqldb" '.mode csv' "SELECT * FROM csv2 WHERE id='$1'" \
+	| xan select 6,1,2,3,7,9,10,11,12,13,14,15,16,17,18,19,0,20 
+}
+
+csv-book "$id" >> "$csvdb"
 
 # id text primary key not null,
 #  title text not null,

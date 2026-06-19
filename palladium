@@ -632,8 +632,8 @@ case "$1" in
     "") open-book ;;
     "by") search-by ;;
     "link") symlinker "$2" ;;
-    "add") echolor red ":: MORATORIUM ON ADDING BOOKS!"
-	   exit 1
+    "add") "$HOME"/Repositories/scripts/sql-add-book-generator "$2"
+	   exit
 	   add-entry "$2" ;;
     "again") repeat_last_entry_p=y add-entry "$2";;
     "stats") show-stats all ;;
