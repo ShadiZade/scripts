@@ -83,7 +83,7 @@ case "$1" in
 	;;
     "rank"|"channel"|"channels")
 #	channel-watchtimes | xan view -MRIpA
-	xan cat columns <(channel-views | xan select views,channel) <(channel-watchtimes | xan select channel,duration) | xan view -MRIpAr 2,3
+	xan cat columns <(channel-views | xan select views,channel) <(channel-watchtimes) | xan view -MRIpAr 1
 	;;
     *)
 	:
