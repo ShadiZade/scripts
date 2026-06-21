@@ -1,31 +1,25 @@
 #!/bin/bash
 source ~/Repositories/scripts/essential-functions
 watch_history_yt="$HOME/Misc/Backups/video/watch-history-youtube.csv"
-watch_history_gen="$HOME/Misc/Backups/video/watch-history-general.csv"
 watch_history_docs="$HOME/Misc/Backups/video/watch-history-docs.csv"
 watch_history_tv="$HOME/Misc/Backups/video/watch-history-tv.csv"
 watch_history_film="$HOME/Misc/Backups/video/watch-history-film.csv"
 
-[[ ! -e "$watch_history_yt" ]] && {
-    echolor yellow ":: ““$watch_history_yt”” created"
-    echo "title,channel,duration,time" > "$watch_history_yt"
-} 
-[[ ! -e "$watch_history_gen" ]] && {
-    echolor yellow ":: ““$watch_history_gen”” created"
-    echo "title,time" > "$watch_history_gen"
-} 
-[[ ! -e "$watch_history_docs" ]] && {
-    echolor yellow ":: ““$watch_history_docs”” created"
-    echo "title,time" > "$watch_history_docs"
-} 
-[[ ! -e "$watch_history_tv" ]] && {
-    echolor yellow ":: ““$watch_history_tv”” created"
-    echo "show,episode,time" > "$watch_history_tv"
-} 
-[[ ! -e "$watch_history_film" ]] && {
-    echolor yellow ":: ““$watch_history_film”” created"
-    echo "title,time" > "$watch_history_film"
-} 
+function check-watchfile {
+    [[ -z "$2" ]] && {
+	echolor red ":: function check-watchfile returned an error!"
+	exit 1
+    }
+    [[ ! -e "$1" ]] && {
+	echolor yellow ":: ““$1”” created"
+	echo "$2" > "$1"
+    } 
+}
+
+check-watchfile "$watch_history_yt" "title,channel,duration,time"
+check-watchfile "$watch_history_docs" "title,time"
+check-watchfile "$watch_history_film" "title,time"
+check-watchfile "$watch_history_tv" "show,episode,time"
 
 function channel-views {
     xan select channel,duration "$watch_history_yt"        \
@@ -44,31 +38,26 @@ function channel-watchtimes {
 
 case "$1" in
     "yt"|"youtube")
-	xan view -s title,channel,time -HMR --cols 0.9 --color=always --theme="striped" -l 23 "$watch_history_yt" | sed '/^$/d'
-	;;
-    "gen"|"general"|"misc")
-        xan view -HMR --color=always --theme="striped" -l 23 "$watch_history_gen" | sed '/^$/d'
+	xan tail -l 24 "$watch_history_yt" | xan view -s title,channel,time -HMR --cols 0.9 --color=always --theme="striped" | sed '/^$/d'
 	;;
     "tv"|"show"|"shows")
-	xan view -HMR --cols 0.99 --color=always --theme="striped" -l 23 "$watch_history_tv" | sed '/^$/d'
+	xan tail -l 24 "$watch_history_tv" | xan view -HMR --cols 0.99 --color=always --theme="striped" | sed '/^$/d'
 	;;
     "doc"|"docs"|"documentaries"|"documentary")
-	xan view -HMR --color=always --theme="striped" -l 23 "$watch_history_docs" | sed '/^$/d'
+	xan tail -l 24 "$watch_history_docs" | xan view -HMR --color=always --theme="striped" | sed '/^$/d'
 	;;
     "film"|"films"|"movies"|"movie"|"mov")
-	xan view -HMR --color=always --theme="striped" -l 23 "$watch_history_film" | sed '/^$/d'
+	xan tail -l 24 "$watch_history_film" | xan view -HMR --color=always --theme="striped" | sed '/^$/d'
 	;;
     "hist"|"history"|"all")
 	echo -n "YouTube ($(xan count "$watch_history_yt"))"
-	xan select title,channel,time "$watch_history_yt" | xan behead | tail -n 3 | ifne xan view -nMR --color=always --theme="striped" | sed '/^$/d' 
+	xan tail -l 4 "$watch_history_yt" | ifne xan view -s title,channel,time --cols 0.99 -HMR --color=always --theme="striped" | sed '/^$/d' 
 	echo -n "TV ($(xan count "$watch_history_tv"))"
-	xan behead "$watch_history_tv" | tail -n 3 | ifne xan view -nMR --color=always --theme="striped" | sed '/^$/d'	    
+	xan tail -l 4 "$watch_history_tv" | ifne xan view --cols 0.99 -HMR --color=always --theme="striped" | sed '/^$/d'	    
 	echo -n "Documentaries ($(xan count "$watch_history_docs"))"
-	xan behead "$watch_history_docs" | tail -n 3 | ifne xan view -nMR --color=always --theme="striped" | sed '/^$/d'	    
+	xan tail -l 4 "$watch_history_docs" | ifne xan view -HMR --cols 0.99 --color=always --theme="striped" | sed '/^$/d'	    
 	echo -n "Films ($(xan count "$watch_history_film"))"
-	xan behead "$watch_history_film" | tail -n 3 | ifne xan view -nMR --color=always --theme="striped" | sed '/^$/d'	    
-	echo -n "General ($(xan count "$watch_history_gen"))"
-	xan behead "$watch_history_gen" | tail -n 3 | ifne xan view -nMR --color=always --theme="striped" | sed '/^$/d'	    
+	xan tail -l 4 "$watch_history_film" | ifne xan view -HMR --cols 0.99 --color=always --theme="striped" | sed '/^$/d'	    
 	;;
     "fav"|"star"|"stars"|"starred")
 	echo '🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟'
@@ -82,8 +71,10 @@ case "$1" in
 	echo '🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟'
 	;;
     "rank"|"channel"|"channels")
-#	channel-watchtimes | xan view -MRIpA
-	xan cat columns <(channel-views | xan select views,channel) <(channel-watchtimes) | xan view -MRIpAr 1
+	xan cat columns                                 \
+	    <(channel-views | xan select views,channel) \
+	    <(channel-watchtimes)                       \
+	    | xan view -MRIpAr 1
 	;;
     *)
 	:
@@ -91,14 +82,9 @@ case "$1" in
 esac
 	
 
-vid_exts=
 [[ -z "$1" ]] || exit
-
 ep="$(eza --no-quotes -1fX --show-symlinks | sed '/^$/d' | sort | grep -E 'mkv$|avi$|mp4$|ts$|mov$|webm$|m4v$' | ifne fzf)"
-[[ -z "$ep" ]] && {
-    echolor yellow ":: No file selected."
-    exit
-}
+[[ -z "$ep" ]] && exit
 [[ -e "$HOME/Excluding/youtube/.${ep%mp4}json" ]] && {
     echolor white 'Title:  \t' 1
     jq -r '.title' "$HOME/Excluding/youtube/.${ep%mp4}json" | sed 1q
@@ -170,12 +156,8 @@ case "$choose_done" in
 	    move-to-trash-recursively "$allrelatedfiles"*
 	    echolor green ":: Logged into the film record"
 	else
-	    {
-		echo -ne "$allrelatedfiles,"
-		echo -e "$(date -Isec)"
-	    } >> "$watch_history_gen"
-	    move-to-trash-recursively "$allrelatedfiles"*
-	    echolor green ":: Logged into the general record"
+	    echolor red ":: File is outside supported directories."
+	    exit 1
 	fi
 	;;
     "Abandon file")
@@ -196,8 +178,8 @@ case "$choose_done" in
 	    move-to-trash-recursively "$allrelatedfiles"*
 	    echolor yellow ":: The film ““$allrelatedfiles””\n:: has been abandoned"
 	else
-	    move-to-trash-recursively "$allrelatedfiles"*
-	    echolor yellow ":: The file ““$allrelatedfiles””\n:: has been abandoned"
+	    echolor red ":: File is outside supported directories."
+	    exit 1
 	fi
 	;;
     "Do nothing")
