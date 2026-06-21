@@ -6,51 +6,84 @@ watch_history_docs="$HOME/Misc/Backups/video/watch-history-docs.csv"
 watch_history_tv="$HOME/Misc/Backups/video/watch-history-tv.csv"
 watch_history_film="$HOME/Misc/Backups/video/watch-history-film.csv"
 
-function channel-rankings {
-    xan select 1 "$watch_history_yt" | sed 's/^"//;s/"$//' | sort | uniq -c | sort -bV | tac | nl
+[[ ! -e "$watch_history_yt" ]] && {
+    echolor yellow ":: ““$watch_history_yt”” created"
+    echo "title,channel,duration,time" > "$watch_history_yt"
+} 
+[[ ! -e "$watch_history_gen" ]] && {
+    echolor yellow ":: ““$watch_history_gen”” created"
+    echo "title,time" > "$watch_history_gen"
+} 
+[[ ! -e "$watch_history_docs" ]] && {
+    echolor yellow ":: ““$watch_history_docs”” created"
+    echo "title,time" > "$watch_history_docs"
+} 
+[[ ! -e "$watch_history_tv" ]] && {
+    echolor yellow ":: ““$watch_history_tv”” created"
+    echo "show,episode,time" > "$watch_history_tv"
+} 
+[[ ! -e "$watch_history_film" ]] && {
+    echolor yellow ":: ““$watch_history_film”” created"
+    echo "title,time" > "$watch_history_film"
+} 
+
+function channel-views {
+    xan select channel,duration "$watch_history_yt"        \
+	| xan groupby channel 'count(channel) as views'    \
+	| xan sort -NR -s views                            \
+	| xan enum -S 1 -c rank
+}
+
+function channel-watchtimes {
+    xan select channel,duration "$watch_history_yt"           \
+	| xan groupby channel 'sum(duration) as duration'     \
+	| xan sort -NR -s duration                            \
+	| xan transform duration 'idiv(duration, 60)'         \
+	| xan enum -S 1 -c rank
 }
 
 case "$1" in
     "yt"|"youtube")
-	tail -n 24 "$watch_history_yt" | xan view -MRn --cols 0.9 --color=always --theme="striped" | sed '/^$/d'
+	xan view -s title,channel,time -HMR --cols 0.9 --color=always --theme="striped" -l 23 "$watch_history_yt" | sed '/^$/d'
 	;;
     "gen"|"general"|"misc")
-	tail -n 24 "$watch_history_gen" | xan view -MRn --color=always --theme="striped" | sed '/^$/d'
+        xan view -HMR --color=always --theme="striped" -l 23 "$watch_history_gen" | sed '/^$/d'
 	;;
     "tv"|"show"|"shows")
-	tail -n 24 "$watch_history_tv" | xan view -MRn --cols 0.99 --color=always --theme="striped" | sed '/^$/d'
+	xan view -HMR --cols 0.99 --color=always --theme="striped" -l 23 "$watch_history_tv" | sed '/^$/d'
 	;;
     "doc"|"docs"|"documentaries"|"documentary")
-	tail -n 24 "$watch_history_docs" | xan view -MRn --color=always --theme="striped" | sed '/^$/d'
+	xan view -HMR --color=always --theme="striped" -l 23 "$watch_history_docs" | sed '/^$/d'
 	;;
     "film"|"films"|"movies"|"movie"|"mov")
-	tail -n 24 "$watch_history_film" | xan view -MRn --color=always --theme="striped" | sed '/^$/d'
+	xan view -HMR --color=always --theme="striped" -l 23 "$watch_history_film" | sed '/^$/d'
 	;;
     "hist"|"history"|"all")
-	echo -n "YouTube ($(wc -l "$watch_history_yt" | awk '{print $1}'))"
-	tail -n 3 "$watch_history_yt"  | ifne xan view -MRn --color=always --theme="striped" | sed '/^$/d' 
-	echo -n "TV ($(wc -l "$watch_history_tv" | awk '{print $1}'))"
-	tail -n 3 "$watch_history_tv" | ifne xan view -MRn --color=always --theme="striped" | sed '/^$/d'	    
-	echo -n "Documentaries ($(wc -l "$watch_history_docs" | awk '{print $1}'))"
-	tail -n 3 "$watch_history_docs" | ifne xan view -MRn --color=always --theme="striped" | sed '/^$/d'	    
-	echo -n "Films ($(wc -l "$watch_history_film" | awk '{print $1}'))"
-	tail -n 3 "$watch_history_film" | ifne xan view -MRn --color=always --theme="striped" | sed '/^$/d'	    
-	echo -n "General ($(wc -l "$watch_history_gen" | awk '{print $1}'))"
-	tail -n 3 "$watch_history_gen" | ifne xan view -MRn --color=always --theme="striped" | sed '/^$/d'	    
+	echo -n "YouTube ($(xan count "$watch_history_yt"))"
+	xan select title,channel,time "$watch_history_yt" | xan behead | tail -n 3 | ifne xan view -nMR --color=always --theme="striped" | sed '/^$/d' 
+	echo -n "TV ($(xan count "$watch_history_tv"))"
+	xan behead "$watch_history_tv" | tail -n 3 | ifne xan view -nMR --color=always --theme="striped" | sed '/^$/d'	    
+	echo -n "Documentaries ($(xan count "$watch_history_docs"))"
+	xan behead "$watch_history_docs" | tail -n 3 | ifne xan view -nMR --color=always --theme="striped" | sed '/^$/d'	    
+	echo -n "Films ($(xan count "$watch_history_film"))"
+	xan behead "$watch_history_film" | tail -n 3 | ifne xan view -nMR --color=always --theme="striped" | sed '/^$/d'	    
+	echo -n "General ($(xan count "$watch_history_gen"))"
+	xan behead "$watch_history_gen" | tail -n 3 | ifne xan view -nMR --color=always --theme="striped" | sed '/^$/d'	    
 	;;
     "fav"|"star"|"stars"|"starred")
 	echo '🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟'
-	rg -N '🌟' "$watch_history_yt" |                       \
-	    xan select -n 0,1                                   \
+	xan select title,channel "$watch_history_yt"             \
+	    | rg -N '🌟'                                        \
 	    | sed 's/🌟//g'                                     \
 	    | sort                                              \
 	    | uniq                                              \
 	    | cut -c 18-                                        \
-	    | xan view -MRn --color=always --theme="striped"
+	    | xan view -nMR --color=always --theme="striped"
 	echo '🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟'
 	;;
     "rank"|"channel"|"channels")
-	echo -e "rank|views|channel\n$(channel-rankings)" | sed 's/\t/ /g;s/  */ /g;s/^ *//g;s/|/ /g;s/ /|/;s/ /|/' | xan view -d '|' -MRnIpA
+#	channel-watchtimes | xan view -MRIpA
+	xan cat columns <(channel-views | xan select views,channel) <(channel-watchtimes | xan select channel,duration) | xan view -MRIpAr 2,3
 	;;
     *)
 	:
@@ -75,12 +108,18 @@ ep="$(eza --no-quotes -1fX --show-symlinks | sed '/^$/d' | sort | grep -E 'mkv$|
     date -Idate -d "$(jq -r '.upload_date' "$HOME/Excluding/youtube/.${ep%mp4}json" | sed 1q)"
     echolor white 'Downloaded:\t' 1
     date -Idate -d "$(stat -c '%w' "$ep")"
-    echolor white 'Video watch:\t' 1
+    echolor white 'Times watched:\t' 1
     watch_instance="$(rg -- "$(echo "$ep" | between '[' ']')" "$watch_history_yt" | wc -l)"
-    echo "$((watch_instance + 1))"
-    echolor white 'Channel rank:\t' 1
-    echo -n "#$(channel-rankings | rg -w "$(jq -r '.channel' "$HOME/Excluding/youtube/.${ep%mp4}json" | sed 1q)" | awk '{print $1}') ("
-    echo "$(channel-rankings | rg -w "$(jq -r '.channel' "$HOME/Excluding/youtube/.${ep%mp4}json" | sed 1q)" | awk '{print $2}') watches)"
+    echo "$watch_instance"
+    channel="$(jq -r '.channel' "$HOME/Excluding/youtube/.${ep%mp4}json" | sed 1q)"
+    echolor white 'View rank:\t' 1
+    echo -n "#$(channel-views | xan search -s channel -e "$channel" | xan select rank | xan behead) by views ("
+    echo -n "$(channel-views | xan search -s channel -e "$channel" | xan select views | xan behead) times)"
+    echo
+    echolor white 'Time rank:\t' 1
+    echo -n "#$(channel-watchtimes | xan search -s channel -e "$channel" | xan select rank | xan behead) by watchtime ("
+    echo -n "$(channel-watchtimes | xan search -s channel -e "$channel" | xan select duration | xan behead) minutes)"
+    echo
     echolor white '------------------------------------------------------'
 }
 [[ -e "$HOME/Excluding/youtube/.${ep%mp4}json" ]] && {
@@ -100,6 +139,7 @@ case "$choose_done" in
 	    {
 		echo -ne "$addstar$allrelatedfiles,"
 		echo -ne "$(jq '.channel' "$HOME/Excluding/youtube/.$allrelatedfiles".json | sed 1q),"
+		echo -ne "$(jq '.duration' "$HOME/Excluding/youtube/.$allrelatedfiles".json | sed 1q),"
 		echo  -e "$(date -Isec)"
 	    } >> "$watch_history_yt"
 	    move-to-trash-recursively "$allrelatedfiles"* "$HOME/Excluding/youtube/.$allrelatedfiles".json

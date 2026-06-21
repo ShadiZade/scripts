@@ -20,4 +20,4 @@ read -r t_end
     echolor red ":: Clobber error 02!"
     exit
 }
-ffmpeg -i "$1" -ss "$t_beg" -to "$t_end" "$clipdir"/"$outname".mp4
+ffmpeg -i "$1" -c:a copy -c:v copy -ss "$t_beg" -to "$t_end" "$clipdir"/"$outname".mp4
