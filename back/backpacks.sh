@@ -58,7 +58,7 @@ echolor yellow "$(basic-commit ~/Misc/Backups/qbittorrent/)"
 echolor blue "\t\t → Done!"
 
 echolor ←yellow ":: Backing FreeTube..."
-rsync -qaru ~/.config/FreeTube/*db /home/shadi/Misc/Backups/video/freetube
+rsync -qaru ~/.config/FreeTube/*db /home/shadi/Misc/Backups/freetube
 echolor yellow "$(basic-commit ~/Misc/Backups/freetube/)" 
 echolor blue "\t\t → Done!"
 
