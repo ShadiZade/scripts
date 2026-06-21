@@ -39,9 +39,6 @@ echolor yellow "$(basic-commit ~/Misc/Backups/bookmarks/buku/)"
 echolor blue "\t\t → Done!"
 
 echolor ←yellow ":: Backing media history..."
-rsync -qaru ~/.config/qBittorrent/categories.json ~/Misc/Backups/video/qbittorrent/
-rsync -qaru ~/.config/qBittorrent/qBittorrent.conf ~/Misc/Backups/video/qbittorrent
-eza --tree -a ~/P2P > ~/Misc/Backups/video/qbittorrent/tree-torrent.txt
 eza --tree -a ~/Aquire/ > ~/Misc/Backups/video/tree-aquire.txt
 eza -1 ~/Films > ~/Misc/Backups/video/movies.txt
 eza -1 ~/TV > ~/Misc/Backups/video/tv.txt
@@ -49,11 +46,21 @@ eza --tree ~/Films > ~/Misc/Backups/video/tree-film.txt
 eza --tree ~/TV > ~/Misc/Backups/video/tree-tv.txt
 eza --tree ~/Excluding/youtube/ > ~/Misc/Backups/video/tree-youtube.txt
 eza --tree ~/Excluding/documentaries/ > ~/Misc/Backups/video/tree-youtube.txt
-rsync -qaru ~/.config/FreeTube/*db /home/shadi/Misc/Backups/video/freetube
 rsync -qaru ~/Excluding/youtube/.rules.hezi /home/shadi/Misc/Backups/video/rules.hezi
 echolor yellow "$(basic-commit ~/Misc/Backups/video)" 
 echolor blue "\t\t → Done!"
 
+echolor ←yellow ":: Backing torrents..."
+rsync -qaru ~/.config/qBittorrent/categories.json ~/Misc/Backups/qbittorrent/
+rsync -qaru ~/.config/qBittorrent/qBittorrent.conf ~/Misc/Backups/qbittorrent/
+eza --tree -a ~/P2P > ~/Misc/Backups/qbittorrent/tree-torrent.txt
+echolor yellow "$(basic-commit ~/Misc/Backups/qbittorrent/)" 
+echolor blue "\t\t → Done!"
+
+echolor ←yellow ":: Backing FreeTube..."
+rsync -qaru ~/.config/FreeTube/*db /home/shadi/Misc/Backups/video/freetube
+echolor yellow "$(basic-commit ~/Misc/Backups/freetube/)" 
+echolor blue "\t\t → Done!"
 
 echolor ←yellow ":: Backing notes..."
 echolor yellow "$(basic-commit ~/Notes/)" 
