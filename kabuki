@@ -36,6 +36,15 @@ function channel-watchtimes {
 	| xan enum -S 1 -c rank
 }
 
+function redownload-video {
+    redownload_id="$(xan select title "$watch_history_yt" | sort | uniq | fzf | awk -F '[' '{print $2}' | awk -F ']' '{print $1}')"
+    [[ "$(wc -m <<< "$redownload_id")" != "12" ]] && {
+	echolor red ":: Not a YouTube ID."
+	exit 1
+    }
+    ThyPipe "https://www.youtube.com/watch?v=$redownload_id" &
+}
+
 case "$1" in
     "yt"|"youtube")
 	xan tail -l 24 "$watch_history_yt" | xan view -s title,channel,time -HMR --cols 0.9 --color=always --theme="striped" | sed '/^$/d'
@@ -75,6 +84,9 @@ case "$1" in
 	    <(channel-views | xan select views,channel) \
 	    <(channel-watchtimes)                       \
 	    | xan view -MRIpAr 1
+	;;
+    "redownload"|"download"|"thypipe"|"pipe"|"tp")
+	redownload-video
 	;;
     *)
 	:
