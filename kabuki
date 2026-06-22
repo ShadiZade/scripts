@@ -59,7 +59,9 @@ case "$1" in
 	xan tail -l 24 "$watch_history_film" | xan view -HMR --color=always --theme="striped" | sed '/^$/d'
 	;;
     "hist"|"history"|"all")
-	echo -n "YouTube ($(xan count "$watch_history_yt"))"
+	duration_secs="$(xan select duration watch-history-youtube.csv | xan behead | paste -sd+ | bc)"
+	duration_days="$(echo "$duration_secs/86400" | bc)"
+	echo -n "YouTube ($(xan count "$watch_history_yt")) $duration_secs seconds ≈ $duration_days days"
 	xan tail -l 4 "$watch_history_yt" | ifne xan view -s title,channel,time --cols 0.99 -HMR --color=always --theme="striped" | sed '/^$/d' 
 	echo -n "TV ($(xan count "$watch_history_tv"))"
 	xan tail -l 4 "$watch_history_tv" | ifne xan view --cols 0.99 -HMR --color=always --theme="striped" | sed '/^$/d'	    
