@@ -46,7 +46,7 @@ eza --tree ~/Films > ~/Misc/Backups/video/tree-film.txt
 eza --tree ~/TV > ~/Misc/Backups/video/tree-tv.txt
 eza --tree ~/Excluding/youtube/ > ~/Misc/Backups/video/tree-youtube.txt
 eza --tree ~/Excluding/documentaries/ > ~/Misc/Backups/video/tree-youtube.txt
-rsync -qaru ~/Excluding/youtube/.rules.hezi /home/shadi/Misc/Backups/video/rules.hezi
+rsync -qaru ~/Excluding/youtube/.rules.hezi ~/Misc/Backups/video/rules.hezi
 echolor yellow "$(basic-commit ~/Misc/Backups/video)" 
 echolor blue "\t\t → Done!"
 
@@ -58,7 +58,7 @@ echolor yellow "$(basic-commit ~/Misc/Backups/qbittorrent/)"
 echolor blue "\t\t → Done!"
 
 echolor ←yellow ":: Backing FreeTube..."
-rsync -qaru ~/.config/FreeTube/*db /home/shadi/Misc/Backups/freetube
+rsync -qaru ~/.config/FreeTube/*db ~/Misc/Backups/freetube
 echolor yellow "$(basic-commit ~/Misc/Backups/freetube/)" 
 echolor blue "\t\t → Done!"
 
@@ -74,8 +74,15 @@ echolor yellow "$(basic-commit ~/Misc/Backups/rss/)"
 echolor blue "\t\t → Done!"
 
 echolor ←yellow ":: Backing document data..."
-rsync -qaru ~/.local/share/sioyek/last_document_path.txt ~/Projects/reading/.data/
-rsync -qaru ~/Documents/papers/refs.bib ~/Projects/reading/.data/misc-academic-papers.bib
-echolor yellow "$(basic-commit ~/Projects/reading/.data/)" 
+eza --tree ~/Books/ > ~/Misc/Backups/documents/tree-epub.txt
+eza --tree ~/Athenaeum/ > ~/Misc/Backups/documents/tree-pdf.txt
+eza --tree ~/Projects/book-restoration/ > ~/Misc/Backups/documents/tree-book-restoration.txt
+eza --tree ~/Documents/ > ~/Misc/Backups/documents/tree-documents.txt
+rsync -qaru ~/Projects/book-restoration/bursting-function.org ~/Misc/Backups/documents
+rsync -qaru ~/Projects/book-restoration/files-finished ~/Misc/Backups/documents
+rsync -qaru ~/Athenaeum/sql/database/athenaeum.db ~/Misc/Backups/documents
+rsync -qaru ~/.local/share/user-scripts/athenaeum-index.csv ~/Misc/Backups/documents
+rsync -qaru ~/.local/share/sioyek/last_document_path.txt ~/Misc/Backups/documents
+rsync -qaru ~/Documents/papers/refs.bib ~/Misc/Backups/documents/misc-academic-papers.bib
 echolor blue "\t\t → Done!"
-
+echolor yellow "$(basic-commit ~/Misc/Backups/documents/)" 

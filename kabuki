@@ -59,16 +59,16 @@ case "$1" in
 	xan tail -l 24 "$watch_history_film" | xan view -HMR --color=always --theme="striped" | sed '/^$/d'
 	;;
     "hist"|"history"|"all")
-	duration_secs="$(xan select duration watch-history-youtube.csv | xan behead | paste -sd+ | bc)"
-	duration_days="$(echo "$duration_secs/86400" | bc)"
-	echo -n "YouTube ($(xan count "$watch_history_yt")) $duration_secs seconds ≈ $duration_days days"
+	duration_secs="$(xan select duration "$watch_history_yt" | xan behead | paste -sd+ | bc)"
+	duration_days="$(units "$duration_secs seconds" 'millennia;centuries;years;months;days;hours;minutes;seconds' | sed 's/\t//g;s/ + /, /g')"
+	echo -n "YouTube ($(xan count "$watch_history_yt")) $duration_secs seconds = $duration_days"
 	xan tail -l 4 "$watch_history_yt" | ifne xan view -s title,channel,time --cols 0.99 -HMR --color=always --theme="striped" | sed '/^$/d' 
+	echo -n "Films ($(xan count "$watch_history_film"))"
+	xan tail -l 4 "$watch_history_film" | ifne xan view -HMR --cols 0.99 --color=always --theme="striped" | sed '/^$/d'	    
 	echo -n "TV ($(xan count "$watch_history_tv"))"
 	xan tail -l 4 "$watch_history_tv" | ifne xan view --cols 0.99 -HMR --color=always --theme="striped" | sed '/^$/d'	    
 	echo -n "Documentaries ($(xan count "$watch_history_docs"))"
 	xan tail -l 4 "$watch_history_docs" | ifne xan view -HMR --cols 0.99 --color=always --theme="striped" | sed '/^$/d'	    
-	echo -n "Films ($(xan count "$watch_history_film"))"
-	xan tail -l 4 "$watch_history_film" | ifne xan view -HMR --cols 0.99 --color=always --theme="striped" | sed '/^$/d'	    
 	;;
     "fav"|"star"|"stars"|"starred")
 	echo '🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟'
@@ -100,6 +100,10 @@ esac
 ep="$(eza --no-quotes -1fX --show-symlinks | sed '/^$/d' | sort | grep -E 'mkv$|avi$|mp4$|ts$|mov$|webm$|m4v$' | ifne fzf)"
 [[ -z "$ep" ]] && exit
 [[ -e "$HOME/Excluding/youtube/.${ep%mp4}json" ]] && {
+    jq -r '.description' "$HOME/Excluding/youtube/.${ep%mp4}json" | fold -sw 130
+    echolor white '------------------------------------------------------'
+}
+[[ -e "$HOME/Excluding/youtube/.${ep%mp4}json" ]] && {
     echolor white 'Title:  \t' 1
     jq -r '.title' "$HOME/Excluding/youtube/.${ep%mp4}json" | sed 1q
     echolor white 'Channel:\t' 1
@@ -120,10 +124,6 @@ ep="$(eza --no-quotes -1fX --show-symlinks | sed '/^$/d' | sort | grep -E 'mkv$|
     echo -n "#$(channel-watchtimes | xan search -s channel -e "$channel" | xan select rank | xan behead) by watchtime ("
     echo -n "$(channel-watchtimes | xan search -s channel -e "$channel" | xan select duration | xan behead) minutes)"
     echo
-    echolor white '------------------------------------------------------'
-}
-[[ -e "$HOME/Excluding/youtube/.${ep%mp4}json" ]] && {
-    jq -r '.description' "$HOME/Excluding/youtube/.${ep%mp4}json" | fold -sw 130
     echolor white '------------------------------------------------------'
 }
 mpv --msg-level=all=error --osd-fractions --volume=100 --volume-max=200 --alang=eng --slang=eng "$ep" || exit
