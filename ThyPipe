@@ -136,9 +136,9 @@ function download-video {
     title_raw="$(jq -r '.title' "$tmp" 2>/dev/null | sed 1q)"
     eat-poison
     detect-lang "$title_raw" && {
-	title="$(trans -b :en "$title_raw" | cut -c 1-90 | kebab)"
+	title="$(trans -b :en "$title_raw" | cut -c 1-85 | kebab)"
     } || {
-	title="$(kebab "$title_raw" | cut -c 1-90)"
+	title="$(kebab "$title_raw" | cut -c 1-85)"
     }
     [[ -z "$title" || -z "$id" ]] && {
 	dunstctl close-all
