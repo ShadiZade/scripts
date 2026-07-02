@@ -146,7 +146,7 @@ function move-to-trash {
 	return
     }
     fd -q -H --exact "$(basename "$1")" "$trashdir"/files && {
-	postdelname="$1-$(date +"%Y_%m_%d_%H_%M_%S")"
+	postdelname="$(basename "$1")-$(date +"%Y_%m_%d_%H_%M_%S")"
 	command mv -n -- "$1" "$trashdir"/files/"$postdelname" \
 	    || {
 	    echolor red ":: Error moving ““$1”” to trash as ““$postdelname””"
