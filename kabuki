@@ -78,7 +78,7 @@ case "$1" in
 	    | sort                                              \
 	    | uniq                                              \
 	    | cut -c 18-                                        \
-	    | xan view -nMR --color=always --theme="striped"
+	    | xan view -nMRA --color=always --theme="striped"
 	echo '🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟'
 	;;
     "rank"|"channel"|"channels")
