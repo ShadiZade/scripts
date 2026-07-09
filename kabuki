@@ -122,7 +122,7 @@ ep="$(eza --no-quotes -1fX --show-symlinks | sed '/^$/d' | sort | grep -E 'mkv$|
     echo
     echolor white 'Time rank:\t' 1
     echo -n "#$(channel-watchtimes | xan search -s channel -e "$channel" | xan select rank | xan behead) by watchtime ("
-    echo -n "$(channel-watchtimes | xan search -s channel -e "$channel" | xan select duration | xan behead) minutes)"
+    echo -n "$(units "$(channel-watchtimes | xan search -s channel -e "$channel" | xan select duration | xan behead) minutes" 'days;hours;minutes' | sed 's/\t//g;s/ + /, /g'))"
     echo
     echolor white '------------------------------------------------------'
 }

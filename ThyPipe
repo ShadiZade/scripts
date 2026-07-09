@@ -128,6 +128,18 @@ function download-video {
 	    mv "$dlfile" "/tmp/ThyPipe-failed-[$id]"
 	    exit 1
 	}
+	grep -q 'Sign in to confirm' "$dlfile" && {
+	    dunstctl close-all
+	    notify-send -u critical -t 4000 "ThyPipe" "Sign in requested for video\n$1"
+	    mv "$dlfile" "/tmp/ThyPipe-failed-[$id]"
+	    exit 1
+	}
+	grep -iq '403 Forbidden' "$dlfile" && {
+	    dunstctl close-all
+	    notify-send -u critical -t 4000 "ThyPipe" "403 Forbidden on video\n$1"
+	    mv "$dlfile" "/tmp/ThyPipe-failed-[$id]"
+	    exit 1
+	}
 	dunstctl close-all
 	notify-send -u critical -t 4000 "ThyPipe" "Video $1 failed to extract"
 	mv "$dlfile" "/tmp/ThyPipe-failed-[$id]"
