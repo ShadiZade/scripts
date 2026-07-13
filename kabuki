@@ -98,24 +98,29 @@ esac
 
 [[ -z "$1" ]] || exit
 ep="$(eza --no-quotes -1fX --show-symlinks | sed '/^$/d' | sort | grep -E 'mkv$|avi$|mp4$|ts$|mov$|webm$|m4v$' | ifne fzf)"
+jsonep="$HOME/Excluding/youtube/.${ep%mp4}json"
 [[ -z "$ep" ]] && exit
-[[ -e "$HOME/Excluding/youtube/.${ep%mp4}json" ]] && {
-    jq -r '.description' "$HOME/Excluding/youtube/.${ep%mp4}json" | fold -sw 130
-    echolor white '------------------------------------------------------'
+[[ -e "$jsonep" ]] && {
+    jq -r '.description' "$jsonep" | ifne par w70
+    echolor white '------------------------------------------------------------'
 }
-[[ -e "$HOME/Excluding/youtube/.${ep%mp4}json" ]] && {
+[[ -e "$jsonep" ]] && {
     echolor white 'Title:  \t' 1
-    jq -r '.title' "$HOME/Excluding/youtube/.${ep%mp4}json" | sed 1q
+    jq -r '.title' "$jsonep" | sed 1q | ifne par w45p16h
+    jq -e '.original_title' "$jsonep" >/dev/null && {
+	echolor white '\t\t' 1
+	echolor ashy "$(jq -r '.original_title' "$jsonep" | ifne par w45p16h)"
+	}
     echolor white 'Channel:\t' 1
-    jq -r '.channel' "$HOME/Excluding/youtube/.${ep%mp4}json" | sed 1q
+    jq -r '.channel' "$jsonep" | sed 1q
     echolor white 'Uploaded:\t' 1
-    date -Idate -d "$(jq -r '.upload_date' "$HOME/Excluding/youtube/.${ep%mp4}json" | sed 1q)"
+    date -Idate -d "$(jq -r '.upload_date' "$jsonep" | sed 1q)"
     echolor white 'Downloaded:\t' 1
     date -Idate -d "$(stat -c '%w' "$ep")"
     echolor white 'Times watched:\t' 1
-    watch_instance="$(rg -- "$(echo "$ep" | between '[' ']')" "$watch_history_yt" | wc -l)"
-    echo "$watch_instance"
-    channel="$(jq -r '.channel' "$HOME/Excluding/youtube/.${ep%mp4}json" | sed 1q)"
+    watch_instance="$(rg -- "$(echo "$ep" | between '[' ']')" "$watch_history_yt" | wc -l | sed 's/^0$/““0””/')"
+    echolor yellow-default "$watch_instance"
+    channel="$(jq -r '.channel' "$jsonep" | sed 1q)"
     echolor white 'View rank:\t' 1
     echo -n "#$(channel-views | xan search -s channel -e "$channel" | xan select rank | xan behead) by views ("
     echo -n "$(channel-views | xan search -s channel -e "$channel" | xan select views | xan behead) times)"
@@ -124,7 +129,7 @@ ep="$(eza --no-quotes -1fX --show-symlinks | sed '/^$/d' | sort | grep -E 'mkv$|
     echo -n "#$(channel-watchtimes | xan search -s channel -e "$channel" | xan select rank | xan behead) by watchtime ("
     echo -n "$(units "$(channel-watchtimes | xan search -s channel -e "$channel" | xan select duration | xan behead) minutes" 'days;hours;minutes' | sed 's/\t//g;s/ + /, /g'))"
     echo
-    echolor white '------------------------------------------------------'
+    echolor white '------------------------------------------------------------'
 }
 mpv --msg-level=all=error --osd-fractions --volume=100 --volume-max=200 --alang=eng --slang=eng "$ep" || exit
 choose_done="$(echo -e 'Mark as done\nDo nothing\nAbandon file\nDone and star' | fzf --no-input)"

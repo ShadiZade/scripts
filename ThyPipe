@@ -53,6 +53,7 @@ function download-video {
 	while read line
 	do
 	    [[ "$line" = "end rules" ]] && break
+	    grep -q "^#" <<< "$line" && continue
 	    matcher="$(awk -F '→' '{print $1}' <<< "$line" | trim-spaces)"
 	    hezicle="$(awk -F '→' '{print $2}' <<< "$line" | trim-spaces | kebab)"
 	    [[ -z "$matcher" || -z "$hezicle" ]] && continue
