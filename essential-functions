@@ -244,3 +244,6 @@ function memuse {
 	echolor aquamarine-beige "““$(echo $rootdisk | awk '{print $2}')””)"
 }
 
+function pad-and-wrap {
+    sed 's/$/                /g' | ifne par "${1:-w70}" | sed 's/ *$//g'
+}

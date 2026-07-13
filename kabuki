@@ -100,9 +100,6 @@ esac
 ep="$(eza --no-quotes -1fX --show-symlinks | sed '/^$/d' | sort | grep -E 'mkv$|avi$|mp4$|ts$|mov$|webm$|m4v$' | ifne fzf)"
 jsonep="$HOME/Excluding/youtube/.${ep%mp4}json"
 [[ -z "$ep" ]] && exit
-function pad-and-wrap {
-    sed 's/$/                /g' | ifne par "$1" | sed 's/ *$//g'
-}
 [[ -e "$jsonep" ]] && {
 #    jq -r '.description' "$jsonep" | fold -sw 130
     jq -r '.description' "$jsonep" | pad-and-wrap w70
