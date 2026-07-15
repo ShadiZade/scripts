@@ -101,17 +101,14 @@ ep="$(eza --no-quotes -1fX --show-symlinks | sed '/^$/d' | sort | grep -E 'mkv$|
 jsonep="$HOME/Excluding/youtube/.${ep%mp4}json"
 [[ -z "$ep" ]] && exit
 [[ -e "$jsonep" ]] && {
-#    jq -r '.description' "$jsonep" | fold -sw 130
     jq -r '.description' "$jsonep" | pad-and-wrap w70
     echolor white '------------------------------------------------------------'
 }
 [[ -e "$jsonep" ]] && {
     echolor white 'Title:  \t' 1
-#    jq -r '.title' "$jsonep" | sed 1q 
     jq -r '.title' "$jsonep" | sed 1q | pad-and-wrap w45p16h
     jq -e '.original_title' "$jsonep" >/dev/null && {
 	echolor white '\t\t' 1
-#	echolor ashy "$(jq -r '.original_title' "$jsonep")"
 	echolor ashy "$(jq -r '.original_title' "$jsonep" | pad-and-wrap w45p16h)"
 	}
     echolor white 'Channel:\t' 1
