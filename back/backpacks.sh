@@ -1,9 +1,9 @@
 #!/bin/bash
 source ~/Repositories/scripts/essential-functions
 echolor ←yellow ":: Backing packages..."
-pacman -Qeqn > ~/Repositories/dotfiles/arch-packages.txt
-pacman -Qeqm > ~/Repositories/dotfiles/aur-packages.txt
-pipx list | grep '^   package' | awk '{print $2}' > ~/Repositories/dotfiles/pipx-packages.txt
+pacman -Qeqn > ~/Repositories/dotfiles/packages-arch.txt
+pacman -Qeqm > ~/Repositories/dotfiles/packages-aur.txt
+pipx list | grep '^   package' | awk '{print $2}' > ~/Repositories/dotfiles/packages-pipx.txt 
 echolor blue "\t\t → Done!"
 
 echolor ←yellow ":: Backing fonts..."
