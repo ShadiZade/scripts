@@ -135,7 +135,7 @@ function download-video {
 	    mv "$dlfile" "/tmp/ThyPipe-failed-[$id]"
 	    exit 1
 	}
-	grep -iq '403 Forbidden' "$dlfile" && {
+	grep -iq 'Forbidden' "$dlfile" && {
 	    dunstctl close-all
 	    notify-send -u critical -t 4000 "ThyPipe" "403 Forbidden on video\n$1"
 	    mv "$dlfile" "/tmp/ThyPipe-failed-[$id]"
