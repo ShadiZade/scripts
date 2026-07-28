@@ -45,6 +45,19 @@ function redownload-video {
     ThyPipe "https://www.youtube.com/watch?v=$redownload_id" &
 }
 
+function share-video {
+    share_id="$(xan select title "$watch_history_yt" | sort | uniq | fzf | awk -F '[' '{print $2}' | awk -F ']' '{print $1}')"
+    [[ "$(wc -m <<< "$share_id")" != "12" ]] && {
+	echolor red ":: Not a YouTube ID."
+	exit 1
+    }
+    qr_file="$(random-string).png"
+    zint --scale 5 --barcode qrcode --data "https://youtu.be/$share_id" --output /tmp/"$qr_file"
+    sxiv /tmp/"$qr_file"
+    echo "https://youtu.be/$share_id"
+    echo "https://youtu.be/$share_id" | tr -d "'\n" | xclip -selection clipboard
+}
+    
 case "$1" in
     "yt"|"youtube")
 	xan tail -l 24 "$watch_history_yt" | xan view -s title,channel,time -HMR --cols 0.9 --color=always --theme="striped" | sed '/^$/d'
@@ -89,6 +102,9 @@ case "$1" in
 	;;
     "redownload"|"download"|"thypipe"|"pipe"|"tp")
 	redownload-video
+	;;
+    "share"|"qr")
+	share-video
 	;;
     *)
 	:
