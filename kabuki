@@ -117,6 +117,8 @@ jsonep="$HOME/Excluding/youtube/.${ep%mp4}json"
     date -Idate -d "$(jq -r '.upload_date' "$jsonep" | sed 1q)"
     echolor white 'Downloaded:\t' 1
     date -Idate -d "$(stat -c '%w' "$ep")"
+    echolor white 'Duration:\t' 1
+    units "$(jq -r '.duration' "$jsonep" | sed 1q) seconds" 'hours;minutes;seconds' | sed 's/^	*//;s/\t//g;s/ + /, /g'
     echolor white 'Times watched:\t' 1
     watch_instance="$(rg -- "$(echo "$ep" | between '[' ']')" "$watch_history_yt" | wc -l | sed 's/^0$/““0””/')"
     echolor yellow-default "$watch_instance"
