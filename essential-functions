@@ -247,3 +247,8 @@ function memuse {
 function pad-and-wrap {
     sed 's/$/                /g' | ifne par "${1:-w70}" | sed 's/ *$//g'
 }
+
+function lev {
+    lev_string="$(printf 'from Levenshtein import distance; print(distance("%s", "%s"))' "$1" "$2")"
+    python3 -c "$lev_string" 2>/dev/null || return 1
+}

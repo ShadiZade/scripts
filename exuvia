@@ -1,0 +1,16 @@
+#!/bin/bash
+source ~/Repositories/scripts/essential-functions
+
+function symlink-p {
+    :
+}
+
+function symlink-intact-p {
+    :
+}
+
+function symlink-registered-p {
+    :
+}
+
+
