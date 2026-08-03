@@ -128,7 +128,9 @@ jsonep="$HOME/Excluding/youtube/.${ep%mp4}json"
 	echolor ashy "$(jq -r '.original_title' "$jsonep" | pad-and-wrap w45p16h)"
 	}
     echolor white 'Channel:\t' 1
-    jq -r '.channel' "$jsonep" | sed 1q
+    channel="$(jq -r '.channel' "$jsonep" | sed 1q)"
+    [[ "$channel" = null ]] && channel="$(jq -r '.uploader' "$jsonep" | sed 1q)"
+    echo "$channel"
     echolor white 'Uploaded:\t' 1
     date -Idate -d "$(jq -r '.upload_date' "$jsonep" | sed 1q)"
     echolor white 'Downloaded:\t' 1
@@ -138,7 +140,6 @@ jsonep="$HOME/Excluding/youtube/.${ep%mp4}json"
     echolor white 'Times watched:\t' 1
     watch_instance="$(rg -- "$(echo "$ep" | between '[' ']')" "$watch_history_yt" | wc -l | sed 's/^0$/““0””/')"
     echolor yellow-default "$watch_instance"
-    channel="$(jq -r '.channel' "$jsonep" | sed 1q)"
     echolor white 'View rank:\t' 1
     echo -n "#$(channel-views | xan search -s channel -e "$channel" | xan select rank | xan behead) by views ("
     echo -n "$(channel-views | xan search -s channel -e "$channel" | xan select views | xan behead) times)"
@@ -161,7 +162,7 @@ case "$choose_done" in
 	then
 	    {
 		echo -ne "$addstar$allrelatedfiles,"
-		echo -ne "$(jq '.channel' "$HOME/Excluding/youtube/.$allrelatedfiles".json | sed 1q),"
+		echo -ne "$channel,"
 		echo -ne "$(jq '.duration' "$HOME/Excluding/youtube/.$allrelatedfiles".json | sed 1q),"
 		echo  -e "$(date -Isec)"
 	    } >> "$watch_history_yt"
