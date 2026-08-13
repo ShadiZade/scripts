@@ -7,16 +7,16 @@ source "$HOME"/Repositories/private/private-aliases.sh
 
 bluetoothctl info "$BLUETOOTH_HEADPHONES" | grep -q 'Battery Percentage' && {
     dunstctl close-all
-    notify-send -t 2000 'Already connected.'
+    notify-send -t 2000 'Bluetooth headphones already connected.'
 } || {
     dunstctl close-all
     notify-send -t 2000 'Connecting to Bluetooth headphones...'
     bluetoothctl connect "$BLUETOOTH_HEADPHONES" && {
 	dunstctl close-all
-	notify-send -t 2000 'Connected successfully!'
+	notify-send -t 2000 'Bluetooth headphones connected successfully!'
     } || {
 	dunstctl close-all
-	notify-send -t 2000 'Connection failed!'
+	notify-send -u critical -t 2000 'Bluetooth headphones connection failed!'
     }
 }
     
