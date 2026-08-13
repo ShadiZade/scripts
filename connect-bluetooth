@@ -1,21 +1,21 @@
 #!/bin/bash
 source "$HOME"/Repositories/private/private-aliases.sh
 
+[[ -z "$BLUETOOTH_HEADPHONES" ]] && {
+    notify-send -t 2000 'Address of Bluetooth headphones unknown.'
+}
 
 bluetoothctl info "$BLUETOOTH_HEADPHONES" | grep -q 'Battery Percentage' && {
-    pkill dunst
+    dunstctl close-all
     notify-send -t 2000 'Already connected.'
 } || {
-    pkill dunst
-    notify-send -t 2000 'Connecting to Bluetooth...'
-    bluetoothctl info "$BLUETOOTH_HEADPHONES" | grep -q 'Connected: yes' && {
-	bluetoothctl disconnect "$BLUETOOTH_HEADPHONES"
-    }
+    dunstctl close-all
+    notify-send -t 2000 'Connecting to Bluetooth headphones...'
     bluetoothctl connect "$BLUETOOTH_HEADPHONES" && {
-	pkill dunst
+	dunstctl close-all
 	notify-send -t 2000 'Connected successfully!'
     } || {
-	pkill dunst
+	dunstctl close-all
 	notify-send -t 2000 'Connection failed!'
     }
 }
