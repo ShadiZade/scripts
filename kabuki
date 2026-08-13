@@ -120,10 +120,14 @@ jsonep="$HOME/Excluding/youtube/.${ep%mp4}json"
     jq -r '.description' "$jsonep" | pad-and-wrap w70
     echolor white '------------------------------------------------------------'
     echolor white 'Title:  \t' 1
-    jq -r '.title' "$jsonep" | sed 1q | pad-and-wrap w45p16h
+    title_arrow="$(jq -r '.title' "$jsonep")"
+    sed 1q <<< "$title_arrow" | pad-and-wrap w45p16h
     jq -e '.original_title' "$jsonep" >/dev/null && {
-	echolor white '\t\t' 1
-	echolor ashy "$(jq -r '.original_title' "$jsonep" | pad-and-wrap w45p16h)"
+	title_orig="$(jq -r '.original_title' "$jsonep")"
+	cmp -s <(echo "$title_arrow") <(echo "$title_orig") || {
+	    echolor white '\t\t' 1
+	    echolor ashy "$(echo "$title_orig" | pad-and-wrap w45p16h)"
+	}
     }
     echolor white 'Channel:\t' 1
     channel="$(jq -r '.channel' "$jsonep" | sed 1q)"
