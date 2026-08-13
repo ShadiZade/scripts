@@ -1,0 +1,22 @@
+#!/bin/bash
+source "$HOME"/Repositories/private/private-aliases.sh
+
+
+bluetoothctl info "$BLUETOOTH_HEADPHONES" | grep -q 'Battery Percentage' && {
+    pkill dunst
+    notify-send -t 2000 'Already connected.'
+} || {
+    pkill dunst
+    notify-send -t 2000 'Connecting to Bluetooth...'
+    bluetoothctl info "$BLUETOOTH_HEADPHONES" | grep -q 'Connected: yes' && {
+	bluetoothctl disconnect "$BLUETOOTH_HEADPHONES"
+    }
+    bluetoothctl connect "$BLUETOOTH_HEADPHONES" && {
+	pkill dunst
+	notify-send -t 2000 'Connected successfully!'
+    } || {
+	pkill dunst
+	notify-send -t 2000 'Connection failed!'
+    }
+}
+    

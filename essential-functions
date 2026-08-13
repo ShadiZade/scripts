@@ -252,3 +252,17 @@ function lev {
     lev_string="$(printf 'from Levenshtein import distance; print(distance("%s", "%s"))' "$1" "$2")"
     python3 -c "$lev_string" 2>/dev/null || return 1
 }
+
+function simplify {
+    opencc -c t2s.json <<< "$1"
+}
+
+function simplify-test {
+    local traditional_chinese_name="$1"
+    local simplified_chinese_name="$(simplify "$1")" 
+    [[ "$simplified_chinese_name" = "$traditional_chinese_name" ]] && {
+	return 0
+    } || {
+	return 1
+    }
+}

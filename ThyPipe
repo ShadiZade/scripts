@@ -49,6 +49,12 @@ function download-video {
 		statement="$(awk -F '%' '{print $2}' <<< "$1" | trim-spaces)"
 		return
 	    }
+	    grep -iq "^else" <<< "$1" && {
+		operation="else"
+		field=""
+		statement=""
+		return
+	    }
 	}
 	while read line
 	do
@@ -75,6 +81,12 @@ function download-video {
 		    echo -n "$hezicle"
 		    return
 		}
+	    }
+	    [[ "$operation" = "else" ]] && {
+  		mkdir "$thypipe_dir"/"$(kebab "$hezicle")" 2>/dev/null
+		echo "MATCHED! line '$line'" >> "$dlfile"
+		echo -n "$hezicle"
+		return
 	    }
 	    hezicle=''
 	done < "$hezi_file"
@@ -180,7 +192,7 @@ function download-video {
     eat-poison
     echo "Downloading video..." >> "$dlfile"
     yt-dlp \
-	-f 'bestvideo[height=1080][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'        \
+	-f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'        \
 	--no-mtime --embed-chapters --embed-subs --sub-langs en,-live_chat                \
 	--use-postprocessor DeArrow:when=pre_process --remote-components ejs:github       \
 	--extractor-args "youtube:player-client=default,-tv_simply,-android_sdkless"      \

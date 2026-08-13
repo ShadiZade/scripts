@@ -116,40 +116,44 @@ esac
 ep="$(eza --no-quotes -1fX --show-symlinks | sed '/^$/d' | sort | grep -E 'mkv$|avi$|mp4$|ts$|mov$|webm$|m4v$' | ifne fzf)"
 jsonep="$HOME/Excluding/youtube/.${ep%mp4}json"
 [[ -z "$ep" ]] && exit
-[[ -e "$jsonep" ]] && {
-    jq -r '.description' "$jsonep" | pad-and-wrap w70
-    echolor white '------------------------------------------------------------'
+[[ -e "$jsonep" ]] || {
+    if pwd | grep -q "$HOME/Excluding/youtube"
+    then
+	echolor yellow ":: Data file not found."
+    exit 1
+    fi
 }
-[[ -e "$jsonep" ]] && {
-    echolor white 'Title:  \t' 1
-    jq -r '.title' "$jsonep" | sed 1q | pad-and-wrap w45p16h
-    jq -e '.original_title' "$jsonep" >/dev/null && {
-	echolor white '\t\t' 1
-	echolor ashy "$(jq -r '.original_title' "$jsonep" | pad-and-wrap w45p16h)"
-	}
-    echolor white 'Channel:\t' 1
-    channel="$(jq -r '.channel' "$jsonep" | sed 1q)"
-    [[ "$channel" = null ]] && channel="$(jq -r '.uploader' "$jsonep" | sed 1q)"
-    echo "$channel"
-    echolor white 'Uploaded:\t' 1
-    date -Idate -d "$(jq -r '.upload_date' "$jsonep" | sed 1q)"
-    echolor white 'Downloaded:\t' 1
-    date -Idate -d "$(stat -c '%w' "$ep")"
-    echolor white 'Duration:\t' 1
-    units "$(jq -r '.duration' "$jsonep" | sed 1q) seconds" 'hours;minutes;seconds' | sed 's/^	*//;s/\t//g;s/ + /, /g'
-    echolor white 'Times watched:\t' 1
-    watch_instance="$(rg -- "$(echo "$ep" | between '[' ']')" "$watch_history_yt" | wc -l | sed 's/^0$/““0””/')"
-    echolor yellow-default "$watch_instance"
-    echolor white 'View rank:\t' 1
-    echo -n "#$(channel-views | xan search -s channel -e "$channel" | xan select rank | xan behead) by views ("
-    echo -n "$(channel-views | xan search -s channel -e "$channel" | xan select views | xan behead) times)"
-    echo
-    echolor white 'Time rank:\t' 1
-    echo -n "#$(channel-watchtimes | xan search -s channel -e "$channel" | xan select rank | xan behead) by watchtime ("
-    echo -n "$(units "$(channel-watchtimes | xan search -s channel -e "$channel" | xan select duration | xan behead) minutes" 'days;hours;minutes' | sed 's/\t//g;s/ + /, /g'))"
-    echo
-    echolor white '------------------------------------------------------------'
+jq -r '.description' "$jsonep" | pad-and-wrap w70
+echolor white '------------------------------------------------------------'
+echolor white 'Title:  \t' 1
+jq -r '.title' "$jsonep" | sed 1q | pad-and-wrap w45p16h
+jq -e '.original_title' "$jsonep" >/dev/null && {
+    echolor white '\t\t' 1
+    echolor ashy "$(jq -r '.original_title' "$jsonep" | pad-and-wrap w45p16h)"
 }
+echolor white 'Channel:\t' 1
+channel="$(jq -r '.channel' "$jsonep" | sed 1q)"
+[[ "$channel" = null ]] && channel="$(jq -r '.uploader' "$jsonep" | sed 1q)"
+echo "$channel"
+echolor white 'Uploaded:\t' 1
+date -Idate -d "$(jq -r '.upload_date' "$jsonep" | sed 1q)"
+echolor white 'Downloaded:\t' 1
+date -Idate -d "$(stat -c '%w' "$ep")"
+echolor white 'Duration:\t' 1
+units "$(jq -r '.duration' "$jsonep" | sed 1q) seconds" 'hours;minutes;seconds' | sed 's/^	*//;s/\t//g;s/ + /, /g'
+echolor white 'Times watched:\t' 1
+watch_instance="$(rg -- "$(echo "$ep" | between '[' ']')" "$watch_history_yt" | wc -l | sed 's/^0$/““0””/')"
+echolor yellow-default "$watch_instance"
+echolor white 'View rank:\t' 1
+echo -n "#$(channel-views | xan search -s channel -e "$channel" | xan select rank | xan behead) by views ("
+echo -n "$(channel-views | xan search -s channel -e "$channel" | xan select views | xan behead) times)"
+echo
+echolor white 'Time rank:\t' 1
+echo -n "#$(channel-watchtimes | xan search -s channel -e "$channel" | xan select rank | xan behead) by watchtime ("
+echo -n "$(units "$(channel-watchtimes | xan search -s channel -e "$channel" | xan select duration | xan behead) minutes" 'days;hours;minutes' | sed 's/\t//g;s/ + /, /g'))"
+echo
+echolor white '------------------------------------------------------------'
+
 mpv --msg-level=all=error --osd-fractions --volume=100 --volume-max=200 --alang=eng --slang=eng "$ep" || exit
 choose_done="$(echo -e 'Mark as done\nDo nothing\nAbandon file\nDone and star' | fzf --no-input)"
 ext_alone="$(echo "$ep" | awk -F '.' '{print $NF}')"
@@ -166,7 +170,12 @@ case "$choose_done" in
 		echo -ne "$(jq '.duration' "$HOME/Excluding/youtube/.$allrelatedfiles".json | sed 1q),"
 		echo  -e "$(date -Isec)"
 	    } >> "$watch_history_yt"
-	    move-to-trash-recursively "$allrelatedfiles"* "$HOME/Excluding/youtube/.$allrelatedfiles".json
+	    move-to-trash "$allrelatedfiles"*
+	    [[ -e "$HOME/Excluding/youtube/.$allrelatedfiles".json ]] && {
+		move-to-trash "$HOME/Excluding/youtube/.$allrelatedfiles".json
+	    } || {
+		echolor red ':: JSON data file not found'
+	    }			
 	    echolor green ":: Logged into the YouTube record $addstar"
 	elif pwd | grep -q "$HOME/TV"
 	then
@@ -201,7 +210,12 @@ case "$choose_done" in
     "Abandon file")
 	if pwd | grep -q "$HOME/Excluding/youtube"
 	then
-	    move-to-trash-recursively "$allrelatedfiles"* "$HOME/Excluding/youtube/.$allrelatedfiles".json
+	    move-to-trash "$allrelatedfiles"*
+	    [[ -e "$HOME/Excluding/youtube/.$allrelatedfiles".json ]] && {
+		move-to-trash "$HOME/Excluding/youtube/.$allrelatedfiles".json
+	    } || {
+		echolor red ':: JSON data file not found'
+	    }			
 	    echolor yellow ":: The video ““$allrelatedfiles””\n:: has been abandoned"
 	elif pwd | grep -q "$HOME/TV"
 	then
