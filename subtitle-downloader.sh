@@ -1,12 +1,26 @@
 #!/bin/bash
 source ~/Repositories/scripts/essential-functions
 
+levver () {
+    while read line
+    do
+	echo "$(lev "$1" "$line"),$line"
+    done
+}
+
 if [[ -e "$1" ]]
 then
-    mv "$1" "./.sub.zip"
+    subzip="$1"
 else
-    wget --continue --no-use-server-timestamps -O ".sub.zip" -nc -t 0 -- "$1" || exit
+    subzip="$(eza --absolute=on --no-quotes -1f "$HOME/Downloads/" | grep "zip$" | ifne fzf)"
 fi
+
+[[ -e "$subzip" ]] || {
+    echolor red ":: No .zip file found."
+    exit
+}
+
+mv "$subzip" "./.sub.zip"
 
 unzip -d .ext-sub .sub.zip
 
@@ -16,7 +30,7 @@ sub="$(eza --no-quotes -1f .ext-sub | sed '/^$/d' | sort | grep -E 'srt$|vtt$|pa
     exit
 }
 
-ep="$(eza --no-quotes -1fX --show-symlinks | sed '/^$/d' | sort | grep -Ev 'srt$|vtt$|part$' | fzf)"
+ep="$(eza --no-quotes -1fX --show-symlinks -I '*.srt' | sed '/^$/d' | levver "$sub" | sort -V | xan select 1 | grep -Ev 'srt$|vtt$|part$' | fzf)"
 [[ -z "$ep" ]] && {
     echolor red ":: No file chosen."
     exit
