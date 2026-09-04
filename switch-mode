@@ -1,0 +1,26 @@
+#!/bin/bash
+source ~/Repositories/scripts/essential-functions
+source ~/Repositories/private/private-aliases.sh
+[[ -z "$1" ]] && {
+    echolor red ":: No mode indicated"
+    exit 1
+}
+
+function select-mode {
+    printf "$1" > "$modefile"
+    source ~/Repositories/private/wifi-creds/wifi-"$1"
+}
+		      
+
+case "$1" in
+    "home")
+	select-mode home
+	;;
+    "lab")
+	select-mode lab
+	;;
+    *) 
+	echolor red ":: No such mode exists"
+	exit 1
+	;;
+esac
