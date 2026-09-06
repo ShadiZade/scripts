@@ -409,7 +409,8 @@ function download-paper {
     } || {
 	scihub_root="download"
     }
-    scihub_root="$(echo "$shurl" | grep -m 1 pdf | awk -F '<!-- ' '{print $NF}' | awk -F ' -->' '{print $1}')"
+    scihub_root="$(echo "$shurl" | grep -m 1 pdf | awk -F '<!-- ' '{print $NF}' | awk -F ' -->' '{print $1}' | sed 's/\.ru/.red/g')"
+    # .ru doesn't work now, but the same url with .red does. I assume this will not last.
     echolor green-neonblue ":: File link is ““$scihub_root$ddurl””"
     [[ -z "$2" ]] && bibname="unnamed" || bibname="$(kebab "$2")"
     [[ -s "$bibname".pdf ]] && {

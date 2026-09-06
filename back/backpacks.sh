@@ -62,8 +62,16 @@ rsync -qaru ~/.config/FreeTube/*db ~/Misc/Backups/freetube
 echolor yellow "$(basic-commit ~/Misc/Backups/freetube/)" 
 echolor blue "\t\t → Done!"
 
+echolor ←yellow ":: Backing Android..."
+echolor yellow "$(basic-commit ~/Misc/Backups/android/)" 
+echolor blue "\t\t → Done!"
+
 echolor ←yellow ":: Backing notes..."
 echolor yellow "$(basic-commit ~/Notes/)" 
+echolor blue "\t\t → Done!"
+
+echolor ←yellow ":: Backing org..."
+echolor yellow "$(basic-commit ~/Notes/org/)" 
 echolor blue "\t\t → Done!"
 
 echolor ←yellow ":: Backing RSS..."
