@@ -700,6 +700,14 @@ function edit-reading-tree {
     } || {
 	quotenum=1
     }
+    grep -q "^$1.link:" reading-tree.d2 || {
+	doi1="$(bibtool -X "$1" refs.bib | grep -w "doi" | between '{' '}')"
+	[[ -n "$doi1" ]] && {
+	    echo "$1.link: 'https://doi.org/$doi1'" >> reading-tree.d2
+	} || {
+	    echolor red ":: DOI not detected for source paper."
+	}
+    }
     echo "$1: {" >> reading-tree.d2
     echo "  $quotenum: '' {" >> reading-tree.d2
     echo "    ex: |md" >> reading-tree.d2
@@ -709,7 +717,16 @@ function edit-reading-tree {
     echo "}" >> reading-tree.d2
     echo "" >> reading-tree.d2
     [[ -n "$3" ]] && {
-	echo "$1.$quotenum -> $3" >> reading-tree.d2
+	echo "$1.$quotenum -> $3: $(date +"%Y-%m-%d %H:%M:%S")" >> reading-tree.d2
+	echo "" >> reading-tree.d2
+	grep -q "^$3.link:" reading-tree.d2 || {
+	    doi3="$(bibtool -X "$3" refs.bib | grep -w "doi" | between '{' '}')"
+	    [[ -n "$doi3" ]] && {
+		echo "$3.link: 'https://doi.org/$doi3'" >> reading-tree.d2
+	    } || {
+		echolor red ":: DOI not detected for target paper."
+	    }
+	}
     }
     compile-reading-tree
 }
