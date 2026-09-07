@@ -181,7 +181,7 @@ function update-reading-notes-file {
 }
 
 function check-dependencies {
-    dependencies=("texlive-xetex" "texlive-bibtexextra" "texlive-binextra" "eza" "fd" "sioyek" "xsv" "bat" "pdfgrep")
+    dependencies=("texlive-xetex" "texlive-bibtexextra" "texlive-binextra" "eza" "fd" "sioyek" "xsv" "bat" "pdfgrep" "d2")
     # continue this later    
 }
 
@@ -679,6 +679,40 @@ function rename-stuff {
 	
 }
 
+function compile-reading-tree {
+    runcase-dealer only 0
+    d2 reading-tree.d2 reading-tree.html || return 1
+    xdg-open reading-tree.html
+}
+
+function edit-reading-tree {
+    runcase-dealer only 0
+    [[ -z "$1" ]] && {
+	compile-reading-tree
+	return 0
+    }
+    [[ -z "$2" ]] && {
+	echolor red ":: Insufficient paper information!"
+	return 1
+    }
+    grep -q "^$1:" reading-tree.d2 && {
+	quotenum="$(( $(grep -A1 "^$1:" reading-tree.d2 | tail -n 1 | sed 's/^  //g' | awk -F ':' '{print $1}') + 1 ))"
+    } || {
+	quotenum=1
+    }
+    echo "$1: {" >> reading-tree.d2
+    echo "  $quotenum: '' {" >> reading-tree.d2
+    echo "    ex: |md" >> reading-tree.d2
+    echo "$2" | pad-and-wrap | sed 's/^/    /g;s/$/   /g' >> reading-tree.d2
+    echo "    |" >> reading-tree.d2
+    echo "  }" >> reading-tree.d2
+    echo "}" >> reading-tree.d2
+    echo "" >> reading-tree.d2
+    [[ -n "$3" ]] && {
+	echo "$1.$quotenum -> $3" >> reading-tree.d2
+    }
+    compile-reading-tree
+}
 
 check-dependencies
 [[ -z "$1" ]] && list-project-files && exit
@@ -702,6 +736,7 @@ case "$comd" in
     "lookup") pdfgrep-term-freq "$2" ;;
     "relookup") pdfgrep-term-freq-again "$2" ;;
     "update") update-project-info-file ;;
+    "tree") edit-reading-tree "$2" "$3" "$4" ;;
     *) echolor yellow ":: Unrecognized command." ;;
 esac
 
