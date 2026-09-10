@@ -711,7 +711,7 @@ function edit-reading-tree {
     echo "$1: {" >> reading-tree.d2
     echo "  $quotenum: '' {" >> reading-tree.d2
     echo "    ex: |md" >> reading-tree.d2
-    echo "$2" | pad-and-wrap | sed 's/^/    /g;s/$/   /g' >> reading-tree.d2
+    echo "$2" | sed 's/  / /g' | pad-and-wrap 50 | sed 's/^/    /g;s/$/   /g' >> reading-tree.d2
     echo "    |" >> reading-tree.d2
     echo "  }" >> reading-tree.d2
     echo "}" >> reading-tree.d2
