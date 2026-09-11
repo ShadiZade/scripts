@@ -94,7 +94,7 @@ function download-video {
     case "$1" in
 	*"youtu"*)
 	    website="https://www.youtube.com/watch?v="
-	    id="$(sed 's|youtu.be/|www.youtube.com/watch?v=|g' <<< "$1" | awk -F 'v=' '{print $NF}' | awk -F '?' '{print $1}')"
+	    id="$(sed 's|youtu.be/|www.youtube.com/watch?v=|g;s|shorts/|watch?v=|g' <<< "$1" | awk -F 'v=' '{print $NF}' | awk -F '?' '{print $1}')"
 	    ;;
 	*"dailymo"*)
 	    website="https://www.dailymotion.com/video/"

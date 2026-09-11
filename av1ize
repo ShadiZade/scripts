@@ -1,0 +1,56 @@
+#!/bin/bash
+source ~/Repositories/scripts/essential-functions
+
+
+function convert-to-av1 () {
+    [[ -e "$1" ]] || return 1
+    [[ -e "new-$1" ]] && {
+	echolor red ":: Clobber! ““new-$1”” exists!"
+	return 1
+    }
+    grep -q '/' <<< "$1" && return 1
+    grep -q 'mkv$' <<< "$1" && return 1
+    local oldsize="$(stat -c '%s' "$1")"
+    echolor blue ":: Video duration is " 1
+    exiftool "$1" | grep "^Duration" | awk -F ': ' '{print $NF}'
+    sleep 0.5s
+    echolor blue ":: Converting codec..."
+    inputfile="$1"
+    grep -q "m4v$" <<< "$1" && {
+	echolor yellow ":: Detected parasitic container, removing..." 
+	inputfile="${1%.m4v}.mp4"
+	ffmpeg -loglevel 8 -i "$1" -c:v copy -c:a copy "$inputfile"
+	move-to-trash "$1"
+    }
+    ffmpeg -i "$inputfile" -c:v libsvtav1 new-"$inputfile" || {
+	echolor red ":: Failed to convert to av1..."
+	return 1
+    }
+    echolor blue ":: Removing metadata..."
+    exiftool -overwrite_original -All= "new-$inputfile" || {
+	echolor red ":: Failed to remove metadata..."
+	return 1
+    }
+    echolor blue ":: Converting container..."
+    ffmpeg -i "new-$inputfile" -c:v copy -c:a copy "${inputfile%.*}.mkv" || {
+	echolor red ":: Failed to convert container..."
+	return 1
+    }
+    move-to-trash "new-$inputfile"
+    move-to-trash "$inputfile"
+    local newsize="$(stat -c '%s' "${inputfile%.*}.mkv")"
+    echolor blue '     GB\\MB\\KB\\ '
+    echolor blue ":: Was ““$(printf '%10s' $oldsize)””"
+    echolor blue ":: Now ““$(printf '%10s' $newsize)””"
+    echo -e "$oldsize\n-$newsize" >> ~/.local/logs/av1-savings
+    [[ "$newsize" -ge "$oldsize" ]] && {
+	echolor red ":: New file is larger after conversion!"
+	return 1
+    }
+    echolor blue ":: Conversion done"
+}
+
+for j in "$@"
+do
+    convert-to-av1 "$j"
+done
