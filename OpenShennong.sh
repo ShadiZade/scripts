@@ -398,6 +398,10 @@ function download-paper {
 	echolor yellow ":: Caught in evil CAPTCHA hell. Please inform the website that you’re an honest researcher and retry."
 	return 1
     }
+    echo "$shurl" | grep -q ":verifying" && {
+	echolor yellow ":: Caught in evil CAPTCHA hell. Please inform the website that you’re an honest researcher and retry."
+	return 1
+    }
     echo "$shurl" | grep -q "Error 5" && {
 	echolor yellow ":: Server error on mirror ““.$scimirror””"
 	return 1
