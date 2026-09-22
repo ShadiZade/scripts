@@ -22,7 +22,7 @@ function convert-to-av1 () {
 	ffmpeg -loglevel 8 -i "$1" -c:v copy -c:a copy "$inputfile"
 	move-to-trash "$1"
     }
-    ffmpeg -i "$inputfile" -c:v libsvtav1 new-"$inputfile" || {
+    ffmpeg -loglevel 8 -stats -i "$inputfile" -c:v libsvtav1 new-"$inputfile" || {
 	echolor red ":: Failed to convert to av1..."
 	return 1
     }
@@ -32,7 +32,7 @@ function convert-to-av1 () {
 	return 1
     }
     echolor blue ":: Converting container..."
-    ffmpeg -i "new-$inputfile" -c:v copy -c:a copy "${inputfile%.*}.mkv" || {
+    ffmpeg -loglevel 8 -i "new-$inputfile" -c:v copy -c:a copy "${inputfile%.*}.mkv" || {
 	echolor red ":: Failed to convert container..."
 	return 1
     }

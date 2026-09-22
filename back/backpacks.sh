@@ -11,6 +11,16 @@ fc-list > ~/Repositories/dotfiles/fonts.txt
 rsync -qaru /usr/share/fonts/TTF/ ~/Misc/Backups/fonts
 echolor blue "\t\t → Done!"
 
+echolor ←yellow ":: Backing browser info..."
+rsync -qaru ~/.config/vivaldi/Default/* ~/Misc/Backups/browser/
+echolor blue "\t\t → Done!"
+
+echolor ←yellow ":: Backing bookmarks..."
+rsync -qaru ~/.config/vivaldi/Default/Bookmarks ~/Misc/Backups/bookmarks/from-browser/vivaldi-bookmarks-$(date-string).html
+rsync -qaru ~/.local/share/buku/bookmarks.db ~/Misc/Backups/bookmarks/
+echolor yellow "$(basic-commit ~/Misc/Backups/bookmarks/)"
+echolor blue "\t\t → Done!"
+
 echolor ←yellow ":: Backing diary..."
 echolor yellow "$(basic-commit ~/Misc/diary/)"
 echolor blue "\t\t → Done!"
@@ -33,10 +43,6 @@ echolor yellow "$(mandb -u)"
 echolor yellow "$(basic-commit ~/Misc/Backups/local/)"
 echolor blue "\t\t → Done!"
 
-echolor ←yellow ":: Backing Buku bookmarks..."
-rsync -qaru ~/.local/share/buku/bookmarks.db ~/Misc/Backups/bookmarks/buku
-echolor yellow "$(basic-commit ~/Misc/Backups/bookmarks/buku/)"
-echolor blue "\t\t → Done!"
 
 echolor ←yellow ":: Backing media history..."
 eza --tree -a ~/Aquire/ > ~/Misc/Backups/video/tree-aquire.txt
