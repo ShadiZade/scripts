@@ -120,7 +120,7 @@ jsonep="$HOME/Excluding/youtube/.${ep%mp4}json"
     jq -r '.description' "$jsonep" | pad-and-wrap w70
     echolor white '------------------------------------------------------------'
     echolor white 'Title:  \t' 1
-    title_arrow="$(jq -r '.title' "$jsonep")"
+    title_arrow="$(jq -r '.title' "$jsonep" | tr -d '<>')"
     sed 1q <<< "$title_arrow" | pad-and-wrap w45p16h
     jq -e '.original_title' "$jsonep" >/dev/null && {
 	title_orig="$(jq -r '.original_title' "$jsonep")"

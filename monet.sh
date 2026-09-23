@@ -17,12 +17,13 @@ count_only=0
 log_results=0
 randomness=0
 parity=0
+exclusion='^$'
 time_after="1970-01-01"
 time_before="$(date -d tomorrow +'%Y-%m-%d')"
 function date-formatter {
     date -d "$1" +'%Y-%m-%d' 2>/dev/null || return 1
 }
-while getopts 'had:s:vclA:B:r:fp:' OPTION; do
+while getopts 'had:s:vclA:B:r:fp:E:' OPTION; do
     case "$OPTION" in
 	"a") depth=999
 	     children=' or its children.' ;;
@@ -42,6 +43,7 @@ while getopts 'had:s:vclA:B:r:fp:' OPTION; do
 	"B") date-formatter "$OPTARG" >/dev/null || exit 1
 	     time_before="$(date-formatter "$OPTARG")" ;;
 	"f") types="f" ;;
+	"E") exclusion="$OPTARG" ;;
 	*) echolor red ":: Unknown option"; exit ;;
     esac
 done
@@ -57,9 +59,9 @@ done
 IFS=$'\n'
 if [[ "$hidden" -eq 1 ]]
 then
-    images=($(fd -IH -t f -t "$types" --newer "$time_after" --older "$time_before" -d "$depth" "$exts" "$img_dir" | sort -V))
+    images=($(fd -IH -t f -t "$types" --newer "$time_after" --older "$time_before" -d "$depth" -E "$exclusion" "$exts" "$img_dir" | sort -V))
 else
-    images=($(fd -I -t f -t "$types" --newer "$time_after" --older "$time_before" -d "$depth" "$exts" "$img_dir" | sort -V))
+    images=($(fd -I -t f -t "$types" --newer "$time_after" --older "$time_before" -d "$depth" -E "$exclusion" "$exts" "$img_dir" | sort -V))
 fi
 [[ -z "$images" ]] && {
     [[ "$count_only" -eq 0 ]] && {
@@ -70,6 +72,16 @@ fi
     exit 1
 }
 [[ "$count_only" -eq 0 ]] && {
+    [[ "$exclusion" != '^$' ]] && {
+	if [[ "$hidden" -eq 1 ]]
+	then
+	    preexclusion=($(fd -IH -t f -t "$types" --newer "$time_after" --older "$time_before" -d "$depth" "$exts" "$img_dir" | sort -V))
+	else
+	    preexclusion=($(fd -I -t f -t "$types" --newer "$time_after" --older "$time_before" -d "$depth" "$exts" "$img_dir" | sort -V))
+	fi
+	echolor green-yellow ":: ““${#preexclusion[@]}”” relevant $matter were found in directory ““$(basename $(realpath "$img_dir"))””$children"
+	echolor green-purple ":: Whittling away the excluded term ““$exclusion””..."
+    }
     echolor green-yellow ":: ““${#images[@]}”” relevant $matter were found in directory ““$(basename $(realpath "$img_dir"))””$children"
 }
 if [[ ! -z "$searchterm" ]]
