@@ -3,6 +3,10 @@ source ~/Repositories/scripts/essential-functions
 shows="$usdd/shows.csv"
 
 function get-series {
+    [[ "$longterm" = 1 ]] && {
+    echolor ashy "Show: $1 "
+    return
+    }
     echolor blue-white "““Show:”” $1 ““∎∎”” " 1
     curlo="$(curl -s "https://thetvdb.com/series/$2")"
     upcoming="$(echo "$curlo" | grep -i -C 3 'strong>upcoming' | tail -n 1 | awk '{print $2,$1,$3}' | tr -d ,$'\r')"
@@ -31,6 +35,12 @@ function get-series {
 }
 
 function get-movie {
+    return 1
+    # cloudflare implemented, cannot find alternative
+    [[ "$longterm" = 1 ]] && {
+    echolor ashy "Film: $1 "
+    return
+    }
     echolor white-blue "““Film:”” $1 ““∎∎”” " 1
     curlo="$(curl -s "https://www.allmovie.com/movie/$2")"
     releasedate="$(echo "$curlo" | grep 'Release Date' | htmlq -t span | xargs -I DATE date -d DATE +"%d %B %Y")"
@@ -72,7 +82,9 @@ function get-movie {
 IFS=$'\n'
 for j in $(cat "$shows" | sed '/^#/d')
 do
-    class="$(echo -n "$j" | xan select 0)"
+    grep -q '^@' <<< "$j" && longterm=1 || longterm=0
+    [[ "$1" = "longterm" ]] && longterm=0
+    class="$(echo -n "$j" | xan select 0 | sed 's/^@//g')"
     name="$(echo -n "$j" | xan select 1)"
     url="$(echo -n "$j" | xan select 2)"
     case "$class" in
