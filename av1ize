@@ -8,8 +8,14 @@ function convert-to-av1 () {
 	echolor red ":: Clobber! ““new-$1”” exists!"
 	return 1
     }
-    grep -q '/' <<< "$1" && return 1
-    grep -q 'mkv$' <<< "$1" && return 1
+    grep -q '/' <<< "$1" && {
+	echolor red ":: Not doing ““$1””, can't parse absolute paths"
+	return 1
+    }
+    grep -q 'mkv$' <<< "$1" && {
+	echolor red ":: Not doing ““$1””, MKV file"	
+	return 1
+    }
     local oldsize="$(stat -c '%s' "$1")"
     echolor blue ":: Video duration is " 1
     exiftool "$1" | grep "^Duration" | awk -F ': ' '{print $NF}'
