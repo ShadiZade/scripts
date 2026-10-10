@@ -23,6 +23,10 @@ function remove-null-char {
     sed -i 's/\x0//g;/^$/d' "$1"
 }
 
+function remove-extra-space {
+    sed -i 's/ *$//g;/^$/d' "$1"
+}
+
 function clean-bookmarks {
 tmp="pdf-bookmarks-$(date-string)"
 mv "$1" "$1_old"
@@ -32,17 +36,16 @@ pdftk "$1_old" dump_data_utf8 output "/tmp/$tmp"
     mv "$1_old" "$1"
     return 1
 }
-null-char-p "/tmp/$tmp" && {
-    grep -q "Bookmark" "/tmp/$tmp" || {
-	echolor red ":: Info file does not contain any bookmarks."
-    }
-    remove-null-char "/tmp/$tmp"
-    echolor green ":: Null characters removed!"
-} || {
-    echolor red ":: No null characters detected!"
-    mv "$1_old" "$1"
-    return 1
+#null-char-p "/tmp/$tmp" && {
+grep -q "Bookmark" "/tmp/$tmp" || {
+    echolor red ":: Info file does not contain any bookmarks."
 }
+remove-null-char "/tmp/$tmp"
+remove-extra-space "/tmp/$tmp"
+echolor green ":: Null characters removed and/or extra space removed!"
+#} || {
+#    echolor red ":: No null characters detected!"
+#}
 pdftk "$1_old" update_info_utf8 "/tmp/$tmp" output "$1"
 echolor green ":: New PDF generated!"
 move-to-trash "$1_old"
