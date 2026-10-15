@@ -139,17 +139,25 @@ jsonep="$HOME/Excluding/youtube/.${ep%mp4}json"
     date -Idate -d "$(stat -c '%w' "$ep")"
     echolor white 'Duration:\t' 1
     units "$(jq -r '.duration' "$jsonep" | sed 1q) seconds" 'hours;minutes;seconds' | sed 's/^	*//;s/\t//g;s/ + /, /g'
-    echolor white 'Times watched:\t' 1
-    watch_instance="$(rg -- "$(echo "$ep" | between '[' ']')" "$watch_history_yt" | wc -l | sed 's/^0$/““0””/')"
-    echolor yellow-default "$watch_instance"
-    echolor white 'View rank:\t' 1
-    echo -n "#$(channel-views | xan search -s channel -e "$channel" | xan select rank | xan behead) by views ("
-    echo -n "$(channel-views | xan search -s channel -e "$channel" | xan select views | xan behead) times)"
-    echo
-    echolor white 'Time rank:\t' 1
-    echo -n "#$(channel-watchtimes | xan search -s channel -e "$channel" | xan select rank | xan behead) by watchtime ("
-    echo -n "$(units "$(channel-watchtimes | xan search -s channel -e "$channel" | xan select duration | xan behead) minutes" 'days;hours;minutes' | sed 's/\t//g;s/ + /, /g'))"
-    echo
+    function get-rank-stat {
+	channel-views | xan search -s channel -e "$channel" | xan select "$1" | xan behead
+    }
+    [[ -n "$(get-rank-stat views)" ]] && {
+	echolor white 'Times watched:\t' 1
+	watch_instance="$(rg -- "$(echo "$ep" | between '[' ']')" "$watch_history_yt" | wc -l | sed 's/^0$/““0””/')"
+	echolor yellow-default "$watch_instance"
+	echolor white 'View rank:\t' 1
+	echo -n "#$(get-rank-stat rank) by views ("
+	echo -n "$(get-rank-stat views) times)"
+	echo
+	echolor white 'Time rank:\t' 1
+	echo -n "#$(channel-watchtimes | xan search -s channel -e "$channel" | xan select rank | xan behead) by watchtime ("
+	echo -n "$(units "$(channel-watchtimes | xan search -s channel -e "$channel" | xan select duration | xan behead) minutes" 'days;hours;minutes' | sed 's/\t//g;s/ + /, /g'))"
+	echo
+    } || {
+	echolor white 'View rank:\t' 1
+	echolor yellow "First time"
+    }
     echolor white '------------------------------------------------------------'
 } || {
     if pwd | grep -q "$HOME/Excluding/youtube"

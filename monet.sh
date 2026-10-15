@@ -56,6 +56,7 @@ done
     }
     exit 1
 }
+[[ "$types" = "f" ]] && matter="unlinked $matter"
 IFS=$'\n'
 if [[ "$hidden" -eq 1 ]]
 then
