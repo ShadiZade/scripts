@@ -80,6 +80,11 @@ echolor ←yellow ":: Backing org..."
 echolor yellow "$(basic-commit ~/Notes/org/)" 
 echolor blue "\t\t → Done!"
 
+echolor ←yellow ":: Backing private repos..."
+rsync -qaru ~/Repositories/private ~/Misc/Backups/
+echolor yellow "$(basic-commit ~/Misc/Backups/private)" 
+echolor blue "\t\t → Done!"
+
 echolor ←yellow ":: Backing RSS..."
 mkdir -p ~/Misc/Backups/rss/
 rsync -qaru ~/.local/share/user-scripts/elfeed-feeds.el ~/Misc/Backups/rss/
@@ -100,3 +105,4 @@ rsync -qaru ~/.local/share/sioyek/last_document_path.txt ~/Misc/Backups/document
 rsync -qaru ~/Documents/papers/refs.bib ~/Misc/Backups/documents/misc-academic-papers.bib
 echolor blue "\t\t → Done!"
 echolor yellow "$(basic-commit ~/Misc/Backups/documents/)" 
+

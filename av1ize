@@ -2,6 +2,10 @@
 source ~/Repositories/scripts/essential-functions
 
 
+function find-codec {
+    ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 "$1"
+}
+
 function convert-to-av1 () {
     [[ -e "$1" ]] || return 1
     [[ -e "new-$1" ]] && {
@@ -12,11 +16,7 @@ function convert-to-av1 () {
 	echolor red ":: Not doing ““$1””, can't parse absolute paths"
 	return 1
     }
-    grep -q 'mkv$' <<< "$1" && {
-	echolor red ":: Not doing ““$1””, MKV file"	
-	return 1
-    }
-    local oldsize="$(stat -c '%s' "$1")"
+    oldsize="$(stat -c '%s' "$1")"
     echolor blue ":: Video duration is " 1
     exiftool "$1" | grep "^Duration" | awk -F ': ' '{print $NF}'
     sleep 0.5s
@@ -37,6 +37,9 @@ function convert-to-av1 () {
 	echolor red ":: Failed to remove metadata..."
 	return 1
     }
+}
+
+function convert-to-mkv {
     echolor blue ":: Converting container..."
     ffmpeg -loglevel 8 -i "new-$inputfile" -c:v copy -c:a copy "${inputfile%.*}.mkv" || {
 	echolor red ":: Failed to convert container..."
@@ -44,6 +47,9 @@ function convert-to-av1 () {
     }
     move-to-trash "new-$inputfile"
     move-to-trash "$inputfile"
+}
+
+function calc-size-saving {
     local newsize="$(stat -c '%s' "${inputfile%.*}.mkv")"
     echolor blue '     GB\\MB\\KB\\ '
     echolor blue ":: Was ““$(printf '%10s' $oldsize)””"
@@ -58,5 +64,19 @@ function convert-to-av1 () {
 
 for j in "$@"
 do
-    convert-to-av1 "$j"
+    av1_converted_q=0
+    find-codec "$j" | grep -wq av1 && {
+	echolor red ":: ““$j”” is already av1"	
+    } || {
+	convert-to-av1 "$j" || continue
+	av1_converted_q=1
+    }
+
+    grep -q 'mkv$' <<< "$j" && {
+	echolor red ":: ““$1”” is already MKV"	
+    } || {
+	convert-to-mkv "$j"
+    }
+
+    [[ "$av1_converted_q" -eq 1 ]] && calc-size-saving "$j"
 done
