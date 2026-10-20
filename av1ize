@@ -28,29 +28,33 @@ function convert-to-av1 () {
 	ffmpeg -loglevel 8 -i "$1" -c:v copy -c:a copy "$inputfile"
 	move-to-trash "$1"
     }
-    ffmpeg -loglevel 8 -stats -i "$inputfile" -c:v libsvtav1 new-"$inputfile" || {
+    outav1file="new-$inputfile"
+    ffmpeg -loglevel 8 -stats -i "$inputfile" -c:v libsvtav1 "$outav1file" || {
 	echolor red ":: Failed to convert to av1..."
 	return 1
     }
     echolor blue ":: Removing metadata..."
-    exiftool -overwrite_original -All= "new-$inputfile" || {
+    exiftool -overwrite_original -All= "$outav1file" || {
 	echolor red ":: Failed to remove metadata..."
 	return 1
     }
+    inputfile="$outav1file"
 }
 
 function convert-to-mkv {
+    [[ -z "$inputfile" ]] && inputfile="$1"
     echolor blue ":: Converting container..."
-    ffmpeg -loglevel 8 -i "new-$inputfile" -c:v copy -c:a copy "${inputfile%.*}.mkv" || {
+    ffmpeg -loglevel 8 -i "$inputfile" -c:v copy -c:a copy "${1%.*}.mkv" || {
 	echolor red ":: Failed to convert container..."
 	return 1
     }
-    move-to-trash "new-$inputfile"
-    move-to-trash "$inputfile"
+    [[ -e "$inputfile" ]] && move-to-trash "$inputfile"
+    [[ -e "$1" ]] && move-to-trash "$1"
+    [[ -e "${1%.*}.mp4" ]] && move-to-trash "${1%.*}.mp4"
 }
 
 function calc-size-saving {
-    local newsize="$(stat -c '%s' "${inputfile%.*}.mkv")"
+    local newsize="$(stat -c '%s' "${1%.*}.mkv")"
     echolor blue '     GB\\MB\\KB\\ '
     echolor blue ":: Was ““$(printf '%10s' $oldsize)””"
     echolor blue ":: Now ““$(printf '%10s' $newsize)””"

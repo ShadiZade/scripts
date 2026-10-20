@@ -81,8 +81,8 @@ echolor yellow "$(basic-commit ~/Notes/org/)"
 echolor blue "\t\t → Done!"
 
 echolor ←yellow ":: Backing private repos..."
+echolor yellow "$(basic-commit ~/Repositories/private/)" 
 rsync -qaru ~/Repositories/private ~/Misc/Backups/
-echolor yellow "$(basic-commit ~/Misc/Backups/private)" 
 echolor blue "\t\t → Done!"
 
 echolor ←yellow ":: Backing RSS..."

@@ -1,0 +1,51 @@
+.TH CHEATSHEET 1 2026-10-18 SHADIZADE
+
+.SH KEY NOTATION
+\fIC\fR = ctrl    \fIM\fR = alt    \fIS\fR = shift    \fIs\fR = super    \fIG\fR = graph
+
+.SH BSPWM
+
+\[bu] S-s-<Del>    = quit bspwm
+.ti 23
+<bspc quit>
+.sp 1 
+\[bu] S-s-r        = reload bspwm
+.ti 23
+<bspc wm -r>
+.sp 1 
+\[bu] S-s-c        = send SIGTERM to close window
+.ti 23
+<bspc node -c>
+.sp 1 
+\[bu] S-s-k        = send SIGKILL to kill program
+.ti 23
+<bspc node -k>
+.sp 1 
+\[bu] s-h          = hide node
+.ti 23
+<bspc node --flag hidden=on>
+.sp 1 
+\[bu] S-s-h        = unhide node
+.ti 23
+calls script ~/Repositories/scripts/unhide-nodes
+.sp 1 
+\[bu] S-s-s        = reload key shortcuts
+.ti 23
+<pkill sxhkd; sxhkd; notify-send -t 2000 "Reloading sxhkd">
+.sp 1 
+\[bu] C-M-s-<Down> = volume down
+.ti 23
+<pamixer --allow-boost -d 5>
+.sp 1 
+\[bu] C-M-s-<Up>   = volume up
+.ti 23
+<pamixer --allow-boost -i 5>
+.sp 1 
+\[bu] C-M-s-/      = mute
+.ti 23
+<pamixer -t>
+.sp 1 
+\[bu] C-M-s-<Back> = set volume at 50%
+.ti 23
+<pamixer --set-volume 50>
+
