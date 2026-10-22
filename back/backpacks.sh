@@ -45,13 +45,13 @@ echolor blue "\t\t → Done!"
 
 
 echolor ←yellow ":: Backing media history..."
-eza --tree -a ~/Aquire/ > ~/Misc/Backups/video/tree-aquire.txt
+fd --color never -t f -t l -H . ~/Aquire/ > ~/Misc/Backups/video/tree-aquire.txt
 eza -1 ~/Films > ~/Misc/Backups/video/movies.txt
 eza -1 ~/TV > ~/Misc/Backups/video/tv.txt
-eza --tree ~/Films > ~/Misc/Backups/video/tree-film.txt
-eza --tree ~/TV > ~/Misc/Backups/video/tree-tv.txt
-eza --tree ~/Excluding/youtube/ > ~/Misc/Backups/video/tree-youtube.txt
-eza --tree ~/Excluding/documentaries/ > ~/Misc/Backups/video/tree-youtube.txt
+fd --color never -t f -t l . ~/Films > ~/Misc/Backups/video/tree-film.txt
+fd --color never -t f -t l . ~/TV > ~/Misc/Backups/video/tree-tv.txt
+fd --color never -t f -t l . ~/Excluding/youtube/ > ~/Misc/Backups/video/tree-youtube.txt
+fd --color never -t f -t l . ~/Excluding/documentaries/ > ~/Misc/Backups/video/tree-youtube.txt
 rsync -qaru ~/Excluding/youtube/.rules.hezi ~/Misc/Backups/video/rules.hezi
 echolor yellow "$(basic-commit ~/Misc/Backups/video)" 
 echolor blue "\t\t → Done!"
@@ -59,7 +59,7 @@ echolor blue "\t\t → Done!"
 echolor ←yellow ":: Backing torrents..."
 rsync -qaru ~/.config/qBittorrent/categories.json ~/Misc/Backups/qbittorrent/
 rsync -qaru ~/.config/qBittorrent/qBittorrent.conf ~/Misc/Backups/qbittorrent/
-eza --tree -a ~/P2P > ~/Misc/Backups/qbittorrent/tree-torrent.txt
+fd --color never -t f -t l . -a ~/P2P > ~/Misc/Backups/qbittorrent/tree-torrent.txt
 echolor yellow "$(basic-commit ~/Misc/Backups/qbittorrent/)" 
 echolor blue "\t\t → Done!"
 
@@ -93,10 +93,10 @@ echolor yellow "$(basic-commit ~/Misc/Backups/rss/)"
 echolor blue "\t\t → Done!"
 
 echolor ←yellow ":: Backing document data..."
-eza --tree ~/Books/ > ~/Misc/Backups/documents/tree-epub.txt
-eza --tree ~/Athenaeum/ > ~/Misc/Backups/documents/tree-pdf.txt
-eza --tree ~/Projects/book-restoration/ > ~/Misc/Backups/documents/tree-book-restoration.txt
-eza --tree ~/Documents/ > ~/Misc/Backups/documents/tree-documents.txt
+fd --color never -t f -t l . ~/Books/ > ~/Misc/Backups/documents/tree-epub.txt
+fd --color never -t f -t l . ~/Athenaeum/ > ~/Misc/Backups/documents/tree-pdf.txt
+fd --color never -t f -t l . ~/Projects/book-restoration/ > ~/Misc/Backups/documents/tree-book-restoration.txt
+fd --color never -t f -t l . ~/Documents/ > ~/Misc/Backups/documents/tree-documents.txt
 rsync -qaru ~/Projects/book-restoration/bursting-function.org ~/Misc/Backups/documents
 rsync -qaru ~/Projects/book-restoration/files-finished ~/Misc/Backups/documents
 rsync -qaru ~/Athenaeum/sql/database/athenaeum.db ~/Misc/Backups/documents
