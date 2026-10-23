@@ -16,7 +16,7 @@ function link-from-finished {
 	    return 1
 	}
 	local new_name="$(basename "$j" | remove-spaces)"
-	grep -q "_English.srt" <<< "$new_name" && {
+	grep -iq "_Eng.*srt" <<< "$j" && {
 	    grep -q '/Subs$' <<< "$(dirname "$j")" && {
 		local new_name="$(dirname "$(dirname "$j")" | awk -F '/' '{print $NF}').en.srt"
 	    } || {
@@ -36,7 +36,7 @@ function link-from-unfinished {
 	    return 1
 	}
 	local new_name="$(basename "$j" | remove-spaces)"
-	grep -q "_English.srt" <<< "$new_name" && {
+	grep -iq "_Eng.*srt" <<< "$j" && {
 	    grep -q '/Subs$' <<< "$(dirname "$j")" && {
 		local new_name="$(dirname "$(dirname "$j")" | awk -F '/' '{print $NF}').en.srt"
 	    } || {
