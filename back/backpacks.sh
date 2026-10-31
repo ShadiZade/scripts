@@ -85,6 +85,11 @@ echolor yellow "$(basic-commit ~/Repositories/private/)"
 rsync -qaru ~/Repositories/private ~/Misc/Backups/
 echolor blue "\t\t → Done!"
 
+echolor ←yellow ":: Backing zas..."
+rsync -qaru ~/.local/share/zas/* ~/Misc/Backups/zas
+echolor yellow "$(basic-commit ~/Misc/Backups/zas/)"
+echolor blue "\t\t → Done!"
+
 echolor ←yellow ":: Backing RSS..."
 mkdir -p ~/Misc/Backups/rss/
 rsync -qaru ~/.local/share/user-scripts/elfeed-feeds.el ~/Misc/Backups/rss/

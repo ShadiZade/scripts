@@ -38,4 +38,4 @@ read -r t_end
     echolor red ":: Clobber error 02!"
     exit 1
 }
-ffmpeg -i "$1" -map 0 -c:v libsvtav1 -ss "$t_beg" -to "$t_end" "$clipdir"/"$outname".mkv
+ffmpeg -i "$1" -map 0 -c:v libsvtav1 -c:a copy -c:s copy -ss "$t_beg" -to "$t_end" "$clipdir"/"$outname".mkv

@@ -1,11 +1,16 @@
 #!/bin/bash
-source ~/Repositories/scripts/essential-functions 
+source ~/Repositories/scripts/essential-functions
 
-current_file="$usdd/zas-current-study"
-reserve_file="$usdd/zas-reserve-study"
-alldone_file="$usdd/zas-alldone-study"
+data_dir="$HOME/.local/share/zas"
+sphere_file="$data_dir/sphere"
+current_sphere="$(sed 1q "$sphere_file")"
+[[ -z "$current_sphere" ]] && current_sphere="misc"
+current_file="$data_dir/library-$current_sphere-current"
+reserve_file="$data_dir/library-$current_sphere-reserve"
+alldone_file="$data_dir/library-$current_sphere-alldone"
 use_program="sioyek"
-
+touch "$current_file" "$reserve_file" "$alldone_file"
+    
 function add-study {
     [[ "$current_or_reserve" -eq 1 ]] && {
 	storage_file="$reserve_file"
@@ -18,7 +23,7 @@ function add-study {
 	echolor red ":: Nothing found."
 	exit
     }
-    grep -q "$(realpath -s "$1")" "$usdd/zas"* && {
+    grep -q "$(realpath -s "$1")" "$data_dir/"* && {
 	echolor red ":: This book already exists in active study."
 	return 1
     }
@@ -77,21 +82,21 @@ function view-study {
     IFS=$'\n'
     for j in $(cat "$alldone_file")
     do
-	[[ "$i" -eq 1 ]] && echolor white '-------- ALLDONE --------'
+	[[ "$i" -eq 1 ]] && echolor white-blue "-------- ““$current_sphere”” ALLDONE --------"
 	print-name "$j" blue
 	((i++))
     done
     i=1
     for j in $(cat "$reserve_file")
     do
-	[[ "$i" -eq 1 ]] && echolor white '-------- RESERVE --------'
+	[[ "$i" -eq 1 ]] && echolor white-green "-------- ““$current_sphere”” RESERVE --------"
 	print-name "$j" green
 	((i++))
     done
     i=1
     for j in $(cat "$current_file")
     do
-	[[ "$i" -eq 1 ]] && echolor white '-------- CURRENT --------'
+	[[ "$i" -eq 1 ]] && echolor white-purple "-------- ““$current_sphere”” CURRENT --------"
 	print-name "$j" purple
 	((i++))
     done
@@ -127,9 +132,21 @@ function print-name {
 }
 
 current_or_reserve=0
-while getopts 'movra:d' OPTION; do
+while getopts 'mvra:ds:' OPTION; do
     case "$OPTION" in
-	"o") use_program="okular"; open-study ;;
+	"s") new_sphere="$(kebab "$OPTARG")"
+	     fd -q -- "library-$new_sphere-" "$data_dir" || {
+		 continue_p=n
+		 echolor yellow ":: New sphere ““$new_sphere”” detected! Create? (y/N) " 1
+		 read -r continue_p
+		 [[ "$continue_p" = y ]] || {
+		     echolor red ":: Sphere not created. Exiting."
+		     exit 1
+		 }
+	     }
+	     echo "$new_sphere" > "$sphere_file"
+	     echolor purple ":: Sphere changed to ““$(sed 1q "$sphere_file")””"
+	     ;;
 	"r") current_or_reserve=1 ;;
 	"v") view-study ;;
 	"d") delete-study ;;
