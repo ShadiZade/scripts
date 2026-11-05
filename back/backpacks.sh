@@ -101,6 +101,7 @@ echolor ←yellow ":: Backing document data..."
 fd --color never -t f -t l . ~/Books/ > ~/Misc/Backups/documents/tree-epub.txt
 fd --color never -t f -t l . ~/Athenaeum/ > ~/Misc/Backups/documents/tree-pdf.txt
 fd --color never -t f -t l . ~/Projects/book-restoration/ > ~/Misc/Backups/documents/tree-book-restoration.txt
+fd --color never -t f -t l . ~/Projects/reading/ > ~/Misc/Backups/documents/tree-reading.txt
 fd --color never -t f -t l . ~/Documents/ > ~/Misc/Backups/documents/tree-documents.txt
 rsync -qaru ~/Projects/book-restoration/bursting-function.org ~/Misc/Backups/documents
 rsync -qaru ~/Projects/book-restoration/files-finished ~/Misc/Backups/documents
