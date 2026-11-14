@@ -592,45 +592,59 @@ function get-doi-from-pdf {
     function doi-cleaner {
 	sed 's/,$//g;s/ //g;s|/$||g'
     }
-    
-    pdfgrep --page-range='1-3' -qi 'doi' "$1" || return 1
 
-    pdfdoi="$(pdfgrep --page-range='1-3' 'doi.org' "$1" | ifne sed 1q | awk -F 'doi.org/' '{print $NF}' | awk -F ' ' '{print $1}' | doi-cleaner)"
-    doi-quality-check && {
-	echo -n "$pdfdoi"
-	return
+    # checks to see if there is a DOI in the first 3 pages
+    pdfgrep --page-range='1-3' -qi 'doi' "$1" && {
+	pdfdoi="$(pdfgrep --page-range='1-3' 'doi.org' "$1" | ifne sed 1q | awk -F 'doi.org/' '{print $NF}' | awk -F ' ' '{print $1}' | doi-cleaner)"
+	doi-quality-check && {
+	    echo -n "$pdfdoi"
+	    return
+	}
+	
+	pdfgrep --page-range='1-3' -qi 'doi:' "$1" && {
+	    pdfdoi="$(pdfgrep --page-range='1-3' -i 'doi:' "$1" | ifne sed 1q | awk '{print $2}' | doi-cleaner)"
+	    doi-quality-check && {
+		echo -n "$pdfdoi"
+		return
+	    }
+	    pdfdoi="$(pdfgrep --page-range='1-3' 'doi:' "$1" | ifne sed 1q | awk -F 'doi:' '{print $2}' | awk '{print $1}' | doi-cleaner)"
+	    doi-quality-check && {
+		echo -n "$pdfdoi"
+		return
+	    }
+	    pdfdoi="$(pdfgrep --page-range='1-3' 'DOI:' "$1" | ifne sed 1q | awk -F 'DOI:' '{print $2}' | awk '{print $1}' | doi-cleaner)"
+	    doi-quality-check && {
+		echo -n "$pdfdoi"
+		return
+	    }
+	}
+	
+	pdfgrep --page-range='1-3' -qi 'doi ' "$1" && {
+	    pdfdoi="$(pdfgrep --page-range='1-3' 'DOI ' "$1" | ifne sed 1q | awk -F 'DOI ' '{print $2}' | awk '{print $1}' | doi-cleaner)"
+	    doi-quality-check && {
+		echo -n "$pdfdoi"
+		return
+	    }
+	    pdfdoi="$(pdfgrep --page-range='1-3' 'doi ' "$1" | ifne sed 1q | awk -F 'doi ' '{print $2}' | awk '{print $1}' | doi-cleaner)"
+	    doi-quality-check && {
+		echo -n "$pdfdoi"
+		return
+	    }
+	}
     }
     
-    pdfgrep --page-range='1-3' -qi 'doi:' "$1" && {
-	pdfdoi="$(pdfgrep --page-range='1-3' -i 'doi:' "$1" | ifne sed 1q | awk '{print $2}' | doi-cleaner)"
-	doi-quality-check && {
-	    echo -n "$pdfdoi"
-	    return
-	}
-	pdfdoi="$(pdfgrep --page-range='1-3' 'doi:' "$1" | ifne sed 1q | awk -F 'doi:' '{print $2}' | awk '{print $1}' | doi-cleaner)"
-	doi-quality-check && {
-	    echo -n "$pdfdoi"
-	    return
-	}
-	pdfdoi="$(pdfgrep --page-range='1-3' 'DOI:' "$1" | ifne sed 1q | awk -F 'DOI:' '{print $2}' | awk '{print $1}' | doi-cleaner)"
-	doi-quality-check && {
-	    echo -n "$pdfdoi"
-	    return
+    # checks to see if there is a DOI in the last page
+    pagecount="$(pdfinfo "$1" | rg --color=never '^Pages: ' | cut -c18-)"
+    pdfgrep --page-range="$pagecount" -qi 'doi' "$1" && {
+	pdfgrep --page-range="$pagecount" -qi 'American Association for the Advancement of Science' "$1" && {
+	    pdfdoi="$(pdfgrep --page-range="$pagecount" 'DOI: ' "$1" | ifne sed 1q | awk -F 'DOI: ' '{print $2}' | awk '{print $1}' | doi-cleaner)"
+	    doi-quality-check && {
+		echo -n "$pdfdoi"
+		return
+	    }
 	}
     }
-
-    pdfgrep --page-range='1-3' -qi 'doi ' "$1" && {
-	pdfdoi="$(pdfgrep --page-range='1-3' 'DOI ' "$1" | ifne sed 1q | awk -F 'DOI ' '{print $2}' | awk '{print $1}' | doi-cleaner)"
-	doi-quality-check && {
-	    echo -n "$pdfdoi"
-	    return
-	}
-	pdfdoi="$(pdfgrep --page-range='1-3' 'doi ' "$1" | ifne sed 1q | awk -F 'doi ' '{print $2}' | awk '{print $1}' | doi-cleaner)"
-	doi-quality-check && {
-	    echo -n "$pdfdoi"
-	    return
-	}
-    }
+    
     return 1
 }
 
