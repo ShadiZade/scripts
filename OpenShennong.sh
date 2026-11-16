@@ -477,9 +477,10 @@ function fetch-bib-citation {
     }
     sed -i 's/\\n            <i>/ /g;s|</i>\\n            | |g' "$tmp_bib-full"
     jq -r '.exports.[] | select( .export_name == "bibtex" ) | .export' "$tmp_bib-full" > "$tmp_bib"
-    sed -i '{:q;N;s|\n *<scp>| |g;s|</scp>\n *| |g;t q}' "$tmp_bib"
+    sed -i '{:q;N;s|\n *<scp>| |g;s|<scp>| |g;s|</scp>\n *| |g;t q}' "$tmp_bib"
     sed -i 's/  */ /g;s/	/ /g;s/proceedings-article/article/g' "$tmp_bib"
     sed -i 's/journal-article/article/g;s/book-chapter/incollection/g;s/article-journal/article/g' "$tmp_bib"
+    sed -i 's/dataset/article/g' "$tmp_bib"
     sed -i 's/,,/,/g;s/title={/title={{/g;s/title=/\ntitle=/g;/title=/s/}/}}/g' "$tmp_bib"
     sed -i 's/<i>//g;s|</i>||g;s/&amp;/\\\&/g' "$tmp_bib"
     doikey="$(jq -r '.metadata.DOI' "$tmp_bib-full")"
@@ -487,7 +488,7 @@ function fetch-bib-citation {
     function authorkey-filter {
 	sed 's/al-//gi;s/al //gi;s/de /de/gi;s/den /den/gi;s/don /don/gi;s/van /van/gi;s/von /von/gi;s/le /le/gi;s/la /la/gi;s/les /les/gi'            \
 	    | sed 's/bin /bin/gi;s/ben /ben/gi;s/abu /abu/gi;s/ibn /ibn/gi;s/san /san/gi;s/sao /sao/gi;s/são /sao/gi;s/santa /santa/gi;s/del /del/gi'  \
-	    | sed 's/los /los/gi;s/el-//gi;s/el //gi'                                                                                                  \
+	    | sed 's/los /los/gi;s/el-//gi;s/el //gi;s/di /di/gi'                                                                                      \
 	    | tr -d -- '-‐'                                                                                                                            \
 	    | awk -F '{' '{print $2}'                                                                                                                  \
 	    | awk -F '}' '{print $1}'                                                                                                                  \
@@ -499,6 +500,7 @@ function fetch-bib-citation {
 	awk -F '{{' '{print $2}'                                                                                                                       \
 	    | awk -F '}}' '{print $1}'                                                                                                                 \
 	    | sed 's/<i>//g;s|</i>||g'                                                                                                                 \
+	    | sed 's/<scp>//g;s|</scp>||g'                                                                                                             \
 	    | sed 's/[-‐—–]//g'                                                                                                                        \
 	    | tr -d '[1234567890]'                                                                                                                     \
 	    | kebab                                                                                                                                    \
@@ -613,6 +615,11 @@ function get-doi-from-pdf {
 		return
 	    }
 	    pdfdoi="$(pdfgrep --page-range='1-3' 'DOI:' "$1" | ifne sed 1q | awk -F 'DOI:' '{print $2}' | awk '{print $1}' | doi-cleaner)"
+	    doi-quality-check && {
+		echo -n "$pdfdoi"
+		return
+	    }
+	    pdfdoi="$(pdfgrep --page-range='1-3' 'doi/' "$1" | ifne sed 1q | awk -F 'doi/' '{print $2}' | awk '{print $1}' | doi-cleaner)"
 	    doi-quality-check && {
 		echo -n "$pdfdoi"
 		return

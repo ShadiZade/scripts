@@ -11,14 +11,45 @@ alldone_file="$data_dir/library-$current_sphere-alldone"
 use_program="sioyek"
 touch "$current_file" "$reserve_file" "$alldone_file"
     
+function source-detector {
+    case "$1" in
+	0)
+	    storage_file="$current_file"
+	    destination="current"
+	    ;;
+	1)
+	    storage_file="$reserve_file"
+	    destination="reserve"
+	    ;;
+	2)
+	    storage_file="$alldone_file"
+	    destination="alldone"
+	    ;;
+	*)
+	    echolor red ":: Incorrect source (must be 0, 1, or 2)"
+	    exit 1
+    esac
+}
+
+function shelf-integrity-checker {
+    case "$shelf_source" in
+	0) : ;;
+	1) : ;;
+	2) : ;;
+	*) return 1 ;;
+    esac
+    case "$shelf_target" in
+	0) : ;;
+	1) : ;;
+	2) : ;;
+	*) return 1 ;;
+    esac
+    [[ "$shelf_source" = "$shelf_target" ]] && return 1
+    return 0
+}
+
 function add-study {
-    [[ "$current_or_reserve" -eq 1 ]] && {
-	storage_file="$reserve_file"
-	destination="reserve"
-    } || {
-	storage_file="$current_file"
-	destination="current"
-    }
+    source-detector "$shelf_target"
     [[ -e "$1" ]] || {
 	echolor red ":: Nothing found."
 	exit
@@ -28,24 +59,21 @@ function add-study {
 	return 1
     }
     echo "$(realpath -s "$1")" >> $storage_file
-    
+    basic-commit "$data_dir"
     echolor purple ":: ““$(basename "$1")”” added to ““$destination””"
 }
 
 function delete-study {
-    [[ "$current_or_reserve" -eq 1 ]] \
-	&& storage_file="$reserve_file" \
-	    || storage_file="$current_file"
+    source-detector "$shelf_source"
     removethis="$(cat $storage_file | fzf --prompt="Select file to REMOVE: ")"
     [ -z "$removethis" ] && echolor red ":: Nothing chosen." && exit
     sed -i "s|^$removethis$||g;/^$/d" $storage_file
+    basic-commit "$data_dir"
     echolor purple ":: ““$(echo $removethis | awk -F '/' '{print $NF}')”” was removed."
 }
 
 function open-study {
-    [[ "$current_or_reserve" -eq 1 ]] \
-	&& storage_file="$reserve_file" \
-	    || storage_file="$current_file"
+    source-detector "$shelf_source"
     openthis="$(cat $storage_file | fzf --prompt="Select file to OPEN: ")"
     [ -z "$openthis" ] && echolor red ":: Nothing chosen." && exit
     echolor purple ":: Opened ““$(echo $openthis | awk -F '/' '{print $NF}')”” in ““$use_program””"
@@ -53,28 +81,49 @@ function open-study {
     ( eval "$use_program" "$openthis" 2>/dev/null >/dev/null ) &
 }
 
-function move-to-alldone {
-    stashthis="$(cat $current_file | fzf --prompt="Select file to MOVE TO ALLDONE: ")"
-    [ -z "$stashthis" ] && echolor red ":: Nothing chosen." && exit
-    sed -i "s|$stashthis||g;/^$/d" "$current_file"
-    echo "$stashthis" >> "$alldone_file"
-    echolor purple ":: ““$(echo $stashthis | awk -F '/' '{print $NF}')”” was moved to alldone."
+function bib-study {
+    source-detector "$shelf_source"
+    bibthis="$(cat $storage_file | fzf --prompt="Select file to OPEN: ")"
+    [ -z "$bibthis" ] && echolor red ":: Nothing chosen." && exit
+    bibthisdir="$(realpath "$(dirname "$bibthis")")"
+    fd -q --exact refs.bib "$bibthisdir" || {
+	echolor red ":: No .bib file in said directory."
+	exit
+    }
+    bibthiskey="$(printf "$bibthis" | awk -F '/' '{print $NF}' | sed 's/.pdf$//g')"
+    case "$1" in
+	"title")
+	    pandoc -i "$bibthisdir"/refs.bib -f bibtex -t csljson | jq -r '.[] | select( .id == "'"$bibthiskey"'") | .title' 
+	    ;;
+	"doi")
+	    pandoc -i "$bibthisdir"/refs.bib -f bibtex -t csljson | jq -r '.[] | select( .id == "'"$bibthiskey"'") | .DOI' 
+	    ;;
+	"author")
+	    pandoc -i "$bibthisdir"/refs.bib -f bibtex -t csljson | jq -r '.[] | select( .id == "'"$bibthiskey"'") | .[].author.[0].family' 
+	    ;;
+	*)
+	    pandoc -i "$bibthisdir"/refs.bib -f bibtex -t csljson | jq -r '.[] | select( .id == "'"$bibthiskey"'")'  | sed '/^$/d' | bat -pl json
+	    echo -n "$bibthiskey" | xclip -selection clipboard
+	    ;;
+    esac
 }
 
-function move-to-reserve {
-    stashthis="$(cat $current_file | fzf --prompt="Select file to MOVE TO RESERVE: ")"
-    [ -z "$stashthis" ] && echolor red ":: Nothing chosen." && exit
-    sed -i "s|$stashthis||g;/^$/d" "$current_file"
-    echo "$stashthis" >> "$reserve_file"
-    echolor purple ":: ““$(echo $stashthis | awk -F '/' '{print $NF}')”” was moved to reserve."
-}
 
-function call-from-reserve {
-    callthis="$(cat $reserve_file | fzf --prompt="Select file to MOVE TO CURRENT: ")"
-    [ -z "$callthis" ] && echolor red ":: Nothing chosen." && exit
-    sed -i "s|$callthis||g;/^$/d" "$reserve_file"
-    echo "$callthis" >> "$current_file"
-    echolor purple ":: ““$(echo $callthis | awk -F '/' '{print $NF}')”” was moved to current."
+
+function move-shelf {
+    shelf-integrity-checker || {
+	echolor red ":: Shelf choice is incorrect!"
+	echolor yellow ":: 0 = current\n:: 1 = reserve\n:: 2 = alldone"
+	exit 1
+    }
+    source-detector "$shelf_source"
+    stashthis="$(cat "$storage_file" | fzf --prompt="Select file to move from $destination: ")"
+    [ -z "$stashthis" ] && echolor red ":: Nothing chosen." && exit
+    sed -i "s|$stashthis||g;/^$/d" "$storage_file"
+    source-detector "$shelf_target"
+    echo "$stashthis" >> "$storage_file"
+    basic-commit "$data_dir"
+    echolor purple ":: ““$(echo $stashthis | awk -F '/' '{print $NF}')”” was moved to $destination."
 }
 
 function view-study {
@@ -82,21 +131,21 @@ function view-study {
     IFS=$'\n'
     for j in $(cat "$alldone_file")
     do
-	[[ "$i" -eq 1 ]] && echolor white-blue "-------- ““$current_sphere”” ALLDONE --------"
+	[[ "$i" -eq 1 ]] && echolor white-blue "-------- ALLDONE ““$current_sphere”” 2 --------"
 	print-name "$j" blue
 	((i++))
     done
     i=1
     for j in $(cat "$reserve_file")
     do
-	[[ "$i" -eq 1 ]] && echolor white-green "-------- ““$current_sphere”” RESERVE --------"
+	[[ "$i" -eq 1 ]] && echolor white-green "-------- RESERVE ““$current_sphere”” 1 --------"
 	print-name "$j" green
 	((i++))
     done
     i=1
     for j in $(cat "$current_file")
     do
-	[[ "$i" -eq 1 ]] && echolor white-purple "-------- ““$current_sphere”” CURRENT --------"
+	[[ "$i" -eq 1 ]] && echolor white-purple "-------- CURRENT ““$current_sphere”” 0 --------"
 	print-name "$j" purple
 	((i++))
     done
@@ -131,10 +180,11 @@ function print-name {
     fi
 }
 
-current_or_reserve=0
-while getopts 'mvra:ds:' OPTION; do
+shelf_source=0
+shelf_target=0
+while getopts 'movb:t:f:a:ds:' OPTION; do
     case "$OPTION" in
-	"s") new_sphere="$(kebab "$OPTARG")"
+	"s") new_sphere="$(kebab "$OPTARG" | tr -d '-')"
 	     fd -q -- "library-$new_sphere-" "$data_dir" || {
 		 continue_p=n
 		 echolor yellow ":: New sphere ““$new_sphere”” detected! Create? (y/N) " 1
@@ -146,19 +196,16 @@ while getopts 'mvra:ds:' OPTION; do
 	     }
 	     echo "$new_sphere" > "$sphere_file"
 	     echolor purple ":: Sphere changed to ““$(sed 1q "$sphere_file")””"
+	     exit 
 	     ;;
-	"r") current_or_reserve=1 ;;
+	"f") shelf_source="$OPTARG" ;;
+	"t") shelf_target="$OPTARG" ;;
+	"o") open-study ;;
 	"v") view-study ;;
+	"b") bib-study "$OPTARG";;
 	"d") delete-study ;;
 	"a") add-study "$OPTARG" ;;
-	"m") case "$(echo -e "To reserve\nTo current\nTo alldone" | fzf --prompt="Choose action: ")" in
-		 "To current") call-from-reserve ;;
-		 "To reserve") move-to-reserve ;;
-		 "To alldone") move-to-alldone ;;
-		 *) echolor red ":: No option chosen"
-		    exit ;;
-	     esac
-	     ;;
+	"m") move-shelf ;;
 	*) echo incorrect input; exit ;;
     esac
 done
