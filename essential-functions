@@ -266,3 +266,27 @@ function simplify-test {
 	return 1
     }
 }
+
+function mvk {
+    [[ -z "$1" ]] && return 1
+    [[ ! -e "$1" ]] && {
+	echolor red ":: File ““$1”” not found."
+	return 1
+    }
+    local fname="$1"
+    local ext="${fname##*.}"
+    case "$2" in
+	'.'|'') nname="$(basename "${fname%.*}")" ;;
+	*)      nname="$2" ;;
+    esac
+    [[ -z "$nname" ]] && return 1
+    [[ -n "$ext" ]] && local ext=".$ext"
+    grep -q '\.' <<< "$fname" || local ext=''
+    [[ -e "$(kebab "$nname")$ext" ]] && {
+	echolor red ":: ““$(kebab "$nname")$ext”” already exists here."
+	return 1
+    }
+    [[ -z "$ext"  ]] && ext="$(extension-determiner "$fname")"
+    mv -vn "$fname" "$(kebab "$nname")$ext" || return 1
+    echolor purple-aquamarine ":: From ““$fname””\n:: Into ““$(kebab "$nname")$ext””"
+}

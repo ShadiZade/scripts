@@ -111,7 +111,6 @@ case "$1" in
 	;;
 esac
 	
-
 [[ -z "$1" ]] || exit
 ep="$(eza --no-quotes -1fX --show-symlinks | sed '/^$/d' | sort | grep -E 'mkv$|avi$|mp4$|ts$|mov$|webm$|m4v$' | ifne fzf)"
 jsonep="$HOME/Excluding/youtube/.${ep%mp4}json"
@@ -167,86 +166,159 @@ jsonep="$HOME/Excluding/youtube/.${ep%mp4}json"
     fi
 }
 mpv --write-filename-in-watch-later-config --msg-level=all=error --osd-fractions --volume=100 --volume-max=200 --alang=eng --slang=eng "$ep" || exit
-choose_done="$(echo -e 'Mark as done\nDo nothing\nAbandon file\nDone and star' | fzf --no-input)"
 ext_alone="$(echo "$ep" | awk -F '.' '{print $NF}')"
 allrelatedfiles="$(echo "$ep" | sed "s/\.$ext_alone//;s/,/‚/g")"
-addstar=''
-[[ "$choose_done" = "Done and star" ]] && addstar='🌟'
-case "$choose_done" in
-    "Mark as done"|"Done and star")
-	if pwd | grep -q "$HOME/Excluding/youtube"
-	then
-	    {
-		echo -ne "$addstar$allrelatedfiles,"
-		echo -ne "$channel,"
-		echo -ne "$(jq '.duration' "$HOME/Excluding/youtube/.$allrelatedfiles".json | sed 1q),"
-		echo  -e "$(date -Isec)"
-	    } >> "$watch_history_yt"
-	    move-to-trash "$allrelatedfiles"*
-	    [[ -e "$HOME/Excluding/youtube/.$allrelatedfiles".json ]] && {
-		move-to-trash "$HOME/Excluding/youtube/.$allrelatedfiles".json
-	    } || {
-		echolor red ':: JSON data file not found'
-	    }			
-	    echolor green ":: Logged into the YouTube record $addstar"
-	elif pwd | grep -q "$HOME/TV"
-	then
-	    {
-		echo -ne "$(pwd | awk -F '/' '{print $5}'),"
-		echo -ne "$(tr -d ',' <<< "$allrelatedfiles"),"
-		echo -e "$(date -Isec)"
-	    } >> "$watch_history_tv"
-       	    move-to-trash-recursively "$allrelatedfiles"*
-	    echolor green ":: Logged into the TV record"
-	elif pwd | grep -q "$HOME/Excluding/documentaries"
-	then
-	    {
-		echo -ne "$allrelatedfiles,"
-		echo -e "$(date -Isec)"
-	    } >> "$watch_history_docs"
-	    move-to-trash-recursively "$allrelatedfiles"*
-	    echolor green ":: Logged into the documentaries record"
-	elif pwd | grep -q "$HOME/Films"
-	then
-	    {
-		echo -ne "$allrelatedfiles,"
-		echo -e "$(date -Isec)"
-	    } >> "$watch_history_film"
-	    move-to-trash-recursively "$allrelatedfiles"*
-	    echolor green ":: Logged into the film record"
-	else
-	    echolor red ":: File is outside supported directories."
-	    exit 1
-	fi
-	;;
-    "Abandon file")
-	if pwd | grep -q "$HOME/Excluding/youtube"
-	then
-	    move-to-trash "$allrelatedfiles"*
-	    [[ -e "$HOME/Excluding/youtube/.$allrelatedfiles".json ]] && {
-		move-to-trash "$HOME/Excluding/youtube/.$allrelatedfiles".json
-	    } || {
-		echolor red ':: JSON data file not found'
-	    }			
-	    echolor yellow ":: The video ““$allrelatedfiles””\n:: has been abandoned"
-	elif pwd | grep -q "$HOME/TV"
-	then
-       	    move-to-trash-recursively "$allrelatedfiles"*
-	    echolor yellow ":: The episode ““$allrelatedfiles””\n:: has been abandoned"
-	elif pwd | grep -q "$HOME/Excluding/documentaries"
-	then
-	    move-to-trash-recursively "$allrelatedfiles"*
-	    echolor yellow ":: The documentary ““$allrelatedfiles””\n:: has been abandoned"
-	elif pwd | grep -q "$HOME/Films"
-	then
-	    move-to-trash-recursively "$allrelatedfiles"*
-	    echolor yellow ":: The film ““$allrelatedfiles””\n:: has been abandoned"
-	else
-	    echolor red ":: File is outside supported directories."
-	    exit 1
-	fi
-	;;
-    "Do nothing")
-	echolor yellow ":: Nothing was done"
-	;;
-esac
+
+############ YT
+
+function yt-done {
+    {
+	echo -ne "$addstar$allrelatedfiles,"
+	echo -ne "$channel,"
+	echo -ne "$(jq '.duration' "$HOME/Excluding/youtube/.$allrelatedfiles".json | sed 1q),"
+	echo  -e "$(date -Isec)"
+    } >> "$watch_history_yt"
+    move-to-trash "$allrelatedfiles"*
+    [[ -e "$HOME/Excluding/youtube/.$allrelatedfiles".json ]] && {
+	move-to-trash "$HOME/Excluding/youtube/.$allrelatedfiles".json
+    } || {
+	echolor red ':: JSON data file not found'
+    }			
+    echolor green ":: Logged into the YouTube record $addstar"
+}
+
+function tv-done {
+    {
+	echo -ne "$(pwd | awk -F '/' '{print $5}'),"
+	echo -ne "$(tr -d ',' <<< "$allrelatedfiles"),"
+	echo -e "$(date -Isec)"
+    } >> "$watch_history_tv"
+    move-to-trash-recursively "$allrelatedfiles"*
+    echolor green ":: Logged into the TV record"
+}
+
+function doc-done {
+    {
+	echo -ne "$allrelatedfiles,"
+	echo -e "$(date -Isec)"
+    } >> "$watch_history_docs"
+    move-to-trash-recursively "$allrelatedfiles"*
+    echolor green ":: Logged into the documentaries record"
+}
+
+function film-done {
+    {
+	echo -ne "$allrelatedfiles,"
+	echo -e "$(date -Isec)"
+    } >> "$watch_history_film"
+    move-to-trash-recursively "$allrelatedfiles"*
+    echolor green ":: Logged into the film record"
+}
+
+function abandon-file {
+    move-to-trash "$allrelatedfiles"*
+    [[ "$1" = "video" ]] && {
+	[[ -e "$HOME/Excluding/youtube/.$allrelatedfiles".json && "$1" ]] && {
+	    move-to-trash "$HOME/Excluding/youtube/.$allrelatedfiles".json
+	} || {
+	    echolor red ':: JSON data file not found'
+	}
+    }
+    echolor yellow ":: The ${1:-file} ““$allrelatedfiles””\n:: has been abandoned"
+}
+
+function do-nothing {
+    echolor yellow ":: Nothing was done"
+}
+
+function yt-comments {
+    	    rg -q '"comments"' "$HOME/Excluding/youtube/.$allrelatedfiles".json || {
+		yt-dlp -v -j -R 2  --write-comments                                            \
+		       --extractor-args "youtube:comment_sort=top;max_comments=100,100,0,0,1"  \
+		       "https://youtu.be/$(printf "$allrelatedfiles" | between '[' ']')"       \
+		       > "$HOME/Excluding/youtube/.$allrelatedfiles".json
+	    }
+	    jq -r                                                                                       \
+	       '.comments.[] | .author, "📣" , ._time_text, "👍", .like_count, "", .text, ""'          \
+	       "$HOME/Excluding/youtube/.$allrelatedfiles".json                                         \
+		| pad-and-wrap 60 |  bat -l txt --theme 'Solarized (dark)' 
+}
+
+
+if pwd | grep -q "$HOME/Excluding/youtube"
+then
+    choose_done="$(echo -e 'Mark as done\nDo nothing\nAbandon file\nDone and star\nSee comments' | fzf --no-input)"
+    [[ "$choose_done" = "Done and star" ]] && addstar='🌟'|| addstar=''
+    case "$choose_done" in
+	"Mark as done"|"Done and star")
+	    yt-done ;;
+	"Abandon file")
+	    abandon-file video ;;
+	"Do nothing")
+	    do-nothing ;;
+	"See comments")
+	    yt-comments
+	    choose_done="$(echo -e 'Mark as done\nDo nothing\nAbandon file\nDone and star' | fzf --no-input)"
+	    case "$choose_done" in
+		"Mark as done"|"Done and star")
+		    yt-done ;;
+		"Abandon file")
+		    yt-abandon ;;
+		"Do nothing")
+		    do-nothing ;;
+	    esac
+	    ;;
+    esac
+    exit
+fi
+
+### TV
+
+if pwd | grep -q "$HOME/TV"
+then
+    choose_done="$(echo -e 'Mark as done\nDo nothing\nAbandon file' | fzf --no-input)"
+    case "$choose_done" in
+	"Mark as done")
+	    tv-done ;;
+	"Abandon file")
+	    abandon-file episode ;;
+	"Do nothing")
+	    do-nothing ;;
+    esac
+    exit
+fi
+
+###### Docs
+
+if pwd | grep -q "$HOME/Excluding/documentaries"
+then
+    choose_done="$(echo -e 'Mark as done\nDo nothing\nAbandon file' | fzf --no-input)"
+    case "$choose_done" in
+	"Mark as done")
+	    doc-done ;;
+	"Abandon file")
+	    abandon-file documentary ;;
+	"Do nothing")
+	    do-nothing ;;
+    esac
+    exit
+fi
+
+##### Film
+
+if pwd | grep -q "$HOME/Films"
+then
+    choose_done="$(echo -e 'Mark as done\nDo nothing\nAbandon file' | fzf --no-input)"
+    case "$choose_done" in
+	"Mark as done")
+	    film-done ;;
+	"Abandon file")
+	    abandon-file film ;;	
+       	"Do nothing")
+	    do-nothing ;;
+    esac
+    exit
+fi
+
+echolor red ":: File is outside supported directories."
+exit 1

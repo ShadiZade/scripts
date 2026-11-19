@@ -556,10 +556,14 @@ function add-bib-citation-to-refs {
     echo -n "$bibkey" | xclip -selection clipboard
     grep -q "{$bibkey," "$bibfile_location" && {
 	echolor red-neonblue ":: Article ““$bibkey”” already exists in refs.bib. Not adding."
+	return 1
     } || {
 	bat -Ppl bib "$tmp_bib"
 	cat "$tmp_bib" >> "$bibfile_location"
 	echo >> "$bibfile_location"
+	grep -q 'pdf$' <<< "$1" && {
+	    mvk "$1" "$bibkey"
+	}
     }
 }
     
