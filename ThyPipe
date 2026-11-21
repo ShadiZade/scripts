@@ -150,6 +150,12 @@ function download-video {
 	    mv "$dlfile" "/tmp/ThyPipe-failed-[$id]"
 	    exit 1
 	}
+       	grep -q 'inappropriate for some users' "$dlfile" && {
+	    dunstctl close-all
+	    notify-send -u critical -t 4000 "ThyPipe" "Video $1 is age-restricted"
+	    mv "$dlfile" "/tmp/ThyPipe-impossible-$(date-string)-$(random-string 12)-[$id]"
+	    exit 1
+	}
 	grep -q 'Sign in to confirm' "$dlfile" && {
 	    dunstctl close-all
 	    notify-send -u critical -t 4000 "ThyPipe" "Sign in requested for video\n$1"

@@ -180,24 +180,153 @@ function print-name {
     fi
 }
 
+function view-spheres {
+    function 2d {
+	printf '%.2d' "$1"
+    }
+    for j in $(fd '^library' "$data_dir" | awk -F '-' '{print $2}' | sort | uniq)
+    do
+	no_of_docs="$(cat "$data_dir"/library-$j-* | wc -l)"
+	no_of_unfin="$(cat "$data_dir"/library-$j-{current,reserve} | wc -l)"
+	[[ "$no_of_docs" -eq 0 ]] && {
+	    echo -n '00'
+	    echolor white "/00: $j"
+	    continue
+	}
+	[[ "$no_of_docs" -le 5 ]] && {
+	    echo -n "$(2d "$no_of_unfin")"
+	    echolor beige "/$(2d "$no_of_docs"): $j"
+	    continue
+	}
+	[[ "$no_of_docs" -le 10 ]] && {
+	    echo -n "$(2d "$no_of_unfin")"
+	    echolor liteorange "/$(2d "$no_of_docs"): $j"
+	    continue
+	}
+	[[ "$no_of_docs" -le 20 ]] && {
+	    echo -n "$(2d "$no_of_unfin")"
+	    echolor orange "/$(2d "$no_of_docs"): $j"
+	    continue
+	}
+	[[ "$no_of_docs" -le 30 ]] && {
+	    echo -n "$(2d "$no_of_unfin")"
+	    echolor bloody "/$(2d "$no_of_docs"): $j"
+	    continue
+	}
+	[[ "$no_of_docs" -le 40 ]] && {
+	    echo -n "$(2d "$no_of_unfin")"
+	    echolor purple "/$(2d "$no_of_docs"): $j"
+	    continue
+	}
+	[[ "$no_of_docs" -le 50 ]] && {
+	    echo -n "$(2d "$no_of_unfin")"
+	    echolor blue "/$(2d "$no_of_docs"): $j"
+	    continue
+	}
+	[[ "$no_of_docs" -gt 50 ]] && {
+	    echo -n "$(2d "$no_of_unfin")"
+	    echolor neonblue "/$(2d "$no_of_docs"): $j"
+	    continue
+	}
+    done
+    
+    for j in $(fd '^retired' "$data_dir" | awk -F '-' '{print $2}' | sort | uniq)
+    do
+	echolor ashy "$(echo -e "\033[9m///// $j")"
+    done
+    exit
+}
+
+function sphere-switcher {
+    [[ "$1" = '.' ]] && view-spheres
+    grep -q ':' <<< "$1" && {
+	new_sphere="$(awk -F ':' '{print $2}' <<< "$1" | kebab | tr -d '-')"
+	sphere_command="$(awk -F ':' '{print $1}' <<< "$1" | kebab | tr -d '-')"
+    } || {
+	new_sphere="$(kebab "$1" | tr -d '-')"
+	sphere_command=switch
+    }
+    [[ -z "$new_sphere" ]] && {
+	echolor red ":: Sphere name is empty."
+	exit 1
+    }
+    case "$sphere_command" in
+	"switch")
+	    fd -q -- "library-$new_sphere-" "$data_dir" || {
+		echolor red ":: Sphere ““$new_sphere”” does not exist. Create it like this: ““zas -s new:<name>””"
+		exit 1
+	    }
+	    fd -q -- "retired-$new_sphere-" "$data_dir" && {
+		echolor red ":: The sphere ““$new_sphere”” is retired. Recall it to work like this: ““zas -s recall:<name>””"
+		exit 1
+	    }
+	    echo "$new_sphere" > "$sphere_file"
+	    echolor purple ":: Sphere switched to ““$(sed 1q "$sphere_file")””"
+	    exit 
+	    ;;
+
+	"new")
+	    fd -q -- "library-$new_sphere-" "$data_dir" && {
+		echolor red ":: Sphere ““$new_sphere”” already exists. Swicth to it like this: ““zas -s <name>””"
+		exit 1
+	    }
+	    fd -q -- "retired-$new_sphere-" "$data_dir" && {
+		echolor red ":: There is already a retired sphere called ““$new_sphere””. Recall it to work like this: ““zas -s recall:<name>””"
+		exit 1
+	    }
+	    echo "$new_sphere" > "$sphere_file"
+	    echolor purple ":: Sphere ““$(sed 1q "$sphere_file")”” switched to. Add a document to create sphere files."
+	    exit
+	    ;;
+	"retire")
+	    fd -q -- "library-$new_sphere-" "$data_dir" || {
+		echolor red ":: Sphere ““$new_sphere”” does not exist for it to be retired. Create it like this: ““zas -s new:<name>””"
+		exit 1
+	    }
+	    fd -q -- "retired-$new_sphere-" "$data_dir" && {
+		echolor red ":: There is already a retired sphere called ““$new_sphere””. Uh oh. This is not supposed to happen."
+		exit 1
+	    }
+	    [[ "$(sed 1q "$sphere_file")" = "$new_sphere" ]] && {
+		echolor red ":: You cannot retire the currently selected sphere. Select another then retire this one."
+		exit 1
+	    }
+	    rename -v -- library retired "$data_dir"/library-"$new_sphere"-*
+	    echolor purple ":: Sphere ““$new_sphere”” has been retired."
+	    ;;
+	"recall")
+	    fd -q -- "retired-$new_sphere-" "$data_dir" || {
+		echolor red ":: Retired sphere ““$new_sphere”” does not exist for it to be recalled. Create it like this: ““zas -s new:<name>””"
+		exit 1
+	    }
+	    fd -q -- "library-$new_sphere-" "$data_dir" && {
+		echolor red ":: There is already an active sphere called ““$new_sphere””. Uh oh. This is not supposed to happen."
+		exit 1
+	    }
+	    rename -v -- retired library "$data_dir"/retired-"$new_sphere"-*
+	    echolor purple ":: Sphere ““$new_sphere”” has been recalled to infinite toil. Neoliberal utopia achieved."
+	    ;;
+	"archive")
+	    fd -q -- "library-$new_sphere-" "$data_dir" || {
+		echolor red ":: Sphere ““$new_sphere”” does not exist. Create it like this: ““zas -s new:<name>””"
+		exit 1
+	    }
+	    cat "$data_dir"/library-"$new_sphere"-alldone >> "$data_dir"/archive-"$new_sphere"
+	    echo -n > "$data_dir"/library-"$new_sphere"-alldone
+	    echolor purple ":: Sphere ““$new_sphere”” has been archived. ALLDONE is now empty."
+	    ;;
+	*)
+	    echolor red ":: Unknown command ““$sphere_command””."
+	    exit 1
+	    ;;
+    esac   
+}
+
 shelf_source=0
 shelf_target=0
 while getopts 'movb:t:f:a:ds:' OPTION; do
     case "$OPTION" in
-	"s") new_sphere="$(kebab "$OPTARG" | tr -d '-')"
-	     fd -q -- "library-$new_sphere-" "$data_dir" || {
-		 continue_p=n
-		 echolor yellow ":: New sphere ““$new_sphere”” detected! Create? (y/N) " 1
-		 read -r continue_p
-		 [[ "$continue_p" = y ]] || {
-		     echolor red ":: Sphere not created. Exiting."
-		     exit 1
-		 }
-	     }
-	     echo "$new_sphere" > "$sphere_file"
-	     echolor purple ":: Sphere changed to ““$(sed 1q "$sphere_file")””"
-	     exit 
-	     ;;
+	"s") sphere-switcher "$OPTARG" ;;
 	"f") shelf_source="$OPTARG" ;;
 	"t") shelf_target="$OPTARG" ;;
 	"o") open-study ;;
